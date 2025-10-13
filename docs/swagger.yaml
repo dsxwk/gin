@@ -1,0 +1,12 @@
+host: 127.0.0.1:8080
+info:
+  contact:
+    email: 25076778@qq.com
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Gin API 文档
+  termsOfService: http://swagger.io/terms/
+  title: Gin Swagger API
+  version: "2.0"
+paths: {}
+swagger: "2.0"

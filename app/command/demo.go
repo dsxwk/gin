@@ -1,0 +1,42 @@
+package command
+
+import (
+	"fmt"
+	"gin/common/base"
+	"github.com/spf13/pflag"
+)
+
+type DemoCommand struct {
+	base.BaseCommand
+}
+
+func (m *DemoCommand) Name() string {
+	return "Demo:command"
+}
+
+func (m *DemoCommand) Description() string {
+	return "demo命令行示例"
+}
+
+func (m *DemoCommand) Help() []base.CommandOption {
+	return []base.CommandOption{
+		{"-a, --args", "示例参数, 如: arg1 (参数1必填)"},
+	}
+}
+
+func (m *DemoCommand) Execute(args []string) {
+	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
+	arg := fs.StringP("args", "a", "", "示例参数, 如: arg1 (参数1必填)")
+
+	if err := fs.Parse(args); err != nil {
+		fmt.Println("解析参数失败:", err.Error())
+		return
+	}
+
+	if *arg == "" {
+		m.ExitError("参数 --args 不能为空\nExample: go run cli.go Demo:command --args=arg1 --desc=方法描述\nHelper: go run cli.go Demo:command --help")
+		return
+	}
+
+	fmt.Printf("执行命令: %s, 参数: %s\n", m.Name(), *arg)
+}

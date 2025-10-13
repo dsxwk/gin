@@ -1,0 +1,6 @@
+/.git
+/.idea
+/.vscode
+/vendor
+/storage/cache
+/storage/logs

@@ -1,0 +1,19 @@
+package {{.Package}}
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type {{.Name}}Controller struct {
+    base.BaseController
+}
+
+// {{.Function}} {{.Description}}
+// @Router {{.Router}} [{{.Method}}]
+func (s *{{.Name}}Controller) {{.Function}}(c *gin.Context) {
+    // Define your function here
+    // s.Success(c, nil, nil))
+    s.Success(c, nil, errcode.Success())
+}

@@ -1,0 +1,13 @@
+# Config for air
+root = "."
+tmp_dir = "tmp"                   # Temp dir for .air files (default "tmp")
+bin = "tmp/main.exe"              # Binary file where your main.go compiled to
+
+[build]
+  cmd = "go build -o tmp/main.exe ."
+  bin = "tmp/main.exe"
+  include_ext = ["go", "tmpl"]    # Files to watch
+  exclude_dir = ["vendor", "common\\extend\\i18n\\locales", "storage"] # Excluded directories
+
+[log]
+  skip_dir = ["assets"]           # Directories to skip printing logs
