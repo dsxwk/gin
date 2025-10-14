@@ -1,7 +1,18 @@
 ## 中文 | [English](readme.md)
 
-## 郑重提示
-本文档由大师兄整理编写邮箱25076778@qq.com，严禁转载。 禁止将本项目用于含病毒、木马、色情、赌博、诈骗、违禁用品、假冒产品、虚假信息、数字货币、金融等违法违规业务。当前项目仅供个人学习测试，禁止一切线上商用行为，禁止一切违法使用！！！
+## 📄 License / 授权说明
+
+本项目采用双重授权（Dual License）模式：
+
+- 🟢 **开源版 (Community Edition)**：  
+  免费用于学习、研究或开源项目，禁止商业用途。  
+  参见 [LICENSE](./LICENSE)
+
+- 🔵 **商业版 (Commercial Edition)**：  
+  若需用于商业项目，请联系作者获取商业授权。  
+  参见 [LICENSE.COMMERCIAL](./LICENSE.COMMERCIAL)
+
+📧 联系作者：25076778@qq.com
 
 ## 项目地址
 Github: https://github.com/dsxwk/gin.git
@@ -103,6 +114,8 @@ Golang Gin 是一个轻量级且高效的 Golang Web 框架。它具有高性能
 ├── .gitignore                          # git忽略文件
 ├── cli.go                              # 命令行入口文件
 ├── go.mod                              # go mod
+├── LICENSE                             # 开源协议
+├── LICENSE.COMMERCIAL                  # 商业协议
 ├── main.go                             # 入口文件
 ├── readme.md                           # 英文文档
 └── readme_zh.md                        # 中文文档
