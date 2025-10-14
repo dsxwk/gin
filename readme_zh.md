@@ -6,7 +6,6 @@
 
 ## 项目地址
 - Github: https://github.com/dsxwk/gin.git
-- Github: https://github.com/dsx-wk/gin.git
 - Gitee: https://gitee.com/dsxwk/gin.git
 ## Gin框架介绍
 Gin是一个用Go语言编写的Web框架。它具有简单、快速、高效等特点，被广泛应用于Go语言的Web开发中。
