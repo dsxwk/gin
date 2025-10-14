@@ -1,27 +1,17 @@
 ## 中文 | [English](readme.md)
 
-## 📄 License / 授权说明
-
-本项目采用双重授权（Dual License）模式：
-
-- 🟢 **开源版 (Community Edition)**：  
-  免费用于学习、研究或开源项目，禁止商业用途。  
-  参见 [LICENSE](./LICENSE)
-
-- 🔵 **商业版 (Commercial Edition)**：  
-  若需用于商业项目，请联系作者获取商业授权。  
-  参见 [LICENSE.COMMERCIAL](./LICENSE.COMMERCIAL)
-
-📧 联系作者：25076778@qq.com
+## 许可说明
+- 📘 开源版：遵循 AGPL-3.0，仅供学习、研究及非商业用途。
+- 💼 商业版：如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 ## 项目地址
-Github: https://github.com/dsxwk/gin.git
-Gitee: https://gitee.com/dsxwk/gin.git
+- Github: https://github.com/dsxwk/gin.git
+- Github: https://github.com/dsx-wk/gin.git
+- Gitee: https://gitee.com/dsxwk/gin.git
 ## Gin框架介绍
 Gin是一个用Go语言编写的Web框架。它具有简单、快速、高效等特点，被广泛应用于Go语言的Web开发中。
 
 ## Gin框架的特性包括：
-
 - 快速：Gin框架基于标准库net/http，使用goroutine和channel实现异步处理，提高性能。
 - 简单：Gin框架提供了一系列的API和中间件，使得开发人员可以快速构建Web应用程序。
 - 高效：Gin框架使用sync.Pool来缓存对象，减少内存分配和释放，提高性能。
