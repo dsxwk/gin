@@ -32,7 +32,7 @@ func LoadRouters(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 路由分组
-	v1 := router.Group("api/v1")
+	v1 := router.Group("")
 	auth := v1.Group("", jwtMiddleware)
 
 	// 自动注册

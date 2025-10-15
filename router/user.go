@@ -14,8 +14,15 @@ func init() {
 
 // RegisterRoutes 注册路由
 func (r *UserRouter) RegisterRoutes(routerGroup *gin.RouterGroup) {
-	var user v1.UserController
-	routerGroup.GET("/user", user.List)
+	var (
+		user v1.UserController
+	)
+
+	router := routerGroup.Group("api/v1")
+	{
+		// 列表
+		router.POST("/user", user.List)
+	}
 }
 
 // IsAuth 是否需要鉴权

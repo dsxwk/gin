@@ -17,7 +17,12 @@ func (r *LoginRouter) RegisterRoutes(routerGroup *gin.RouterGroup) {
 	var (
 		login v1.LoginController
 	)
-	routerGroup.POST("/login", login.Login)
+
+	router := routerGroup.Group("api/v1")
+	{
+		// 登录
+		router.POST("/login", login.Login)
+	}
 }
 
 // IsAuth 是否需要鉴权

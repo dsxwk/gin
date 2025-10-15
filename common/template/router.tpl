@@ -21,10 +21,16 @@ func init() {
 // RegisterRoutes 注册路由
 func (r *{{.Name}}Router) RegisterRoutes(routerGroup *gin.RouterGroup) {
 	// var (
-	// 	 login v1.LoginController
-	// )
-	// routerGroup.POST("/login", login.Login)
-	// todo Define your routes here ...
+    //	 login v1.LoginController
+    // )
+    //
+    // router := routerGroup.Group("api/v1")
+    // {
+    //	 // 登录
+    //	 router.POST("/login", login.Login)
+    //   // ... 其他路由
+    // }
+	// todo Define your route here ...
 }
 
 // IsAuth 是否需要鉴权
