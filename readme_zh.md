@@ -223,10 +223,13 @@ go run cli.go route:list
 Method   Path                                Handler
 ---------------------------------------------------------
 GET      /ping                               gin/router.LoadRouters
-GET      /api/v1/user                        gin/app/controller/v1.(*UserController).List
+GET      /public/*filepath                   github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler
+GET      /swagger/*any                       github.com/swaggo/gin-swagger.CustomWrapHandler
+HEAD     /public/*filepath                   github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler
 POST     /api/v1/login                       gin/app/controller/v1.(*LoginController).Login
+POST     /api/v1/user                        gin/app/controller/v1.(*UserController).List
 ---------------------------------------------------------
-✅ 总计 3 条路由
+✅ 总计 6 条路由
 ```
 
 ## Air
