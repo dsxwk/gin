@@ -27,6 +27,7 @@ func (m *MakeRouter) Description() string {
 func (m *MakeRouter) Help() []base.CommandOption {
 	return []base.CommandOption{
 		{"-f, --file", "文件路径, 如: user (必填)"},
+		{"-d, --desc", "路由描述, 如: 用户路由"},
 	}
 }
 
@@ -34,6 +35,7 @@ func (m *MakeRouter) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 	_make := strings.TrimPrefix(m.Name(), "make:")
 	file := fs.StringP("file", "f", "", "文件路径, 如: user (必填)")
+	desc := fs.StringP("desc", "d", "description", "路由描述, 如: 用户路由")
 
 	if err := fs.Parse(args); err != nil {
 		fmt.Println("解析参数失败:", err.Error())
@@ -45,13 +47,13 @@ func (m *MakeRouter) Execute(args []string) {
 		return
 	}
 
-	fmt.Printf("✅ 创建路由: %s \n", *file)
+	fmt.Printf("✅ 创建路由: %s (描述: %s)\n", *file, *desc)
 	f := m.GetMakePath(*file, _make)
 
-	m.generateFile(_make, f)
+	m.generateFile(_make, f, *desc)
 }
 
-func (m *MakeRouter) generateFile(_make, file string) {
+func (m *MakeRouter) generateFile(_make, file, desc string) {
 	var (
 		rootPath = utils.GetRootPath()
 	)
@@ -100,11 +102,13 @@ func (m *MakeRouter) generateFile(_make, file string) {
 	}(f)
 
 	data := struct {
-		Package string // 提取的包名
-		Name    string // 模块名称(首字母大写)
+		Package     string // 提取的包名
+		Name        string // 模块名称(首字母大写)
+		Description string // 如果为空,使用默认值
 	}{
-		Package: packageName,
-		Name:    utils.UcFirst(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
+		Package:     packageName,
+		Name:        utils.UcFirst(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
+		Description: desc,
 	}
 
 	err = tmpl.Execute(f, data)

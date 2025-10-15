@@ -3,29 +3,21 @@ package router
 import (
 	"gin/app/middleware"
 	_ "gin/docs"
+	"gin/utils"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"net/http"
 )
 
 var (
 	jwtMiddleware = middleware.Jwt{}.Handle()
 )
 
-// Router 路由接口
-type Router interface {
-	RegisterRoutes(router *gin.RouterGroup)
-}
-
 // LoadRouters 加载路由
 func LoadRouters(router *gin.Engine) {
-	var (
-		// 统一路由分组
-		v1    = router.Group("api/v1")
-		login LoginRouter
-		user  UserRouter
-		// ... 其他路由
-	)
+	// 静态文件
+	router.StaticFS("/public", http.Dir(utils.GetRootPath()+"/public"))
 
 	// 健康检查
 	router.GET("/ping", func(c *gin.Context) {
@@ -36,17 +28,13 @@ func LoadRouters(router *gin.Engine) {
 		})
 	})
 
-	// Swagger 路由
+	// Swagger 文档
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// 登录
-	login.RegisterRoutes(v1.Group("")) // new(LoginRouter).RegisterRoutes(v1)
-
-	// 需要权限
+	// 路由分组
+	v1 := router.Group("api/v1")
 	auth := v1.Group("", jwtMiddleware)
-	{
-		// 用户
-		user.RegisterRoutes(auth)
-		// ... 其他路由
-	}
+
+	// 自动注册
+	AutoLoads(v1, auth)
 }

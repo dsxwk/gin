@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gin/router"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 // @title Gin Swagger API
@@ -22,9 +21,6 @@ func main() {
 
 	// 运行环境模式 debug模式, test测试模式, release生产模式, 默认是debug,根据当前配置文件读取
 	gin.SetMode("debug")
-
-	// 静态文件
-	r.StaticFS("/public", http.Dir("./public"))
 
 	// 设置 HTTP 请求处理文件上传时可以使用的最大内存为 90MB
 	r.MaxMultipartMemory = 90 << 20

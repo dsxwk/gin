@@ -8,12 +8,17 @@ import (
 // UserRouter 用户路由
 type UserRouter struct{}
 
-// RegisterRoutes 实现 Router 接口
-func (r UserRouter) RegisterRoutes(routerGroup *gin.RouterGroup) {
-	var (
-		user v1.UserController
-	)
+func init() {
+	Register(&UserRouter{})
+}
 
-	// 列表
+// RegisterRoutes 注册路由
+func (r *UserRouter) RegisterRoutes(routerGroup *gin.RouterGroup) {
+	var user v1.UserController
 	routerGroup.GET("/user", user.List)
+}
+
+// IsAuth 是否需要鉴权
+func (r *UserRouter) IsAuth() bool {
+	return true
 }

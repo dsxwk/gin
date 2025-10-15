@@ -1,18 +1,27 @@
 package utils
 
 import (
+	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"unicode"
 )
 
 // GetRootPath 获取项目根路径
 func GetRootPath() string {
-	_, b, _, _ := runtime.Caller(0)
-	basePath := filepath.Dir(b)
-	rootPath := filepath.Join(basePath, "..")
-	rootPath, _ = filepath.Abs(rootPath)
+	var (
+		rootPath string
+	)
+
+	execPath, err := os.Getwd()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	rootPath, err = filepath.Abs(execPath)
+	if err != nil {
+		panic(err.Error())
+	}
 
 	return strings.ReplaceAll(rootPath, "\\", "/")
 }
