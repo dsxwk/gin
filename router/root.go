@@ -2,7 +2,10 @@ package router
 
 import (
 	"gin/app/middleware"
+	_ "gin/docs"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 var (
@@ -32,6 +35,9 @@ func LoadRouters(router *gin.Engine) {
 			"data": []string{},
 		})
 	})
+
+	// Swagger 路由
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 登录
 	login.RegisterRoutes(v1.Group("")) // new(LoginRouter).RegisterRoutes(v1)

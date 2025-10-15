@@ -2,11 +2,8 @@ package main
 
 import (
 	"fmt"
-	_ "gin/docs"
 	"gin/router"
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 )
 
@@ -31,9 +28,6 @@ func main() {
 
 	// 设置 HTTP 请求处理文件上传时可以使用的最大内存为 90MB
 	r.MaxMultipartMemory = 90 << 20
-
-	// Swagger 路由
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 加载路由
 	router.LoadRouters(r)
