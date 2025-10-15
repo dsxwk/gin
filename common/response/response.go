@@ -17,6 +17,7 @@ type Response struct {
 func (r Response) JSON(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusOK, r)
+	c.Abort()
 }
 
 // Success 返回成功响应

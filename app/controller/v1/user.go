@@ -13,7 +13,5 @@ type UserController struct {
 // List 列表
 // @Router /user [get]
 func (s *UserController) List(c *gin.Context) {
-	// Define your function here
-	// s.Success(c, nil, nil))
 	s.Success(c, nil, errcode.Success())
 }

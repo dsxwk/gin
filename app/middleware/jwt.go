@@ -3,6 +3,8 @@ package middleware
 import (
 	"fmt"
 	"gin/common/base"
+	"gin/common/errcode"
+	"gin/common/response"
 	"gin/config"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -16,7 +18,19 @@ type Jwt struct {
 // Handle jwt中间件
 func (s Jwt) Handle() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		token := c.Request.Header.Get("token")
+		if token == "" || token == "null" {
+			response.Error(c, errcode.Unauthorized())
+			return
+		}
 
+		data, err := s.Decode(token)
+		if err != nil {
+			response.Error(c, errcode.Unauthorized().WithMsg(err.Error()))
+			return
+		}
+
+		c.Set("user.id", data["id"])
 		c.Next()
 	}
 }
