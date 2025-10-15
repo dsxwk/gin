@@ -16,9 +16,6 @@ var (
 
 // LoadRouters 加载路由
 func LoadRouters(router *gin.Engine) {
-	// 静态文件
-	router.StaticFS("/public", http.Dir(utils.GetRootPath()+"/public"))
-
 	// 健康检查
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -27,6 +24,9 @@ func LoadRouters(router *gin.Engine) {
 			"data": []string{},
 		})
 	})
+
+	// 静态文件
+	router.StaticFS("/public", http.Dir(utils.GetRootPath()+"/public"))
 
 	// Swagger 文档
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
