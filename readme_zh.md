@@ -1,60 +1,62 @@
 ## 中文 | [English](readme.md)
 
 ## 许可说明
-- 📘 开源版：遵循 AGPL-3.0，仅供学习、研究及非商业用途。
-- 💼 商业版：如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
+- 📘 开源版: 遵循 AGPL-3.0，仅供学习、研究及非商业用途。
+- 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 ## 项目地址
 - Github: https://github.com/dsxwk/gin.git
 - Gitee: https://gitee.com/dsxwk/gin.git
+
 ## Gin框架介绍
 Gin是一个用Go语言编写的Web框架。它具有简单、快速、高效等特点，被广泛应用于Go语言的Web开发中。
 
-## Gin框架的特性包括：
-- 快速：Gin框架基于标准库net/http，使用goroutine和channel实现异步处理，提高性能。
-- 简单：Gin框架提供了一系列的API和中间件，使得开发人员可以快速构建Web应用程序。
-- 高效：Gin框架使用sync.Pool来缓存对象，减少内存分配和释放，提高性能。
+## Gin框架的特性
+- 快速: Gin框架基于标准库net/http，使用goroutine和channel实现异步处理，提高性能。
+- 简单: Gin框架提供了一系列的API和中间件，使得开发人员可以快速构建Web应用程序。
+- 高效: Gin框架使用sync.Pool来缓存对象，减少内存分配和释放，提高性能。
 Golang Gin 是一个轻量级且高效的 Golang Web 框架。它具有高性能、易用性和灵活性等特点，被广泛应用于各种 Web 应用程序的开发。
 
 ## Gin项目介绍
-### 命令行生成
+### 命令行创建
 - 命令
 - 模型
 - 控制器
 - 服务
 - 验证器
+  - 自定义验证场景
 - 中间件
 - 路由
-- 验证器 
-  - 自定义验证场景
+  
 ### 中间件
 - 跨域
 - 多语言
 - JWT
 - 日志
+
 ### 缓存
 - 内存缓存
 - redis缓存
 - 磁盘缓存
+
 ### 事件
 - 发布
 - 订阅
-- sql事件监听
-- http事件监听
+- 取消订阅
+- 事件监听
+  - Mysql
+  - Http
+
 ### 日志
-- 错误信息记录
-- 堆栈信息记录
-- sql语句记录
-- http请求记录
+- 错误信息
+- 堆栈信息
+- Sql语句
+- Http请求
+
 ### 多语言
 #### 目前只有登录相关模块有案例,只支持中英文,如需其他模块或语言自行扩展
-- Air
-- Swagger
-- 测试用例
-- ...
 
 ## 技术栈
-
 - Gin
 - Gorm
 - Jwt
@@ -70,9 +72,9 @@ Golang Gin 是一个轻量级且高效的 Golang Web 框架。它具有高性能
 
 ## 项目结构
 ```
-├── app                                 # 应用程序代码
+├── app                                 # 应用程序
 │   ├── command                         # 命令
-│   ├── controller                      # 控制期
+│   ├── controller                      # 控制器
 │   ├── middleware                      # 中间件
 │   ├── model                           # 模型
 │   ├── request                         # 验证器
@@ -113,13 +115,13 @@ Golang Gin 是一个轻量级且高效的 Golang Web 框架。它具有高性能
 ## 命令行
 ```shell
 # 获取帮助
-go run cli.go -h # 或go run cli.go --help 查看帮助
+go run cli.go -h # go run cli.go --help
 ```
 
 ### 命令创建
 ```shell
 # 获取帮助
-go run cli.go make:command -h # 或go run cli.go make:command --help 查看帮助
+go run cli.go make:command -h # go run cli.go make:command --help
 # 创建
 go run cli.go make:command --file=cronjob/demo --desc=测试demo # 执行后会生成公共Name,如Demo::command可自行修改name
 ```
@@ -152,7 +154,7 @@ func main() {
 }
 ```
 
-#### 命令执行
+#### 执行命令
 ```shell
 go run cli.go Demo::command # 执行命令 Demo::command对应命令行文件自定义的name
 ```
@@ -175,7 +177,7 @@ E:\www\dsx\www-go\gin [master +13 ~0 -0 !]> go run cli.go Demo:command -a=111
 ### 控制器创建
 ```shell
 # 获取帮助
-go run cli.go make:controller -h # 或go run cli.go make:controller --help 查看帮助
+go run cli.go make:controller -h # go run cli.go make:controller --help 
 # 创建
 go run cli.go make:controller --file=v1/user --function=list --method=get --router=/user --desc=列表 
 ```
@@ -183,7 +185,7 @@ go run cli.go make:controller --file=v1/user --function=list --method=get --rout
 ### 服务创建
 ```shell
 # 获取帮助
-go run cli.go make:service -h # 或go run cli.go make:service --help 查看帮助
+go run cli.go make:service -h # go run cli.go make:service --help 
 # 创建
 go run cli.go make:service --file=v1/user --function=list --desc=列表
 ```
@@ -191,7 +193,7 @@ go run cli.go make:service --file=v1/user --function=list --desc=列表
 ### 中间件创建
 ```shell
 # 获取帮助
-go run cli.go make:middleware -h # 或go run cli.go make:middleware --help 查看帮助
+go run cli.go make:middleware -h # go run cli.go make:middleware --help 
 # 创建
 go run cli.go make:middleware --file=jwt --desc=jwt中间件
 ```
@@ -199,7 +201,7 @@ go run cli.go make:middleware --file=jwt --desc=jwt中间件
 ### 验证器创建
 ```shell
 # 获取帮助
-go run cli.go make:request -h # 或go run cli.go make:request --help 查看帮助
+go run cli.go make:request -h # go run cli.go make:request --help 
 # 创建
 go run cli.go make:request --file=v1/user --desc=用户请求验证
 ```
@@ -207,7 +209,7 @@ go run cli.go make:request --file=v1/user --desc=用户请求验证
 ### 路由创建
 ```shell
 # 获取帮助
-go run cli.go make:router -h # 或go run cli.go make:router --help 查看帮助
+go run cli.go make:router -h # go run cli.go make:router --help 
 # 创建
 go run cli.go make:router --file=user --desc=用户路由
 ```
