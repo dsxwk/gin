@@ -9,13 +9,13 @@
 - Gitee: https://gitee.com/dsxwk/gin.git
 
 ## Introduction to Gin Framework
-Gin is a web framework written in Go language. It has the characteristics of simplicity, speed, and efficiency, and is widely used in Go language web development.
+> Gin is a web framework written in Go language. It has the characteristics of simplicity, speed, and efficiency, and is widely used in Go language web development.
 
 ## Features of Gin Framework
 - Fast: The Gin framework is based on the standard library net/http, using goroutines and channels to implement asynchronous processing and improve performance.
 - Simple: The Gin framework provides a range of APIs and middleware, enabling developers to quickly build web applications.
 - Efficient: The Gin framework uses sync. Pool to cache objects, reducing memory allocation and release, and improving performance.
-Golang Gin is a lightweight and efficient Golang web framework. It has the characteristics of high performance, ease of use, and flexibility, and is widely used in the development of various web applications.
+> Golang Gin is a lightweight and efficient Golang web framework. It has the characteristics of high performance, ease of use, and flexibility, and is widely used in the development of various web applications.
 
 ## Introduction to Gin Project
 ### Command Line Creation
@@ -54,7 +54,7 @@ Golang Gin is a lightweight and efficient Golang web framework. It has the chara
 - Http Requests
 
 ### Language
-#### At present, only login related modules have cases, supporting only Chinese and English. If you need other modules or languages, please expand them yourself
+> At present, only login related modules have cases, supporting only Chinese and English. If you need other modules or languages, please expand them yourself
 
 ## Tech Stack
 - Gin
@@ -123,55 +123,33 @@ go run cli.go -h # go run cli.go --help
 # Get Help
 go run cli.go make:command -h # go run cli.go make:command --help
 # Create
-go run cli.go make:command --file=cronjob/demo --desc=test-demo # After execution, a public name will be generated, such as Demo::command, which can be modified by oneself
+go run cli.go make:command --file=demo --name=demo-command --desc=command-desc
 ```
 
-#### Register Command
+### Execute Command
+> Note: The created -- file is a subdirectories, for example: test/demo, the subdirectories need to be imported in cli.go
 ```go
-package main
-
 import (
-  "gin/app/command"
-  "gin/utils/cli"
-  "gin/utils/cli/make"
-  "gin/utils/cli/route"
+	_ "gin/command/test"
 )
-
-func main() {
-    // Register Command
-    cli.Register(&make.MakeCommand{})    // Command Create
-    cli.Register(&make.MakeController{}) // Controller Create
-    cli.Register(&make.MakeService{})    // Service Create
-    cli.Register(&make.MakeRequest{})    // Validation Create
-    cli.Register(&make.MakeMiddleware{}) // Middleware Create
-    cli.Register(&make.MakeRouter{})     // Router Create
-    cli.Register(&route.RouteList{})     // Route List
-    cli.Register(&command.DemoCommand{}) // Command Demo
-    // ... Register other commands
-	
-    // execute command
-    cli.Execute()
-}
 ```
-
-#### Execute Command
 ```shell
-go run cli.go Demo::command # Execute command Demo::command corresponds to the custom name of the command line file
+go run cli.go demo-command # Execute command demo-command corresponds to the custom name of the command line file
 ```
 ```base
-E:\www\dsx\www-go\gin [master +13 ~0 -0 !]> go run cli.go Demo:command       
+E:\www\dsx\www-go\gin [master +13 ~0 -0 !]> go run cli.go demo-command       
 ❌  Parameter --args cannot be empty
-Example: go run cli.go Demo:command --args=arg1 --desc=func-desc
-Helper: go run cli.go Demo:command --help
+Example: go run cli.go demo-command --args=arg1 --desc=command-desc
+Helper: go run cli.go demo-command --help
 exit status 1
-E:\www\dsx\www-go\gin [master +14 ~0 -0 !]> go run cli.go Demo:command -h
+E:\www\dsx\www-go\gin [master +14 ~0 -0 !]> go run cli.go demo-command -h
 
-Demo:command - Demo Command Example
+demo-command - command-desc
 
 Options:
   -a, --args  Example parameter, such as arg1 (arg1 is required)
-E:\www\dsx\www-go\gin [master +13 ~0 -0 !]> go run cli.go Demo:command -a=111
-Execute Command: Demo:command, Parameter: 111
+E:\www\dsx\www-go\gin [master +13 ~0 -0 !]> go run cli.go demo-command -a=111
+Execute Command: demo-command, Parameter: 111
 ```
 
 ### Controller Creation

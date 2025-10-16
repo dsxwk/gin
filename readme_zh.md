@@ -9,13 +9,13 @@
 - Gitee: https://gitee.com/dsxwk/gin.git
 
 ## Gin框架介绍
-Gin是一个用Go语言编写的Web框架。它具有简单、快速、高效等特点，被广泛应用于Go语言的Web开发中。
+> Gin是一个用Go语言编写的Web框架。它具有简单、快速、高效等特点，被广泛应用于Go语言的Web开发中。
 
 ## Gin框架的特性
 - 快速: Gin框架基于标准库net/http，使用goroutine和channel实现异步处理，提高性能。
 - 简单: Gin框架提供了一系列的API和中间件，使得开发人员可以快速构建Web应用程序。
 - 高效: Gin框架使用sync.Pool来缓存对象，减少内存分配和释放，提高性能。
-Golang Gin 是一个轻量级且高效的 Golang Web 框架。它具有高性能、易用性和灵活性等特点，被广泛应用于各种 Web 应用程序的开发。
+> Golang Gin 是一个轻量级且高效的 Golang Web 框架。它具有高性能、易用性和灵活性等特点，被广泛应用于各种 Web 应用程序的开发。
 
 ## Gin项目介绍
 ### 命令行创建
@@ -54,7 +54,7 @@ Golang Gin 是一个轻量级且高效的 Golang Web 框架。它具有高性能
 - Http请求
 
 ### 多语言
-#### 目前只有登录相关模块有案例,只支持中英文,如需其他模块或语言自行扩展
+> 目前只有登录相关模块有案例,只支持中英文,如需其他模块或语言自行扩展
 
 ## 技术栈
 - Gin
@@ -123,55 +123,34 @@ go run cli.go -h # go run cli.go --help
 # 获取帮助
 go run cli.go make:command -h # go run cli.go make:command --help
 # 创建
-go run cli.go make:command --file=cronjob/demo --desc=测试demo # 执行后会生成公共Name,如Demo::command可自行修改name
+go run cli.go make:command --file=demo --name=demo-command --desc=command-desc
 ```
 
-#### 命令注册
+### 执行命令
+> 注意: 创建的--file为子目录,如: test/demo 则需要在cli.go 导入子目录
 ```go
-package main
-
 import (
-  "gin/app/command"
-  "gin/utils/cli"
-  "gin/utils/cli/make"
-  "gin/utils/cli/route"
+	_ "gin/command/test"
 )
-
-func main() {
-    // 注册命令
-    cli.Register(&make.MakeCommand{})    // 命令行创建
-    cli.Register(&make.MakeController{}) // 控制器创建
-    cli.Register(&make.MakeService{})    // 服务创建
-    cli.Register(&make.MakeRequest{})    // 验证请求创建
-    cli.Register(&make.MakeMiddleware{}) // 中间件创建
-    cli.Register(&make.MakeRouter{})     // 路由创建
-    cli.Register(&route.RouteList{})     // 路由列表
-    cli.Register(&command.DemoCommand{}) // 命令行demo
-    // ... 注册其他命令
-	
-    // 执行命令
-    cli.Execute()
-}
 ```
-
-#### 执行命令
 ```shell
-go run cli.go Demo::command # 执行命令 Demo::command对应命令行文件自定义的name
+go run cli.go demo-command # 执行命令 demo-command对应命令行文件自定义的name
 ```
 ```base
-E:\www\dsx\www-go\gin [master +13 ~0 -0 !]> go run cli.go Demo:command       
+E:\www\dsx\www-go\gin [master +2 ~13 -0 !]> go run .\cli.go demo-command                                   
 ❌  参数 --args 不能为空
-Example: go run cli.go Demo:command --args=arg1 --desc=方法描述
+Example: go run cli.go Demo:command --args=arg1 --desc=test-demo
 Helper: go run cli.go Demo:command --help
 exit status 1
-E:\www\dsx\www-go\gin [master +14 ~0 -0 !]> go run cli.go Demo:command -h
+E:\www\dsx\www-go\gin [master +1 ~13 -0 !]> go run .\cli.go demo-command -h
 
-Demo:command - demo命令行示例
+demo-command - command-desc
 
 Options:
   -a, --args  示例参数, 如: arg1 (参数1必填)
-E:\www\dsx\www-go\gin [master +13 ~0 -0 !]> go run cli.go Demo:command -a=111
-执行命令: Demo:command, 参数: 111
+
+E:\www\dsx\www-go\gin [master +13 ~0 -0 !]> go run cli.go demo-command -a=111
+执行命令: demo-command, 参数: 111
 ```
 
 ### 控制器创建
