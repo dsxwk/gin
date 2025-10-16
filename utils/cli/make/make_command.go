@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gin/common/base"
 	"gin/utils"
+	"gin/utils/cli"
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
 	"html/template"
@@ -27,7 +28,8 @@ func (m *MakeCommand) Description() string {
 func (m *MakeCommand) Help() []base.CommandOption {
 	return []base.CommandOption{
 		{"-f, --file", "文件路径, 如: cronjob/demo (必填)"},
-		{"-d, --desc", "描述, 如: 列表"},
+		{"-m, --name", "命令名称, 如: demo.command"},
+		{"-d, --desc", "描述, 如: demo-desc"},
 	}
 }
 
@@ -35,7 +37,8 @@ func (m *MakeCommand) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 	_make := strings.TrimPrefix(m.Name(), "make:")
 	file := fs.StringP("file", "f", "", "文件路径, 如: cronjob/demo (必填)")
-	desc := fs.StringP("desc", "d", "", "demo命令行示例")
+	command := fs.StringP("name", "m", "", "demo.command")
+	desc := fs.StringP("desc", "d", "", "command-desc")
 
 	if err := fs.Parse(args); err != nil {
 		fmt.Println("解析参数失败:", err.Error())
@@ -43,17 +46,21 @@ func (m *MakeCommand) Execute(args []string) {
 	}
 
 	if *file == "" {
-		m.ExitError("请使用 --file 指定文件路径\nExample: go run cli.go make:command --file=cronjob/demo --desc=demo命令行示例\nHelper: go run cli.go make:command --help")
+		m.ExitError("请使用 --file 指定文件路径\nExample: go run cli.go make:command --file=demo --desc=command-desc\nHelper: go run cli.go make:command --help")
 		return
 	}
 
-	fmt.Printf("✅ 创建命令行: %s (描述: %s)\n", *file, *desc)
+	fmt.Printf("✅ 创建命令: %s (命令: %s 描述: %s)\n", *file, *command, *desc)
 	f := m.GetMakePath(*file, _make)
 
-	m.generateFile(_make, f, *desc)
+	m.generateFile(_make, f, *command, *desc)
 }
 
-func (m *MakeCommand) generateFile(_make, file, desc string) {
+func init() {
+	cli.AutoRegister(&MakeCommand{})
+}
+
+func (m *MakeCommand) generateFile(_make, file, command, desc string) {
 	var (
 		rootPath = utils.GetRootPath()
 	)
@@ -104,10 +111,12 @@ func (m *MakeCommand) generateFile(_make, file, desc string) {
 	data := struct {
 		Package     string // 提取的包名
 		Name        string // 模块名称(首字母大写)
+		Command     string // 如果为空,使用默认值
 		Description string // 如果为空,使用默认值
 	}{
 		Package:     packageName,
 		Name:        utils.UcFirst(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
+		Command:     command,
 		Description: desc,
 	}
 

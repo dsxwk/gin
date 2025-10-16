@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"gin/common/base"
+	"gin/utils/cli"
 	"github.com/spf13/pflag"
 )
 
@@ -11,11 +12,11 @@ type DemoCommand struct {
 }
 
 func (m *DemoCommand) Name() string {
-	return "Demo:command"
+	return "demo-command"
 }
 
 func (m *DemoCommand) Description() string {
-	return "demo命令行示例"
+	return "test-demo"
 }
 
 func (m *DemoCommand) Help() []base.CommandOption {
@@ -34,9 +35,13 @@ func (m *DemoCommand) Execute(args []string) {
 	}
 
 	if *arg == "" {
-		m.ExitError("参数 --args 不能为空\nExample: go run cli.go Demo:command --args=arg1 --desc=方法描述\nHelper: go run cli.go Demo:command --help")
+		m.ExitError("参数 --args 不能为空\nExample: go run cli.go Demo:command --args=arg1 --desc=test-demo\nHelper: go run cli.go Demo:command --help")
 		return
 	}
 
 	fmt.Printf("执行命令: %s, 参数: %s\n", m.Name(), *arg)
+}
+
+func init() {
+	cli.AutoRegister(&DemoCommand{})
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gin/common/base"
 	"gin/utils"
+	"gin/utils/cli"
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
 	"html/template"
@@ -53,6 +54,10 @@ func (m *MakeService) Execute(args []string) {
 	f := m.GetMakePath(*file, _make)
 
 	m.generateFile(_make, f, *function, *desc)
+}
+
+func init() {
+	cli.AutoRegister(&MakeService{})
 }
 
 func (m *MakeService) generateFile(_make, file, function, desc string) {

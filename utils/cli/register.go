@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// 全局命令注册表
+// 全局命令注册
 var commands = map[string]base.Command{}
 
 // Register 注册命令
@@ -91,6 +91,17 @@ func Execute() {
 
 	// 执行子命令
 	cmd.Execute(cmdArgs)
+}
+
+// AutoRegister 自动注册
+func AutoRegister(cmd base.Command) {
+	name := cmd.Name()
+	if _, exists := commands[name]; exists {
+		color.Yellow("⚠️  Command \"%s\" already registered, skipped.", name)
+		return
+	}
+	commands[name] = cmd
+	// color.Green("✅  Registered command: %s", name)
 }
 
 // extractFlag 提取未知flag

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gin/common/base"
 	"gin/utils"
+	"gin/utils/cli"
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
 	"html/template"
@@ -51,6 +52,10 @@ func (m *MakeRequest) Execute(args []string) {
 	f := m.GetMakePath(*file, _make)
 
 	m.generateFile(_make, f, *desc)
+}
+
+func init() {
+	cli.AutoRegister(&MakeRequest{})
 }
 
 func (m *MakeRequest) generateFile(_make, file, desc string) {

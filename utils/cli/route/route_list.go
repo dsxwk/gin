@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gin/common/base"
 	"gin/router"
+	"gin/utils/cli"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"strings"
@@ -51,6 +52,10 @@ func (s *RouteList) Execute(args []string) {
 
 	fmt.Println("---------------------------------------------------------")
 	fmt.Printf("✅ 总计 %d 条路由\n", len(routes))
+}
+
+func init() {
+	cli.AutoRegister(&RouteList{})
 }
 
 func (s *RouteList) formatHandlerName(handler string) string {

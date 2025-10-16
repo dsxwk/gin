@@ -3,6 +3,7 @@ package {{.Package}}
 import (
 	"fmt"
 	"gin/common/base"
+	"gin/utils/cli"
 	"github.com/spf13/pflag"
 )
 
@@ -11,7 +12,11 @@ type {{.Name}}Command struct {
 }
 
 func (m *{{.Name}}Command) Name() string {
-	return "{{.Name}}:command"
+    {{- if eq .Command "" }}
+    return "{{.Name}}-command"
+    {{- else }}
+    return "{{.Command}}"
+    {{- end }}
 }
 
 func (m *{{.Name}}Command) Description() string {
@@ -39,4 +44,8 @@ func (m *{{.Name}}Command) Execute(args []string) {
     }
 
     fmt.Printf("执行命令: %s, 参数: %s\n", m.Name(), *arg)
+}
+
+func init() {
+	cli.AutoRegister(&{{.Name}}Command{})
 }
