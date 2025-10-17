@@ -16,7 +16,13 @@ var commands = map[string]base.Command{}
 
 // Register 注册命令
 func Register(cmd base.Command) {
-	commands[cmd.Name()] = cmd
+	name := cmd.Name()
+	if _, exists := commands[name]; exists {
+		color.Yellow("⚠️  Command \"%s\" already registered, skipped.", name)
+		os.Exit(1)
+	}
+
+	commands[name] = cmd
 }
 
 // Get 获取命令
@@ -120,17 +126,6 @@ func Execute() {
 
 	// 执行子命令
 	cmd.Execute(cmdArgs)
-}
-
-// AutoLoads 自动加载
-func AutoLoads(cmd base.Command) {
-	name := cmd.Name()
-	if _, exists := commands[name]; exists {
-		color.Yellow("⚠️  Command \"%s\" already registered, skipped.", name)
-		return
-	}
-	commands[name] = cmd
-	// color.Green("✅  Registered command: %s", name)
 }
 
 // extractFlag 提取未知flag
