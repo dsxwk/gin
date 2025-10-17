@@ -116,7 +116,7 @@ func (m *MakeService) generateFile(_make, file, function, desc string) {
 	}{
 		Package:     packageName,
 		Name:        utils.UcFirst(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
-		Function:    function,
+		Function:    utils.UcFirst(function),
 		Description: desc,
 	}
 

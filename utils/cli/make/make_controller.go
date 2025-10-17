@@ -123,7 +123,7 @@ func (m *MakeController) generateFile(_make, file, function, method, router, des
 	}{
 		Package:     packageName,
 		Name:        utils.UcFirst(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
-		Function:    function,
+		Function:    utils.UcFirst(function),
 		Router:      router,
 		Method:      method,
 		Description: desc,
