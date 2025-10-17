@@ -178,7 +178,7 @@ E:\www\dsx\www-go\gin [master]> go run cli.go -f=json
 }
 ```
 
-### Command Creation
+### Create Command
 ```shell
 # Get Help
 go run cli.go make:command -h # go run cli.go make:command --help
@@ -210,7 +210,7 @@ E:\www\dsx\www-go\gin [master]> go run cli.go demo-command -a=111
 Execute Command: demo-command, Parameter: 111
 ```
 
-### Controller Creation
+### Create Controller
 ```shell
 # Get Help
 go run cli.go make:controller -h # go run cli.go make:controller --help
@@ -218,7 +218,7 @@ go run cli.go make:controller -h # go run cli.go make:controller --help
 go run cli.go make:controller --file=v1/user --function=list --method=get --router=/user --desc=list 
 ```
 
-### Service Creation
+### Create Service
 ```shell
 # Get Help
 go run cli.go make:service -h # go run cli.go make:service --help 
@@ -226,7 +226,7 @@ go run cli.go make:service -h # go run cli.go make:service --help
 go run cli.go make:service --file=v1/user --function=list --desc=list
 ```
 
-### Middleware Creation
+### Create Middleware
 ```shell
 # Get Help
 go run cli.go make:middleware -h # go run cli.go make:middleware --help
@@ -234,7 +234,7 @@ go run cli.go make:middleware -h # go run cli.go make:middleware --help
 go run cli.go make:middleware --file=jwt --desc=jwt-middleware
 ```
 
-### Validator Creation
+### Create Validator
 ```shell
 # Get Help
 go run cli.go make:request -h # go run cli.go make:request --help 
@@ -242,7 +242,7 @@ go run cli.go make:request -h # go run cli.go make:request --help
 go run cli.go make:request --file=v1/user --desc=user-validator
 ```
 
-### Router Creation
+### Create Router
 ```shell
 # Get Help
 go run cli.go make:router -h # go run cli.go make:router --help
@@ -265,6 +265,14 @@ POST     /api/v1/login                       gin/app/controller/v1.(*LoginContro
 POST     /api/v1/user                        gin/app/controller/v1.(*UserController).List
 ---------------------------------------------------------
 ✅ A total of 6 routes
+```
+
+## Create Model
+```shell
+# Get Help
+go run cli.go make:model -h # go run cli.go make:model --help 
+# Create
+go run cli.go make:model --table=user
 ```
 
 ## Air

@@ -268,6 +268,14 @@ POST     /api/v1/user                        gin/app/controller/v1.(*UserControl
 ✅ 总计 6 条路由
 ```
 
+## 模型创建
+```shell
+# 获取帮助
+go run cli.go make:model -h # go run cli.go make:model --help 
+# 创建
+go run cli.go make:model --table=user
+```
+
 ## Air
 ### 安装
 ```shell
