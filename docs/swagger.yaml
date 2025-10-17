@@ -1,3 +1,123 @@
+definitions:
+  errcode.ArgsErrorResponse:
+    properties:
+      code:
+        example: 400
+        type: integer
+      data:
+        items:
+          type: string
+        type: array
+      msg:
+        example: Invalid arguments
+        type: string
+    type: object
+  errcode.LoginData:
+    properties:
+      token:
+        $ref: '#/definitions/errcode.TokenData'
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  errcode.LoginResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/errcode.LoginData'
+      msg:
+        example: Success
+        type: string
+    type: object
+  errcode.SystemErrorResponse:
+    properties:
+      code:
+        example: 500
+        type: integer
+      data:
+        items:
+          type: string
+        type: array
+      msg:
+        example: Internal server error
+        type: string
+    type: object
+  errcode.TokenData:
+    properties:
+      accessToken:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      refreshToken:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      refreshTokenExpire:
+        example: 172800
+        type: integer
+      tokenExpire:
+        example: 7200
+        type: integer
+    type: object
+  model.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  model.User:
+    properties:
+      age:
+        description: 年龄
+        type: integer
+      avatar:
+        description: 头像
+        type: string
+      createdAt:
+        description: 创建时间
+        type: string
+      deletedAt:
+        allOf:
+        - $ref: '#/definitions/model.DeletedAt'
+        description: 删除时间
+      email:
+        description: 邮箱
+        type: string
+      fullName:
+        description: 姓名
+        type: string
+      gender:
+        description: 性别 1=男 2=女
+        type: integer
+      id:
+        description: ID
+        type: integer
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 密码
+        type: string
+      status:
+        description: 状态 1=启用 2=停用
+        type: integer
+      updatedAt:
+        description: 更新时间
+        type: string
+      username:
+        description: 用户名
+        type: string
+    type: object
+  swagger.Login:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
 host: 127.0.0.1:8080
 info:
   contact:
@@ -8,5 +128,38 @@ info:
   termsOfService: http://swagger.io/terms/
   title: Gin Swagger API
   version: "2.0"
-paths: {}
+paths:
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录
+      parameters:
+      - description: 登录参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            $ref: '#/definitions/errcode.LoginResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/errcode.ArgsErrorResponse'
+        "500":
+          description: 系统错误
+          schema:
+            $ref: '#/definitions/errcode.SystemErrorResponse'
+      summary: 登录
+      tags:
+      - 登录相关
+  /user:
+    get:
+      responses: {}
 swagger: "2.0"

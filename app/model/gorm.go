@@ -48,3 +48,36 @@ func (t *JsonTime) Scan(value interface{}) error {
 		return fmt.Errorf("cannot convert %v to timestamp", value)
 	}
 }
+
+// DeletedAt 自定义删除时间类型，用于 swagger 展示
+type DeletedAt struct {
+	Time  *time.Time `json:"time,omitempty"`
+	Valid bool       `json:"valid"`
+}
+
+// Scan 实现 sql.Scanner
+func (d *DeletedAt) Scan(value interface{}) error {
+	if value == nil {
+		d.Time = nil
+		d.Valid = false
+		return nil
+	}
+
+	switch v := value.(type) {
+	case time.Time:
+		d.Time = &v
+		d.Valid = true
+	default:
+		return fmt.Errorf("unsupported type: %T", value)
+	}
+
+	return nil
+}
+
+// Value 实现 driver.Valuer
+func (d DeletedAt) Value() (driver.Value, error) {
+	if !d.Valid || d.Time == nil {
+		return nil, nil
+	}
+	return *d.Time, nil
+}

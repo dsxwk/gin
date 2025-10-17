@@ -36,7 +36,7 @@ func (m *MakeRequest) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 	_make := strings.TrimPrefix(m.Name(), "make:")
 	file := fs.StringP("file", "f", "", "文件路径, 如: user (必填)")
-	desc := fs.StringP("desc", "d", "", "描述")
+	desc := fs.StringP("desc", "d", "Validator", "描述")
 
 	if err := fs.Parse(args); err != nil {
 		fmt.Println("解析参数失败:", err.Error())
@@ -44,7 +44,7 @@ func (m *MakeRequest) Execute(args []string) {
 	}
 
 	if *file == "" {
-		m.ExitError("请使用 --file 指定文件路径\nExample: go run cli.go make:request --file=v1/user --desc=方法描述\nHelper: go run cli.go make:request --help")
+		m.ExitError("请使用 --file 指定文件路径\nExample: go run cli.go make:request --file=v1/user --desc=validator-desc\nHelper: go run cli.go make:request --help")
 		return
 	}
 

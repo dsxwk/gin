@@ -127,7 +127,11 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		"datetime": func(detailType gorm.ColumnType) (dataType string) {
 			// 针对 deleted_at 字段特殊处理
 			if detailType.Name() == "deleted_at" {
-				return "gorm.DeletedAt"
+				if pkg != "model" {
+					return "*model.DeletedAt"
+				} else {
+					return "*DeletedAt"
+				}
 			}
 
 			if pkg != "model" {

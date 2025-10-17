@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+	"golang.org/x/crypto/bcrypt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -110,4 +113,26 @@ func CamelToSnake(s string) string {
 		}
 	}
 	return b.String()
+}
+
+// BcryptCheck 对比明文密码和数据库的哈希值
+func BcryptCheck(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+
+	return err == nil
+}
+
+// Md5 md5加密
+func Md5(str []byte, b ...byte) string {
+	h := md5.New()
+	h.Write(str)
+
+	return hex.EncodeToString(h.Sum(b))
+}
+
+// HasKey 检查map键名是否存在
+func HasKey(data map[string]interface{}, key string) bool {
+	_, exists := data[key]
+
+	return exists
 }
