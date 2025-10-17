@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql/driver"
 	"fmt"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -49,35 +50,13 @@ func (t *JsonTime) Scan(value interface{}) error {
 	}
 }
 
-// DeletedAt 自定义删除时间类型，用于 swagger 展示
 type DeletedAt struct {
-	Time  *time.Time `json:"time,omitempty"`
-	Valid bool       `json:"valid"`
+	gorm.DeletedAt
 }
 
-// Scan 实现 sql.Scanner
-func (d *DeletedAt) Scan(value interface{}) error {
-	if value == nil {
-		d.Time = nil
-		d.Valid = false
-		return nil
+func (d DeletedAt) MarshalJSON() ([]byte, error) {
+	if !d.Valid {
+		return []byte(`null`), nil
 	}
-
-	switch v := value.(type) {
-	case time.Time:
-		d.Time = &v
-		d.Valid = true
-	default:
-		return fmt.Errorf("unsupported type: %T", value)
-	}
-
-	return nil
-}
-
-// Value 实现 driver.Valuer
-func (d DeletedAt) Value() (driver.Value, error) {
-	if !d.Valid || d.Time == nil {
-		return nil, nil
-	}
-	return *d.Time, nil
+	return []byte(fmt.Sprintf(`"%s"`, d.Time.Format("2006-01-02 15:04:05"))), nil
 }

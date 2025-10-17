@@ -78,9 +78,83 @@ const docTemplate = `{
                 }
             }
         },
-        "/user": {
+        "/api/v1/user": {
             "get": {
-                "responses": {}
+                "description": "用户列表",
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "认证Token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "分页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "登录成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/errcode.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/request.PageData"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/model.User"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/errcode.ArgsErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "系统错误",
+                        "schema": {
+                            "$ref": "#/definitions/errcode.SystemErrorResponse"
+                        }
+                    }
+                }
             }
         }
     },
@@ -127,17 +201,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
         "model.User": {
             "type": "object",
             "properties": {
@@ -152,14 +215,6 @@ const docTemplate = `{
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
-                },
-                "deletedAt": {
-                    "description": "删除时间",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.DeletedAt"
-                        }
-                    ]
                 },
                 "email": {
                     "description": "邮箱",
@@ -196,6 +251,31 @@ const docTemplate = `{
                 "username": {
                     "description": "用户名",
                     "type": "string"
+                }
+            }
+        },
+        "request.PageData": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "数据列表"
+                },
+                "notPage": {
+                    "description": "不分页",
+                    "type": "boolean",
+                    "example": false
+                },
+                "page": {
+                    "description": "当前页",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页条数",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总条数",
+                    "type": "integer"
                 }
             }
         },

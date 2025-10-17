@@ -32,7 +32,7 @@ func (s {{.Name}}) GetValidate(data {{.Name}}, scene string) error {
 // - 也可以添加验证设置
 func (s {{.Name}}) ConfigValidation(v *validate.Validation) {
 	v.WithScenes(validate.SValues{
-		"list":   []string{"Page", "PageSize"},
+		"list":   []string{"PageListValidate.Page", "PageListValidate.PageSize"},
 		"create": []string{},
 		"update": []string{"ID"},
 		"detail": []string{"ID"},

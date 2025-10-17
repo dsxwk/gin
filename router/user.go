@@ -21,7 +21,7 @@ func (r *UserRouter) RegisterRoutes(routerGroup *gin.RouterGroup) {
 	router := routerGroup.Group("api/v1")
 	{
 		// 列表
-		router.POST("/user", user.List)
+		router.GET("/user", user.List)
 	}
 }
 

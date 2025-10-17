@@ -6,6 +6,7 @@ import (
 	"gin/router"
 	"gin/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/mattn/go-runewidth"
 )
 
 // @title Gin Swagger API
@@ -37,15 +38,45 @@ func main() {
 	// 加载路由
 	router.LoadRouters(r)
 
+	data := map[string]interface{}{
+		"应用":  config.Conf.App.Name,
+		"环境":  config.GetString("app.env"),
+		"端口":  config.Conf.App.Port,
+		"数据库": config.Conf.Mysql.Database,
+	}
+
 	// 启动提示
-	fmt.Printf("✅ 应用：%s\n", config.Conf.App.Name)
-	fmt.Printf("🌍 环境：%s\n", config.GetString("app.env"))
-	fmt.Printf("🚪 端口：%d\n", config.Conf.App.Port)
-	fmt.Printf("🗄️ 数据库：%s\n", config.Conf.Mysql.Database)
+	PrintAligned(data)
 	fmt.Println("✅  Gin server started successfully!")
 	fmt.Println("✅  0.0.0.0:" + utils.IntToString(config.Conf.App.Port))
-	fmt.Println("👉  Open Swagger: http://127.0.0.1:" + utils.IntToString(config.Conf.App.Port) + "/swagger/index.html")
-	fmt.Println("👉  Test API: http://127.0.0.1:" + utils.IntToString(config.Conf.App.Port) + "/ping")
+	fmt.Println("👉 Open Swagger: http://127.0.0.1:" + utils.IntToString(config.Conf.App.Port) + "/swagger/index.html")
+	fmt.Println("👉 Test API: http://127.0.0.1:" + utils.IntToString(config.Conf.App.Port) + "/ping")
 
 	_ = r.Run(":" + utils.IntToString(config.Conf.App.Port))
+}
+
+// PrintAligned 打印冒号对齐,支持中文
+func PrintAligned(data map[string]interface{}) {
+	// 找出最长key的显示宽度
+	maxLen := 0
+	for k := range data {
+		w := runewidth.StringWidth(k)
+		if w > maxLen {
+			maxLen = w
+		}
+	}
+
+	// 打印
+	for k, v := range data {
+		padding := maxLen - runewidth.StringWidth(k) + 2
+		fmt.Printf("%s:%s%v\n", k, spaces(padding), v)
+	}
+}
+
+// spaces 生成n个空格
+func spaces(n int) string {
+	if n <= 0 {
+		return ""
+	}
+	return fmt.Sprintf("%*s", n, "")
 }

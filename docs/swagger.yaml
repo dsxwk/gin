@@ -29,13 +29,6 @@ definitions:
         example: Internal server error
         type: string
     type: object
-  model.DeletedAt:
-    properties:
-      time:
-        type: string
-      valid:
-        type: boolean
-    type: object
   model.User:
     properties:
       age:
@@ -47,10 +40,6 @@ definitions:
       createdAt:
         description: 创建时间
         type: string
-      deletedAt:
-        allOf:
-        - $ref: '#/definitions/model.DeletedAt'
-        description: 删除时间
       email:
         description: 邮箱
         type: string
@@ -78,6 +67,24 @@ definitions:
       username:
         description: 用户名
         type: string
+    type: object
+  request.PageData:
+    properties:
+      list:
+        description: 数据列表
+      notPage:
+        description: 不分页
+        example: false
+        type: boolean
+      page:
+        description: 当前页
+        type: integer
+      pageSize:
+        description: 每页条数
+        type: integer
+      total:
+        description: 总条数
+        type: integer
     type: object
   request.UserLogin:
     properties:
@@ -157,7 +164,51 @@ paths:
       summary: 登录
       tags:
       - 登录相关
-  /user:
+  /api/v1/user:
     get:
-      responses: {}
+      description: 用户列表
+      parameters:
+      - description: 认证Token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        required: true
+        type: string
+      - description: 分页大小
+        in: query
+        name: pageSize
+        required: true
+        type: string
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/errcode.SuccessResponse'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/request.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.User'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/errcode.ArgsErrorResponse'
+        "500":
+          description: 系统错误
+          schema:
+            $ref: '#/definitions/errcode.SystemErrorResponse'
+      summary: 列表
+      tags:
+      - 用户管理
 swagger: "2.0"

@@ -14,6 +14,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -50,8 +51,7 @@ func (m *MakeModel) Execute(args []string) {
 
 	if *table == "" {
 		m.ExitError(`请使用 --table 指定表名
-Example: 
-  go run cli.go make:model --table=user
+Example: go run cli.go make:model --table=user
   
 Helper: go run cli.go make:model --help
 `)
@@ -164,6 +164,34 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 	}
 
 	g.Execute()
+
+	// 自动追加 swaggerignore:"true"
+	files, _ := os.ReadDir(path)
+	for _, file := range files {
+		if !strings.HasSuffix(file.Name(), ".go") {
+			continue
+		}
+		filePath := filepath.Join(path, file.Name())
+		content, err := os.ReadFile(filePath)
+		if err != nil {
+			continue
+		}
+		text := string(content)
+
+		re := regexp.MustCompile("(`[^`]*json:\"deletedAt\"[^`]*`)")
+
+		text = re.ReplaceAllStringFunc(text, func(match string) string {
+			if strings.Contains(match, "swaggerignore") {
+				return match
+			}
+			return strings.TrimSuffix(match, "`") + " swaggerignore:\"true\"`"
+		})
+
+		if err := os.WriteFile(filePath, []byte(text), 0644); err == nil {
+			color.Blue("✏️ 已为文件 %s 添加 swaggerignore", file.Name())
+		}
+	}
+
 	color.Green("✅ 模型生成成功! 输出目录: %s", path)
 
 	_ = os.RemoveAll(outPath)
