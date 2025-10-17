@@ -33,6 +33,35 @@ func Execute() {
 		return
 	}
 
+	// 全局选项
+	switch args[0] {
+	case "-h", "--help":
+		printUsage("txt")
+		return
+	case "-v", "--version":
+		color.Green("Gin CLI v1.0.0")
+		return
+	}
+
+	if strings.HasPrefix(args[0], "-f") || strings.HasPrefix(args[0], "--format") {
+		format := "txt"
+
+		// 支持三种写法：
+		//   -f json
+		//   -f=json
+		//   --format=json
+		if len(args) > 1 && !strings.Contains(args[0], "=") {
+			format = args[1]
+		} else if strings.Contains(args[0], "=") {
+			parts := strings.SplitN(args[0], "=", 2)
+			if len(parts) == 2 {
+				format = parts[1]
+			}
+		}
+		printUsage(format)
+		return
+	}
+
 	// 子命令名
 	name := args[0]
 	cmdArgs := args[1:]
@@ -46,8 +75,8 @@ func Execute() {
 	}
 
 	// 如果子命令参数中包含 -h 或 --help，直接打印子命令帮助
-	for _, a := range cmdArgs {
-		if a == "-h" || a == "--help" {
+	for _, arg := range cmdArgs {
+		if arg == "-h" || arg == "--help" {
 			printCommandHelp(cmd)
 			return
 		}
@@ -93,8 +122,8 @@ func Execute() {
 	cmd.Execute(cmdArgs)
 }
 
-// AutoRegister 自动注册
-func AutoRegister(cmd base.Command) {
+// AutoLoads 自动加载
+func AutoLoads(cmd base.Command) {
 	name := cmd.Name()
 	if _, exists := commands[name]; exists {
 		color.Yellow("⚠️  Command \"%s\" already registered, skipped.", name)
@@ -172,7 +201,7 @@ func printText() {
 		flag string
 		desc string
 	}{
-		{"--format=txt", "The output format (txt, json) [default: \"txt\"]"},
+		{"-f, --format", "The output format (txt, json) [default: \"txt\"]"},
 		{"-h, --help", "Display help for the given command. When no command is given display help for the list command"},
 		{"-v, --version", "Display this application version"},
 	}
@@ -214,5 +243,6 @@ func printJSON() {
 	}
 
 	jsonData, _ := json.MarshalIndent(data, "", "  ")
-	fmt.Println(string(jsonData))
+	color.Green(string(jsonData))
+	fmt.Println()
 }

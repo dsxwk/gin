@@ -57,7 +57,7 @@ func (m *MakeCommand) Execute(args []string) {
 }
 
 func init() {
-	cli.AutoRegister(&MakeCommand{})
+	cli.Register(&MakeCommand{})
 }
 
 func (m *MakeCommand) generateFile(_make, file, command, desc string) {

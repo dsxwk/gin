@@ -62,7 +62,7 @@ func (m *MakeController) Execute(args []string) {
 }
 
 func init() {
-	cli.AutoRegister(&MakeController{})
+	cli.Register(&MakeController{})
 }
 
 func (m *MakeController) generateFile(_make, file, function, method, router, desc string) {

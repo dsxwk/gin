@@ -1,7 +1,6 @@
 package base
 
 import (
-	"fmt"
 	"gin/utils"
 	"os"
 	"path/filepath"
@@ -62,7 +61,7 @@ func (b *BaseCommand) GetTemplate(_make string) string {
 	case "command", "controller", "service", "request", "middleware", "router":
 		templateFile = filepath.Join(utils.GetRootPath(), "common", "template", _make+".tpl")
 	default:
-		fmt.Println("暂不支持make类型为【" + _make + "】暂只支持命令类型为【command, controller, model, service, request, middleware, router】")
+		b.ExitError("未找到【\" + _make + \"】模版文件")
 	}
 
 	return templateFile

@@ -55,7 +55,7 @@ func (m *MakeMiddleware) Execute(args []string) {
 }
 
 func init() {
-	cli.AutoRegister(&MakeMiddleware{})
+	cli.Register(&MakeMiddleware{})
 }
 
 func (m *MakeMiddleware) generateFile(_make, file, desc string) {

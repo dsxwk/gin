@@ -57,7 +57,7 @@ func (m *MakeService) Execute(args []string) {
 }
 
 func init() {
-	cli.AutoRegister(&MakeService{})
+	cli.Register(&MakeService{})
 }
 
 func (m *MakeService) generateFile(_make, file, function, desc string) {

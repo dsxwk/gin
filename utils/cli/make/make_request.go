@@ -55,7 +55,7 @@ func (m *MakeRequest) Execute(args []string) {
 }
 
 func init() {
-	cli.AutoRegister(&MakeRequest{})
+	cli.Register(&MakeRequest{})
 }
 
 func (m *MakeRequest) generateFile(_make, file, desc string) {

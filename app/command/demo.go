@@ -43,5 +43,5 @@ func (m *DemoCommand) Execute(args []string) {
 }
 
 func init() {
-	cli.AutoRegister(&DemoCommand{})
+	cli.Register(&DemoCommand{})
 }

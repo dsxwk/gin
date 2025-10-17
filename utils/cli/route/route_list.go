@@ -55,7 +55,7 @@ func (s *RouteList) Execute(args []string) {
 }
 
 func init() {
-	cli.AutoRegister(&RouteList{})
+	cli.Register(&RouteList{})
 }
 
 func (s *RouteList) formatHandlerName(handler string) string {

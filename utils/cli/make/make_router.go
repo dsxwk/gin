@@ -55,7 +55,7 @@ func (m *MakeRouter) Execute(args []string) {
 }
 
 func init() {
-	cli.AutoRegister(&MakeRouter{})
+	cli.Register(&MakeRouter{})
 }
 
 func (m *MakeRouter) generateFile(_make, file, desc string) {
