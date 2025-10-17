@@ -7,7 +7,7 @@ import (
 
 // User 用户请求z验证
 type User struct {
-	PageValidate
+	PageListValidate
 }
 
 // GetValidate 请求验证

@@ -2,12 +2,19 @@ package {{.Package}}
 
 import (
     "errors"
+    {{- if ne .Package "request" }}
+    "gin/app/request"
+    {{- end }}
     "github.com/gookit/validate"
 )
 
 // {{.Name}} {{.Description}}
 type {{.Name}} struct {
-    PageValidate
+    {{- if eq .Package "router" }}
+    PageListValidate
+    {{- else }}
+    request.PageListValidate
+    {{- end }}
 }
 
 // GetValidate 请求验证

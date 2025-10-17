@@ -9,19 +9,19 @@ import (
 	"github.com/fatih/color"
 )
 
-type Command interface {
-	Name() string          // 命令名称，如 "make:controller"
-	Description() string   // 命令描述
-	Execute(args []string) // 执行逻辑
-	Help() []CommandOption // 获取命令帮助信息
-}
-
 type BaseCommand struct{}
 
 // CommandOption 用于命令选项描述
 type CommandOption struct {
 	Flag string // -f, --file
 	Desc string // 描述
+}
+
+type Command interface {
+	Name() string          // 命令名称，如 "make:controller"
+	Description() string   // 命令描述
+	Execute(args []string) // 执行逻辑
+	Help() []CommandOption // 获取命令帮助信息
 }
 
 // Help 默认返回nil
