@@ -40,7 +40,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/swagger.Login"
+                            "$ref": "#/definitions/request.UserLogin"
                         }
                     }
                 ],
@@ -48,7 +48,7 @@ const docTemplate = `{
                     "200": {
                         "description": "登录成功",
                         "schema": {
-                            "$ref": "#/definitions/errcode.LoginResponse"
+                            "$ref": "#/definitions/errcode.SuccessResponse"
                         }
                     },
                     "400": {
@@ -80,39 +80,21 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 400
                 },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
+                "data": {},
                 "msg": {
                     "type": "string",
                     "example": "Invalid arguments"
                 }
             }
         },
-        "errcode.LoginData": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "$ref": "#/definitions/errcode.TokenData"
-                },
-                "user": {
-                    "$ref": "#/definitions/model.User"
-                }
-            }
-        },
-        "errcode.LoginResponse": {
+        "errcode.SuccessResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer",
                     "example": 0
                 },
-                "data": {
-                    "$ref": "#/definitions/errcode.LoginData"
-                },
+                "data": {},
                 "msg": {
                     "type": "string",
                     "example": "Success"
@@ -126,112 +108,14 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 500
                 },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
+                "data": {},
                 "msg": {
                     "type": "string",
                     "example": "Internal server error"
                 }
             }
         },
-        "errcode.TokenData": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string",
-                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                },
-                "refreshToken": {
-                    "type": "string",
-                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                },
-                "refreshTokenExpire": {
-                    "type": "integer",
-                    "example": 172800
-                },
-                "tokenExpire": {
-                    "type": "integer",
-                    "example": 7200
-                }
-            }
-        },
-        "model.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "model.User": {
-            "type": "object",
-            "properties": {
-                "age": {
-                    "description": "年龄",
-                    "type": "integer"
-                },
-                "avatar": {
-                    "description": "头像",
-                    "type": "string"
-                },
-                "createdAt": {
-                    "description": "创建时间",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "删除时间",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.DeletedAt"
-                        }
-                    ]
-                },
-                "email": {
-                    "description": "邮箱",
-                    "type": "string"
-                },
-                "fullName": {
-                    "description": "姓名",
-                    "type": "string"
-                },
-                "gender": {
-                    "description": "性别 1=男 2=女",
-                    "type": "integer"
-                },
-                "id": {
-                    "description": "ID",
-                    "type": "integer"
-                },
-                "nickname": {
-                    "description": "昵称",
-                    "type": "string"
-                },
-                "password": {
-                    "description": "密码",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "状态 1=启用 2=停用",
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "description": "更新时间",
-                    "type": "string"
-                },
-                "username": {
-                    "description": "用户名",
-                    "type": "string"
-                }
-            }
-        },
-        "swagger.Login": {
+        "request.UserLogin": {
             "type": "object",
             "required": [
                 "password",
@@ -239,10 +123,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123456"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "admin"
                 }
             }
         }

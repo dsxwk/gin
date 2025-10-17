@@ -19,8 +19,8 @@ type LoginController struct {
 // @Description 用户登录
 // @Accept json
 // @Produce json
-// @Param data body swagger.Login true "登录参数"
-// @Success 200 {object} errcode.LoginResponse "登录成功"
+// @Param data body request.UserLogin true "登录参数"
+// @Success 200 {object} errcode.SuccessResponse "登录成功"
 // @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
 // @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/login [post]

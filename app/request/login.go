@@ -7,8 +7,19 @@ import (
 
 // Login Validator
 type Login struct {
-	Username string `json:"username" validate:"required" label:"用户名"`
-	Password string `json:"password" validate:"required" label:"密码"`
+	UserLogin
+	RefreshToken
+}
+
+// UserLogin 用户登录
+type UserLogin struct {
+	Username string `json:"username" validate:"required" example:"admin" label:"用户名"`
+	Password string `json:"password" validate:"required" example:"123456" label:"密码"`
+}
+
+// RefreshToken 刷新token
+type RefreshToken struct {
+	Token string `json:"token" validate:"required" label:"刷新令牌"`
 }
 
 // GetValidate 请求验证
