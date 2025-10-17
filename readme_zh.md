@@ -115,7 +115,67 @@
 ## 命令行
 ```shell
 # 获取帮助
-go run cli.go -h # go run cli.go --help
+E:\www\dsx\www-go\gin [master]> go run cli.go -h # go run cli.go --help
+Usage: go run cli.go [command] [options]
+Available commands:
+  demo-command             test-demo
+  make:command             服务创建
+  make:controller          控制器创建
+  make:middleware          中间件创建
+  make:model               模型创建
+  make:request             验证请求创建
+  make:router              路由创建
+  make:service             服务创建
+  route:list               路由列表
+
+Options:
+  -f, --format   The output format (txt, json) [default: "txt"]
+  -h, --help     Display help for the given command. When no command is given display help for the list command
+  -v, --version  Display this application version
+
+# 格式化输出
+E:\www\dsx\www-go\gin [master]> go run cli.go -f=json
+{
+  "commands": [
+    {
+      "description": "test-demo",
+      "name": "demo-command"
+    },
+    {
+      "description": "服务创建",
+      "name": "make:command"
+    },
+    {
+      "description": "控制器创建",
+      "name": "make:controller"
+    },
+    {
+      "description": "中间件创建",
+      "name": "make:middleware"
+    },
+    {
+      "description": "模型创建",
+      "name": "make:model"
+    },
+    {
+      "description": "验证请求创建",
+      "name": "make:request"
+    },
+    {
+      "description": "路由创建",
+      "name": "make:router"
+    },
+    {
+      "description": "服务创建",
+      "name": "make:service"
+    },
+    {
+      "description": "路由列表",
+      "name": "route:list"
+    }
+  ],
+  "version": "Gin CLI v1.0.0"
+}
 ```
 
 ### 命令创建
@@ -125,31 +185,29 @@ go run cli.go make:command -h # go run cli.go make:command --help
 # 创建
 go run cli.go make:command --file=demo --name=demo-command --desc=command-desc
 ```
-
-### 执行命令
 > 注意: 创建的--file为子目录,如: test/demo 则需要在cli.go 导入子目录
 ```go
 import (
 	_ "gin/command/test"
 )
 ```
+
+### 执行命令
 ```shell
-go run cli.go demo-command # 执行命令 demo-command对应命令行文件自定义的name
-```
-```base
-E:\www\dsx\www-go\gin [master +2 ~13 -0 !]> go run .\cli.go demo-command                                   
+# go run cli.go demo-command # 执行命令 demo-command对应命令行文件自定义的name
+E:\www\dsx\www-go\gin [master]> go run .\cli.go demo-command                                   
 ❌  参数 --args 不能为空
 Example: go run cli.go Demo:command --args=arg1 --desc=test-demo
 Helper: go run cli.go Demo:command --help
 exit status 1
-E:\www\dsx\www-go\gin [master +1 ~13 -0 !]> go run .\cli.go demo-command -h
+E:\www\dsx\www-go\gin [master]> go run .\cli.go demo-command -h
 
 demo-command - command-desc
 
 Options:
   -a, --args  示例参数, 如: arg1 (参数1必填)
 
-E:\www\dsx\www-go\gin [master +13 ~0 -0 !]> go run cli.go demo-command -a=111
+E:\www\dsx\www-go\gin [master]> go run cli.go demo-command -a=111
 执行命令: demo-command, 参数: 111
 ```
 
@@ -195,10 +253,7 @@ go run cli.go make:router --file=user --desc=用户路由
 
 ### 路由列表
 ```shell
-go run cli.go route:list
-```
-```
-go run cli.go route:list
+E:\www\dsx\www-go\gin [master]> go run cli.go route:list
 📦 当前已注册路由
 ---------------------------------------------------------
 Method   Path                                Handler
