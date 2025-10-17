@@ -2,6 +2,7 @@ package v1
 
 import (
 	"gin/app/middleware"
+	"gin/app/model"
 	"gin/app/request"
 	"gin/app/service"
 	"gin/common/base"
@@ -13,6 +14,19 @@ type LoginController struct {
 	base.BaseController
 }
 
+// Token token信息
+type Token struct {
+	AccessToken        string `json:"accessToken"`
+	RefreshToken       string `json:"refreshToken"`
+	TokenExpire        int64  `json:"tokenExpire" example:"7200"`
+	RefreshTokenExpire int64  `json:"refreshTokenExpire" example:"172800"`
+}
+
+type LoginResponse struct {
+	Token Token `json:"token"`
+	User  model.User
+}
+
 // Login 登录
 // @Tags 登录相关
 // @Summary 登录
@@ -20,7 +34,7 @@ type LoginController struct {
 // @Accept json
 // @Produce json
 // @Param data body request.UserLogin true "登录参数"
-// @Success 200 {object} errcode.SuccessResponse "登录成功"
+// @Success 200 {object} errcode.SuccessResponse{data=LoginResponse} "登录成功"
 // @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
 // @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/login [post]
