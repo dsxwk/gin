@@ -278,20 +278,96 @@ go run cli.go make:model --table=user
 ## Air
 ### Install
 ```shell
-go get github.com/air-go/air
+D:\www\dsx\go\gin [master]> go install github.com/air-verse/air@latest
 # Run
-air
+D:\www\dsx\go\gin [master]> air
+
+  __    _   ___
+ / /\  | | | |_)
+/_/--\ |_| |_| \_ v1.63.0, built with Go go1.25.2
+
+watching .
+watching app
+watching app\command
+watching app\controller
+watching app\controller\v1
+watching app\middleware
+watching app\model
+watching app\request
+watching app\service
+watching common
+watching common\base
+watching common\errcode
+watching common\global
+watching common\response
+watching common\template
+watching config
+watching database
+watching docs
+watching public
+watching router
+watching tests
+!exclude tmp
+watching utils
+watching utils\cli
+watching utils\cli\make
+watching utils\cli\route
+!exclude vendor
+building...
+running...
+✅ 已加载基础配置文件: D:\www\dsx\go\gin\config\config.yaml
+✅ 已加载环境配置文件: config\dev.config.yaml
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:   export GIN_MODE=release
+ - using code:  gin.SetMode(gin.ReleaseMode)
+
+✅ 已加载基础配置文件: D:\www\dsx\go\gin\config\config.yaml
+✅ 已加载环境配置文件: config\dev.config.yaml
+[GIN-debug] GET    /ping                     --> gin/router.LoadRouters.func1 (3 handlers)
+[GIN-debug] GET    /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] HEAD   /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] GET    /swagger/*any             --> github.com/swaggo/gin-swagger.CustomWrapHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/v1/login             --> gin/app/controller/v1.(*LoginController).Login-fm (3 handlers)
+[GIN-debug] GET    /api/v1/user              --> gin/app/controller/v1.(*UserController).List-fm (4 handlers)
+[GIN-debug] POST   /api/v1/user              --> gin/app/controller/v1.(*UserController).Create-fm (4 handlers)
+[GIN-debug] PUT    /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Update-fm (4 handlers)
+[GIN-debug] DELETE /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Delete-fm (4 handlers)
+[GIN-debug] GET    /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Detail-fm (4 handlers)
+端口:    8080
+数据库:  gin
+应用:    gin
+环境:    dev
+✅  Gin server started successfully!
+✅  0.0.0.0:8080
+👉 Open Swagger: http://127.0.0.1:8080/swagger/index.html
+👉 Test API: http://127.0.0.1:8080/ping
+[GIN-debug] Listening and serving HTTP on :8080
 ```
 
 ## Swagger Document Generation
 ```bash
 # Install
-go install github.com/swaggo/swag/cmd/swag@latest
+D:\www\dsx\go\gin [master]> go install github.com/swaggo/swag/cmd/swag@latest
 # Quickly generate document command
-swag init -g main.go --exclude cli,app/service
+D:\www\dsx\go\gin [master]> swag init -g main.go --exclude cli,app/service
+2025/10/18 21:23:30 Generate swagger docs....
+2025/10/18 21:23:30 Generate general API Info, search dir:./
+2025/10/18 21:23:31 Generating request.UserLogin
+2025/10/18 21:23:31 Generating errcode.SuccessResponse
+2025/10/18 21:23:31 Generating v1.LoginResponse
+2025/10/18 21:23:31 Generating v1.Token
+2025/10/18 21:23:31 Generating model.User
+2025/10/18 21:23:31 Generating model.JsonTime
+2025/10/18 21:23:31 Generating errcode.ArgsErrorResponse
+2025/10/18 21:23:31 Generating errcode.SystemErrorResponse
+2025/10/18 21:23:31 Generating request.PageData
+2025/10/18 21:23:31 Generating request.UserCreate
+2025/10/18 21:23:31 ParseComment error in file D:\www\dsx\go\gin\app\controller\v1\user.go for comment: '// @Success 200 {object} errcode.SuccessResponse{data=model.User}} "创建成功"': cannot find type definition: model.User}
 ```
 
 ## Test Case
 ```bash
-go test -v ./tests/
+D:\www\dsx\go\gin [master]> go test -v ./tests/
 ```
