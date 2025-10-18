@@ -353,19 +353,23 @@ running...
 D:\www\dsx\go\gin [master]> go install github.com/swaggo/swag/cmd/swag@latest
 # 快速生成文档命令
 D:\www\dsx\go\gin [master]> swag init -g main.go --exclude cli,app/service
-2025/10/18 21:23:30 Generate swagger docs....
-2025/10/18 21:23:30 Generate general API Info, search dir:./
-2025/10/18 21:23:31 Generating request.UserLogin
-2025/10/18 21:23:31 Generating errcode.SuccessResponse
-2025/10/18 21:23:31 Generating v1.LoginResponse
-2025/10/18 21:23:31 Generating v1.Token
-2025/10/18 21:23:31 Generating model.User
-2025/10/18 21:23:31 Generating model.JsonTime
-2025/10/18 21:23:31 Generating errcode.ArgsErrorResponse
-2025/10/18 21:23:31 Generating errcode.SystemErrorResponse
-2025/10/18 21:23:31 Generating request.PageData
-2025/10/18 21:23:31 Generating request.UserCreate
-2025/10/18 21:23:31 ParseComment error in file D:\www\dsx\go\gin\app\controller\v1\user.go for comment: '// @Success 200 {object} errcode.SuccessResponse{data=model.User}} "创建成功"': cannot find type definition: model.User}
+2025/10/18 21:32:48 Generate swagger docs....
+2025/10/18 21:32:48 Generate general API Info, search dir:./
+2025/10/18 21:32:49 Generating request.UserLogin
+2025/10/18 21:32:49 Generating errcode.SuccessResponse
+2025/10/18 21:32:49 Generating v1.LoginResponse
+2025/10/18 21:32:49 Generating v1.Token
+2025/10/18 21:32:49 Generating model.User
+2025/10/18 21:32:49 Generating model.JsonTime
+2025/10/18 21:32:49 Generating errcode.ArgsErrorResponse
+2025/10/18 21:32:49 Generating errcode.SystemErrorResponse
+2025/10/18 21:32:49 Generating request.PageData
+2025/10/18 21:32:49 Generating request.UserCreate
+2025/10/18 21:32:49 Generating request.UserUpdate
+2025/10/18 21:32:49 Generating request.UserDetail
+2025/10/18 21:32:49 create docs.go at docs/docs.go
+2025/10/18 21:32:49 create swagger.json at docs/swagger.json
+2025/10/18 21:32:49 create swagger.yaml at docs/swagger.yaml
 ```
 
 ## 测试用例
