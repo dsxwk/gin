@@ -4,8 +4,12 @@ import (
 	"github.com/fatih/color"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 	"log"
+	"os"
 	"strings"
+	"time"
 )
 
 // InitMysql 初始化mysql
@@ -28,7 +32,20 @@ func InitMysql() *gorm.DB {
 
 	dsn := b.String()
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true, // 全局关闭表名复数化
+		},
+		Logger: logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags), // 输出到控制台
+			logger.Config{
+				SlowThreshold: time.Millisecond * Conf.Mysql.SlowQuerySeconds, // 慢SQL阈值
+				LogLevel:      logger.Info,
+				Colorful:      true, // 彩色日志
+				// IgnoreRecordNotFoundError: true, // 如果需要忽略 record not found
+			},
+		),
+	})
 	if err != nil {
 		color.Red("❌ 数据库连接失败: %v", err)
 		log.Fatal()

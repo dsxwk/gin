@@ -22,6 +22,14 @@ func (r *UserRouter) RegisterRoutes(routerGroup *gin.RouterGroup) {
 	{
 		// 列表
 		router.GET("/user", user.List)
+		// 创建
+		router.POST("/user", user.Create)
+		// 更新
+		router.PUT("/user/:id", user.Update)
+		// 删除
+		router.DELETE("/user/:id", user.Delete)
+		// 详情
+		router.GET("/user/:id", user.Detail)
 	}
 }
 
