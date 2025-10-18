@@ -8,11 +8,14 @@ app:
   env: dev # dev|testing|production dev=本地环境 testing=测试环境 production=生产环境
 # Mysql数据库
 mysql:
+  # host: "username:password@tcp(127.0.0.1:3306)/databaseName?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai"
   host: 127.0.0.1
   port: 3306
   username: root
   password: root
   database: gin
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-seconds: 3s
 # 缓存
 cache:
   driver: "memory"  # memory|disk|redis # 为空默认内存缓存
