@@ -40,7 +40,7 @@ func (s {{.Name}}) ConfigValidation(v *validate.Validation) {
 	})
 }
 
-// Messages 您可以自定义验证器错误消息
+// Messages 验证器错误消息
 func (s {{.Name}}) Messages() map[string]string {
 	return validate.MS{
 		"required":    "字段 {field} 必填",
@@ -50,7 +50,7 @@ func (s {{.Name}}) Messages() map[string]string {
 	}
 }
 
-// Translates 你可以自定义字段翻译
+// Translates 字段翻译
 func (s {{.Name}}) Translates() map[string]string {
 	return validate.MS{
 		"Page":     "页码",
