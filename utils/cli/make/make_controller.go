@@ -27,11 +27,31 @@ func (m *MakeController) Description() string {
 
 func (m *MakeController) Help() []base.CommandOption {
 	return []base.CommandOption{
-		{"-f, --file", "文件路径, 如: v1/user (必填)"},
-		{"-F, --function", "方法名称, 如: list"},
-		{"-m, --method", "请求方式, 如: get"},
-		{"-r, --router", "路由地址, 如: /user"},
-		{"-d, --desc", "描述, 如: 列表"},
+		{
+			"-f, --file",
+			"文件路径, 如: v1/user",
+			true,
+		},
+		{
+			"-F, --function",
+			"方法名称, 如: list",
+			false,
+		},
+		{
+			"-m, --method",
+			"请求方式, 如: get",
+			false,
+		},
+		{
+			"-r, --router",
+			"路由地址, 如: /user",
+			false,
+		},
+		{
+			"-d, --desc",
+			"描述, 如: 列表",
+			false,
+		},
 	}
 }
 
@@ -39,7 +59,7 @@ func (m *MakeController) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 
 	_make := strings.TrimPrefix(m.Name(), "make:")
-	file := fs.StringP("file", "f", "", "文件路径, 如: v1/user (必填)")
+	file := fs.StringP("file", "f", "", "文件路径, 如: v1/user")
 	function := fs.StringP("function", "F", "FuncName", "Func Name, 如: index")
 	method := fs.StringP("method", "m", "get", "Request Method 如: get")
 	router := fs.StringP("router", "r", "/your/router", "Router Address 如: /user")
@@ -51,7 +71,11 @@ func (m *MakeController) Execute(args []string) {
 	}
 
 	if *file == "" {
-		m.ExitError("请使用 --file 指定文件路径\nExample: go run cli.go make:controller --file=v1/user --desc=方法描述\nHelper: go run cli.go make:controller --help")
+		m.ExitError(`请使用 --file 指定文件路径
+Example: go run cli.go make:controller --file=v1/user --desc=方法描述
+
+Helper: go run cli.go make:controller --help
+`)
 		return
 	}
 

@@ -27,15 +27,23 @@ func (m *MakeRouter) Description() string {
 
 func (m *MakeRouter) Help() []base.CommandOption {
 	return []base.CommandOption{
-		{"-f, --file", "文件路径, 如: user (必填)"},
-		{"-d, --desc", "路由描述, 如: 用户路由"},
+		{
+			"-f, --file",
+			"文件路径, 如: user",
+			true,
+		},
+		{
+			"-d, --desc",
+			"路由描述, 如: 用户路由",
+			false,
+		},
 	}
 }
 
 func (m *MakeRouter) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 	_make := strings.TrimPrefix(m.Name(), "make:")
-	file := fs.StringP("file", "f", "", "文件路径, 如: user (必填)")
+	file := fs.StringP("file", "f", "", "文件路径, 如: user")
 	desc := fs.StringP("desc", "d", "description", "路由描述, 如: 用户路由")
 
 	if err := fs.Parse(args); err != nil {
@@ -44,7 +52,11 @@ func (m *MakeRouter) Execute(args []string) {
 	}
 
 	if *file == "" {
-		m.ExitError("请使用 --file 指定文件路径\nExample: go run cli.go make:router --file=user \nHelper: go run cli.go make:router --help")
+		m.ExitError(`请使用 --file 指定文件路径
+Example: go run cli.go make:router --file=user 
+
+Helper: go run cli.go make:router --help
+`)
 		return
 	}
 

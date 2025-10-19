@@ -27,15 +27,23 @@ func (m *MakeRequest) Description() string {
 
 func (m *MakeRequest) Help() []base.CommandOption {
 	return []base.CommandOption{
-		{"-f, --file", "文件路径, 如: user (必填)"},
-		{"-d, --desc", "描述, 如: 用户请求验证"},
+		{
+			"-f, --file",
+			"文件路径, 如: user",
+			true,
+		},
+		{
+			"-d, --desc",
+			"描述, 如: 用户请求验证",
+			false,
+		},
 	}
 }
 
 func (m *MakeRequest) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 	_make := strings.TrimPrefix(m.Name(), "make:")
-	file := fs.StringP("file", "f", "", "文件路径, 如: user (必填)")
+	file := fs.StringP("file", "f", "", "文件路径, 如: user")
 	desc := fs.StringP("desc", "d", "Validator", "描述")
 
 	if err := fs.Parse(args); err != nil {
@@ -44,7 +52,11 @@ func (m *MakeRequest) Execute(args []string) {
 	}
 
 	if *file == "" {
-		m.ExitError("请使用 --file 指定文件路径\nExample: go run cli.go make:request --file=v1/user --desc=validator-desc\nHelper: go run cli.go make:request --help")
+		m.ExitError(`请使用 --file 指定文件路径
+Example: go run cli.go make:request --file=v1/user --desc=validator-desc
+
+Helper: go run cli.go make:request --help
+`)
 		return
 	}
 

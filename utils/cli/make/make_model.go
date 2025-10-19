@@ -32,15 +32,27 @@ func (m *MakeModel) Description() string {
 
 func (m *MakeModel) Help() []base.CommandOption {
 	return []base.CommandOption{
-		{"-t, --table", "表名, 如: user 或 user,menu (必填)"},
-		{"-p, --path", "输出目录, 如: app/model"},
-		{"-c, --camel", "是否驼峰字段, 如: true"},
+		{
+			"-t, --table",
+			"表名, 如: user 或 user,menu",
+			true,
+		},
+		{
+			"-p, --path",
+			"输出目录, 如: app/model",
+			false,
+		},
+		{
+			"-c, --camel",
+			"是否驼峰字段, 如: true",
+			false,
+		},
 	}
 }
 
 func (m *MakeModel) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
-	table := fs.StringP("table", "t", "", "表名, 如: user 或 user,menu (必填)")
+	table := fs.StringP("table", "t", "", "表名, 如: user 或 user,menu")
 	path := fs.StringP("path", "p", "", "输出目录, 如: app/model")
 	camel := fs.BoolP("camel", "c", true, "是否驼峰字段, 如: true")
 

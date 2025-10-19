@@ -148,17 +148,36 @@ func printCommandHelp(cmd base.Command) {
 	}
 
 	color.Yellow("Options:")
-	// 对齐计算
-	maxLen := 0
+
+	// 计算flag最大长度用于对齐
+	maxFlagLen := 0
+	maxDescLen := 0
 	for _, opt := range options {
-		if len(opt.Flag) > maxLen {
-			maxLen = len(opt.Flag)
+		if len(opt.Flag) > maxFlagLen {
+			maxFlagLen = len(opt.Flag)
+		}
+		if len(opt.Desc) > maxDescLen {
+			maxDescLen = len(opt.Desc)
 		}
 	}
 
 	for _, opt := range options {
-		padding := strings.Repeat(" ", maxLen-len(opt.Flag)+2)
-		fmt.Printf("  %s%s%s\n", color.GreenString(opt.Flag), padding, opt.Desc)
+		// flag与描述之间填充空格
+		flagPadding := strings.Repeat(" ", maxFlagLen-len(opt.Flag)+2)
+		descPadding := strings.Repeat(" ", maxDescLen-len(opt.Desc)+2)
+
+		required := color.GreenString("required:false")
+		if opt.Required {
+			required = color.RedString("required:true")
+		}
+
+		fmt.Printf("  %s%s%s%s%s\n",
+			color.GreenString(opt.Flag),
+			flagPadding,
+			opt.Desc,
+			descPadding,
+			required,
+		)
 	}
 	fmt.Println()
 }

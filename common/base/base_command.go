@@ -13,8 +13,9 @@ type BaseCommand struct{}
 
 // CommandOption 用于命令选项描述
 type CommandOption struct {
-	Flag string // -f, --file
-	Desc string // 描述
+	Flag     string // -f, --file
+	Desc     string // 描述
+	Required bool   // 是否必填
 }
 
 type Command interface {

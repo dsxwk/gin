@@ -14,25 +14,7 @@ import (
 
 // InitMysql 初始化mysql
 func InitMysql() *gorm.DB {
-	var b strings.Builder
-	// 预分配容量
-	b.Grow(128)
-
-	Init()
-	b.WriteString(Conf.Mysql.Username)
-	b.WriteString(":")
-	b.WriteString(Conf.Mysql.Password)
-	b.WriteString("@tcp(")
-	b.WriteString(Conf.Mysql.Host)
-	b.WriteString(":")
-	b.WriteString(Conf.Mysql.Port)
-	b.WriteString(")/")
-	b.WriteString(Conf.Mysql.Database)
-	b.WriteString("?charset=utf8mb4&parseTime=True&loc=Local")
-
-	dsn := b.String()
-
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(getDsn()), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true, // 全局关闭表名复数化
 		},
@@ -52,4 +34,28 @@ func InitMysql() *gorm.DB {
 	}
 
 	return db
+}
+
+// getDsn 获取数据库dns
+func getDsn() string {
+	var (
+		b strings.Builder
+	)
+
+	// 预分配容量
+	b.Grow(128)
+
+	Init()
+	b.WriteString(Conf.Mysql.Username)
+	b.WriteString(":")
+	b.WriteString(Conf.Mysql.Password)
+	b.WriteString("@tcp(")
+	b.WriteString(Conf.Mysql.Host)
+	b.WriteString(":")
+	b.WriteString(Conf.Mysql.Port)
+	b.WriteString(")/")
+	b.WriteString(Conf.Mysql.Database)
+	b.WriteString("?charset=utf8mb4&parseTime=True&loc=Local")
+
+	return b.String()
 }

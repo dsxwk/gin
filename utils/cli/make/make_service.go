@@ -27,16 +27,28 @@ func (m *MakeService) Description() string {
 
 func (m *MakeService) Help() []base.CommandOption {
 	return []base.CommandOption{
-		{"-f, --file", "文件路径, 如: v1/user (必填)"},
-		{"-F, --function", "方法名称, 如: list"},
-		{"-d, --desc", "描述, 如: 列表"},
+		{
+			"-f, --file",
+			"文件路径, 如: v1/user",
+			true,
+		},
+		{
+			"-F, --function",
+			"方法名称, 如: list",
+			false,
+		},
+		{
+			"-d, --desc",
+			"描述, 如: 列表",
+			false,
+		},
 	}
 }
 
 func (m *MakeService) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 	_make := strings.TrimPrefix(m.Name(), "make:")
-	file := fs.StringP("file", "f", "", "文件路径, 如: v1/user (必填)")
+	file := fs.StringP("file", "f", "", "文件路径, 如: v1/user")
 	function := fs.StringP("function", "F", "FuncName", "Func Name, 如: index")
 	desc := fs.StringP("desc", "d", "", "描述")
 
@@ -46,7 +58,11 @@ func (m *MakeService) Execute(args []string) {
 	}
 
 	if *file == "" {
-		m.ExitError("请使用 --file 指定文件路径\nExample: go run cli.go make:service --file=v1/user --desc=方法描述\nHelper: go run cli.go make:service --help")
+		m.ExitError(`请使用 --file 指定文件路径
+Example: go run cli.go make:service --file=v1/user --desc=方法描述
+
+Helper: go run cli.go make:service --help
+`)
 		return
 	}
 

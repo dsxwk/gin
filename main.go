@@ -1,12 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"gin/config"
 	"gin/router"
 	"gin/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/mattn/go-runewidth"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 // @title Gin Swagger API
@@ -52,7 +58,25 @@ func main() {
 	fmt.Println("👉 Open Swagger: http://127.0.0.1:" + utils.IntToString(config.Conf.App.Port) + "/swagger/index.html")
 	fmt.Println("👉 Test API: http://127.0.0.1:" + utils.IntToString(config.Conf.App.Port) + "/ping")
 
-	_ = r.Run(":" + utils.IntToString(config.Conf.App.Port))
+	srv := &http.Server{
+		Addr:         ":" + utils.IntToString(config.Conf.App.Port),
+		Handler:      r,
+		ReadTimeout:  3 * time.Second,  // 设置读取超时
+		WriteTimeout: 3 * time.Second,  // 设置写入超时
+		IdleTimeout:  30 * time.Second, // 设置空闲超时
+	}
+
+	go func() {
+		_ = srv.ListenAndServe()
+	}()
+
+	// 等待中断信号以优雅地关闭服务器（设置5秒的超时时间）
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_ = srv.Shutdown(ctx)
 }
 
 // PrintAligned 打印冒号对齐,支持中文

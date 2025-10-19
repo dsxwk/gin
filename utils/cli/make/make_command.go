@@ -27,16 +27,16 @@ func (m *MakeCommand) Description() string {
 
 func (m *MakeCommand) Help() []base.CommandOption {
 	return []base.CommandOption{
-		{"-f, --file", "文件路径, 如: cronjob/demo (必填)"},
-		{"-m, --name", "命令名称, 如: demo.command"},
-		{"-d, --desc", "描述, 如: demo-desc"},
+		{"-f, --file", "文件路径, 如: cronjob/demo", true},
+		{"-m, --name", "命令名称, 如: demo.command", false},
+		{"-d, --desc", "描述, 如: demo-desc", false},
 	}
 }
 
 func (m *MakeCommand) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 	_make := strings.TrimPrefix(m.Name(), "make:")
-	file := fs.StringP("file", "f", "", "文件路径, 如: cronjob/demo (必填)")
+	file := fs.StringP("file", "f", "", "文件路径, 如: cronjob/demo")
 	command := fs.StringP("name", "m", "", "demo.command")
 	desc := fs.StringP("desc", "d", "", "command-desc")
 
@@ -46,7 +46,11 @@ func (m *MakeCommand) Execute(args []string) {
 	}
 
 	if *file == "" {
-		m.ExitError("请使用 --file 指定文件路径\nExample: go run cli.go make:command --file=demo --desc=command-desc\nHelper: go run cli.go make:command --help")
+		m.ExitError(`请使用 --file 指定文件路径
+Example: go run cli.go make:command --file=demo --desc=command-desc
+
+Helper: go run cli.go make:command --help
+`)
 		return
 	}
 
