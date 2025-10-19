@@ -55,27 +55,11 @@ func (m *MakeModel) Execute(args []string) {
 	table := fs.StringP("table", "t", "", "表名, 如: user 或 user,menu")
 	path := fs.StringP("path", "p", "", "输出目录, 如: app/model")
 	camel := fs.BoolP("camel", "c", true, "是否驼峰字段, 如: true")
-
-	if err := fs.Parse(args); err != nil {
-		color.Red("❌ 参数解析失败: %v", err)
-		return
-	}
-
-	if *table == "" {
-		m.ExitError(`请使用 --table 指定表名
-Example: go run cli.go make:model --table=user
-  
-Helper: go run cli.go make:model --help
-`)
-		return
-	}
-
 	fullPath := filepath.Join(utils.GetRootPath(), "app", "model", *path)
-	fmt.Printf("✅ 创建模型: %s (表名: %s 是否使用驼峰: %v)\n", fullPath+"/"+*table+".gen.go", *table, *camel)
-
 	tables := strings.Split(*table, ",")
 	for i := range tables {
 		tables[i] = strings.TrimSpace(tables[i])
+		fmt.Printf("✅ 创建模型: %s (表名: %s 是否使用驼峰: %v)\n", fullPath+"/"+tables[i]+".gen.go", tables[i], *camel)
 	}
 
 	m.generateFiles(fullPath, tables, *camel)

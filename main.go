@@ -15,6 +15,13 @@ import (
 	"time"
 )
 
+//go:generate go env -w GO111MODULE=on
+//go:generate go env -w GOPROXY=https://goproxy.cn,direct
+//go:generate go get -u
+//go:generate go mod tidy
+//go:generate go mod download
+//go:generate go mod vendor
+
 // @title Gin Swagger API
 // @version 2.0
 // @description Gin API 文档

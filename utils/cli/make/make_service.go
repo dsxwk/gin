@@ -51,21 +51,6 @@ func (m *MakeService) Execute(args []string) {
 	file := fs.StringP("file", "f", "", "文件路径, 如: v1/user")
 	function := fs.StringP("function", "F", "FuncName", "Func Name, 如: index")
 	desc := fs.StringP("desc", "d", "", "描述")
-
-	if err := fs.Parse(args); err != nil {
-		fmt.Println("解析参数失败:", err.Error())
-		return
-	}
-
-	if *file == "" {
-		m.ExitError(`请使用 --file 指定文件路径
-Example: go run cli.go make:service --file=v1/user --desc=方法描述
-
-Helper: go run cli.go make:service --help
-`)
-		return
-	}
-
 	fmt.Printf("✅ 创建服务: %s (方法: %s 描述: %s)\n", *file, *function, *desc)
 	f := m.GetMakePath(*file, _make)
 

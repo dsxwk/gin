@@ -45,21 +45,6 @@ func (m *MakeRequest) Execute(args []string) {
 	_make := strings.TrimPrefix(m.Name(), "make:")
 	file := fs.StringP("file", "f", "", "文件路径, 如: user")
 	desc := fs.StringP("desc", "d", "Validator", "描述")
-
-	if err := fs.Parse(args); err != nil {
-		fmt.Println("解析参数失败:", err.Error())
-		return
-	}
-
-	if *file == "" {
-		m.ExitError(`请使用 --file 指定文件路径
-Example: go run cli.go make:request --file=v1/user --desc=validator-desc
-
-Helper: go run cli.go make:request --help
-`)
-		return
-	}
-
 	fmt.Printf("✅ 创建服务: %s (描述: %s)\n", *file, *desc)
 	f := m.GetMakePath(*file, _make)
 

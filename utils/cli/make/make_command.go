@@ -39,21 +39,6 @@ func (m *MakeCommand) Execute(args []string) {
 	file := fs.StringP("file", "f", "", "文件路径, 如: cronjob/demo")
 	command := fs.StringP("name", "m", "", "demo.command")
 	desc := fs.StringP("desc", "d", "", "command-desc")
-
-	if err := fs.Parse(args); err != nil {
-		fmt.Println("解析参数失败:", err.Error())
-		return
-	}
-
-	if *file == "" {
-		m.ExitError(`请使用 --file 指定文件路径
-Example: go run cli.go make:command --file=demo --desc=command-desc
-
-Helper: go run cli.go make:command --help
-`)
-		return
-	}
-
 	fmt.Printf("✅ 创建命令: %s (命令: %s 描述: %s)\n", *file, *command, *desc)
 	f := m.GetMakePath(*file, _make)
 

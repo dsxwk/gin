@@ -45,21 +45,6 @@ func (m *MakeRouter) Execute(args []string) {
 	_make := strings.TrimPrefix(m.Name(), "make:")
 	file := fs.StringP("file", "f", "", "文件路径, 如: user")
 	desc := fs.StringP("desc", "d", "description", "路由描述, 如: 用户路由")
-
-	if err := fs.Parse(args); err != nil {
-		fmt.Println("解析参数失败:", err.Error())
-		return
-	}
-
-	if *file == "" {
-		m.ExitError(`请使用 --file 指定文件路径
-Example: go run cli.go make:router --file=user 
-
-Helper: go run cli.go make:router --help
-`)
-		return
-	}
-
 	fmt.Printf("✅ 创建路由: %s (描述: %s)\n", *file, *desc)
 	f := m.GetMakePath(*file, _make)
 

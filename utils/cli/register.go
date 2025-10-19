@@ -93,14 +93,17 @@ func Execute() {
 	cmdFs.Usage = func() {}    // 禁止默认 help
 
 	// 注册子命令选项
+	optionMap := map[string]base.CommandOption{} // 保存对应的 option
 	for _, opt := range cmd.Help() {
 		if strings.Contains(opt.Flag, ",") {
 			parts := strings.Split(opt.Flag, ",")
 			short := strings.TrimSpace(parts[0])
 			long := strings.TrimSpace(parts[1])
 			cmdFs.StringP(strings.TrimPrefix(long, "--"), strings.TrimPrefix(short, "-"), "", opt.Desc)
+			optionMap[strings.TrimPrefix(long, "--")] = opt
 		} else {
 			cmdFs.String(strings.TrimPrefix(opt.Flag, "--"), "", opt.Desc)
+			optionMap[strings.TrimPrefix(opt.Flag, "--")] = opt
 		}
 	}
 
@@ -122,6 +125,19 @@ func Execute() {
 		color.Red("❌  %s", err.Error())
 		printCommandHelp(cmd)
 		os.Exit(2)
+	}
+
+	// 检查必填参数
+	for key, opt := range optionMap {
+		val := cmdFs.Lookup(key).Value.String()
+		if opt.Required && val == "" {
+			color.Red("❌  参数: --%s 不能为空", key)
+			color.Cyan(fmt.Sprintf("Example: go run cli.go %s --%s", cmd.Name(), key))
+			fmt.Println()
+			color.Cyan(fmt.Sprintf("Helper: go run cli.go %s --help", cmd.Name()))
+			printCommandHelp(cmd)
+			os.Exit(3)
+		}
 	}
 
 	// 执行子命令

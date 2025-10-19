@@ -64,21 +64,6 @@ func (m *MakeController) Execute(args []string) {
 	method := fs.StringP("method", "m", "get", "Request Method 如: get")
 	router := fs.StringP("router", "r", "/your/router", "Router Address 如: /user")
 	desc := fs.StringP("desc", "d", "", "描述")
-
-	if err := fs.Parse(args); err != nil {
-		fmt.Println("解析参数失败:", err.Error())
-		return
-	}
-
-	if *file == "" {
-		m.ExitError(`请使用 --file 指定文件路径
-Example: go run cli.go make:controller --file=v1/user --desc=方法描述
-
-Helper: go run cli.go make:controller --help
-`)
-		return
-	}
-
 	fmt.Printf("✅ 创建控制器: %s (方法: %s 请求方式: %s 路由: %s 描述: %s)\n", *file, *function, *method, *router, *desc)
 	f := m.GetMakePath(*file, _make)
 
