@@ -254,7 +254,6 @@ go run cli.go make:router --file=user --desc=用户路由
 ### 路由列表
 ```shell
 E:\www\dsx\www-go\gin [master]> go run cli.go route:list
-📦 当前已注册路由
 ---------------------------------------------------------
 Method   Path                                Handler
 ---------------------------------------------------------
@@ -265,7 +264,7 @@ HEAD     /public/*filepath                   github.com/gin-gonic/gin.(*RouterGr
 POST     /api/v1/login                       gin/app/controller/v1.(*LoginController).Login
 POST     /api/v1/user                        gin/app/controller/v1.(*UserController).List
 ---------------------------------------------------------
-✅ 总计 6 条路由
+总计 6 条路由
 ```
 
 ## 模型创建

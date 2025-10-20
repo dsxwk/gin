@@ -253,7 +253,6 @@ go run cli.go make:router --file=user --desc=user-router
 ### Route List
 ```shell
 E:\www\dsx\www-go\gin [master]> go run cli.go route:list
-📦 Currently registered route
 ---------------------------------------------------------
 Method   Path                                Handler
 ---------------------------------------------------------
@@ -264,7 +263,7 @@ HEAD     /public/*filepath                   github.com/gin-gonic/gin.(*RouterGr
 POST     /api/v1/login                       gin/app/controller/v1.(*LoginController).Login
 POST     /api/v1/user                        gin/app/controller/v1.(*UserController).List
 ---------------------------------------------------------
-✅ A total of 6 routes
+A total of 6 routes
 ```
 
 ## Create Model
