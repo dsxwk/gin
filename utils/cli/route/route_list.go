@@ -1,7 +1,6 @@
 package route
 
 import (
-	"fmt"
 	"gin/common/base"
 	"gin/router"
 	"gin/utils/cli"
@@ -36,9 +35,9 @@ func (s *RouteList) Execute(args []string) {
 	routes := engine.Routes()
 
 	// 打印路由列表
-	fmt.Println("---------------------------------------------------------")
-	fmt.Printf("%-8s %-35s %-40s\n", "Method", "Path", "Handler")
-	fmt.Println("---------------------------------------------------------")
+	color.Green("---------------------------------------------------------")
+	color.Green("%-8s %-35s %-40s\n", "Method", "Path", "Handler")
+	color.Green("---------------------------------------------------------")
 
 	for _, route := range routes {
 		color.Green(
@@ -49,7 +48,7 @@ func (s *RouteList) Execute(args []string) {
 		)
 	}
 
-	fmt.Println("---------------------------------------------------------")
+	color.Green("---------------------------------------------------------")
 	color.Cyan("总计 %d 条路由\n", len(routes))
 }
 

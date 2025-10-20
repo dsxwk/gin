@@ -7,7 +7,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
 	"html/template"
-	"log"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -33,15 +33,18 @@ func (m *MakeCommand) Help() []base.CommandOption {
 }
 
 func (m *MakeCommand) Execute(args []string) {
-	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
-	_make := strings.TrimPrefix(m.Name(), "make:")
-	file := fs.StringP("file", "f", "", "文件路径, 如: cronjob/demo")
-	name := fs.StringP("name", "m", "", "demo.command")
-	desc := fs.StringP("desc", "d", "", "command-desc")
+	var (
+		fs    = pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
+		_make = strings.TrimPrefix(m.Name(), "make:")
+		file  = fs.StringP("file", "f", "", "文件路径, 如: cronjob/demo")
+		name  = fs.StringP("name", "m", "", "demo.command")
+		desc  = fs.StringP("desc", "d", "", "command-desc")
+	)
+
 	if err := fs.Parse(args); err != nil {
 		color.Red("参数解析失败: %s", err.Error())
 	}
-	log.Printf("✅ 创建命令: %s (命令: %s 描述: %s)\n", *file, *name, *desc)
+	color.Green("✅  创建命令: %s (命令: %s 描述: %s)\n", *file, *name, *desc)
 	f := m.GetMakeFile(*file, _make)
 	m.generateFile(_make, f, *name, *desc)
 }
@@ -54,8 +57,8 @@ func (m *MakeCommand) generateFile(_make, file, name, desc string) {
 	templateFile := m.GetTemplate(_make)
 	tmpl, err := template.ParseFiles(templateFile)
 	if err != nil {
-		log.Println("Error parsing template:", err.Error())
-		return
+		color.Red("Error parsing template:", err.Error())
+		os.Exit(1)
 	}
 
 	// 提取包名 (文件路径中的最后一个目录作为包名)
@@ -81,10 +84,8 @@ func (m *MakeCommand) generateFile(_make, file, name, desc string) {
 
 	err = tmpl.Execute(f, data)
 	if err != nil {
-		log.Println("Error executing template:", err.Error())
-		return
-	} else {
-		log.Println("Template executed and content written to file.")
+		color.Red("Error executing template:", err.Error())
+		os.Exit(1)
 	}
 
 	color.Green("✅ 命令行文件: " + file + " 生成成功!")

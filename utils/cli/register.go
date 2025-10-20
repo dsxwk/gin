@@ -196,7 +196,6 @@ func printCommandHelp(cmd base.Command) {
 			required,
 		)
 	}
-	fmt.Println()
 }
 
 // printUsage 打印命令列表
@@ -248,7 +247,6 @@ func printText() {
 		padding := strings.Repeat(" ", maxLen-len(opt.flag)+2)
 		fmt.Printf("  %s%s%s\n", color.GreenString(opt.flag), padding, opt.desc)
 	}
-	fmt.Println()
 }
 
 // printJSON json格式输出
@@ -275,5 +273,4 @@ func printJSON() {
 
 	jsonData, _ := json.MarshalIndent(data, "", "  ")
 	color.Green(string(jsonData))
-	fmt.Println()
 }

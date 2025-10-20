@@ -30,7 +30,7 @@ func InitMysql() *gorm.DB {
 	})
 	if err != nil {
 		color.Red("❌ 数据库连接失败: %v", err)
-		log.Fatal()
+		os.Exit(1)
 	}
 
 	return db

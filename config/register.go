@@ -2,9 +2,9 @@ package config
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,9 +31,8 @@ func Init() {
 
 	// 读取主配置文件 config.yaml
 	if err := v.ReadInConfig(); err != nil {
-		log.Fatalf("❌  读取配置文件失败: %v", err)
+		color.Red("❌  读取配置文件失败: %v", err)
 	}
-	// fmt.Printf("✅  已加载基础配置文件: %s\n", v.ConfigFileUsed())
 
 	// 获取环境类型
 	env := v.GetString("app.env")
@@ -46,17 +45,19 @@ func Init() {
 	if _, err := os.Stat(envConfigFile); err == nil {
 		v.SetConfigFile(envConfigFile)
 		if err = v.MergeInConfig(); err != nil {
-			log.Fatalf("❌  合并环境配置失败: %v", err)
+			color.Red("❌  合并环境配置失败: %v", err)
+			os.Exit(1)
 		}
-		fmt.Printf("✅  已加载环境配置文件: %s\n", envConfigFile)
+		color.Green("✅  已加载环境配置文件: %s\n", envConfigFile)
 	} else {
-		fmt.Printf("⚠️  未找到环境配置文件: %s，使用默认配置\n", envConfigFile)
+		color.Yellow("⚠️  未找到环境配置文件: %s，使用默认配置\n", envConfigFile)
 	}
 
 	// 自动映射到结构体
 	cfg := &Config{}
 	if err := v.Unmarshal(cfg); err != nil {
-		log.Fatalf("❌  解析配置文件失败: %v", err)
+		color.Red("❌  解析配置文件失败: %v", err)
+		os.Exit(1)
 	}
 
 	// 监听配置变化
@@ -75,9 +76,10 @@ func Init() {
 		}
 		lastEventTime = now
 
-		fmt.Printf("🔄  配置文件修改: %s\n", e.Name)
+		color.Green("🔄  配置文件修改: %s\n", e.Name)
 		if err := v.Unmarshal(cfg); err != nil {
-			log.Printf("⚠️  配置热更新失败: %v", err)
+			color.Red("⚠️  配置热更新失败: %v", err)
+			os.Exit(1)
 		}
 	})
 

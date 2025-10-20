@@ -49,10 +49,13 @@ func (m *MakeModel) Help() []base.CommandOption {
 }
 
 func (m *MakeModel) Execute(args []string) {
-	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
-	table := fs.StringP("table", "t", "", "表名, 如: user 或 user,menu")
-	path := fs.StringP("path", "p", "", "输出目录, 如: app/model")
-	camel := fs.BoolP("camel", "c", true, "是否驼峰字段, 如: true")
+	var (
+		fs    = pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
+		table = fs.StringP("table", "t", "", "表名, 如: user 或 user,menu")
+		path  = fs.StringP("path", "p", "", "输出目录, 如: app/model")
+		camel = fs.BoolP("camel", "c", true, "是否驼峰字段, 如: true")
+	)
+
 	if err := fs.Parse(args); err != nil {
 		color.Red("参数解析失败: %s", err.Error())
 	}
@@ -61,7 +64,7 @@ func (m *MakeModel) Execute(args []string) {
 	tables := strings.Split(*table, ",")
 	for i := range tables {
 		tables[i] = strings.TrimSpace(tables[i])
-		fmt.Printf("✅ 创建模型: %s (表名: %s 是否使用驼峰: %v)\n", p+"/"+tables[i]+".gen.go", tables[i], *camel)
+		color.Green("✅  创建模型: %s (表名: %s 是否使用驼峰: %v)\n", p+"/"+tables[i]+".gen.go", tables[i], *camel)
 	}
 
 	m.generateFiles(p, tables, *camel)
@@ -73,9 +76,11 @@ func init() {
 
 // generateFiles 生成模型文件
 func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
-	root := utils.GetRootPath()
-	pkg := filepath.Base(path)
-	outPath := filepath.Join(root + "/app/temp")
+	var (
+		root    = utils.GetRootPath()
+		pkg     = filepath.Base(path)
+		outPath = filepath.Join(root + "/app/temp")
+	)
 
 	config.Init()
 	g := gen.NewGenerator(gen.Config{
@@ -99,9 +104,9 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		"int":       func(detailType gorm.ColumnType) (dataType string) { return "int64" },
 		"json": func(detailType gorm.ColumnType) (dataType string) {
 			if pkg != "model" {
-				return "*model.JsonString"
+				return "*model.ArrayString"
 			} else {
-				return "*JsonString"
+				return "*ArrayString"
 			}
 		},
 		"datetime": func(detailType gorm.ColumnType) (dataType string) {
@@ -115,9 +120,9 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 			}
 
 			if pkg != "model" {
-				return "*model.JsonTime"
+				return "*model.DateTime"
 			} else {
-				return "*JsonTime"
+				return "*DateTime"
 			}
 		},
 		// "timestamp":  func(detailType gorm.ColumnType) (dataType string) { return "string" }, // 添加此行将 timestamp 转换为 string
@@ -134,7 +139,7 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		})
 	}
 
-	color.Cyan("🚀 开始生成模型，共 %d 张表", len(tables))
+	color.Cyan("🚀 开始生成模型, 共 %d 张表", len(tables))
 
 	for _, table := range tables {
 		color.Yellow("→ 正在生成表: %s", table)
@@ -167,12 +172,13 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 			return strings.TrimSuffix(match, "`") + " swaggerignore:\"true\"`"
 		})
 
-		if err = os.WriteFile(filePath, []byte(text), 0644); err == nil {
-			// color.Blue("✏️ 已为文件 %s 添加 swaggerignore", file.Name())
+		if err = os.WriteFile(filePath, []byte(text), 0644); err != nil {
+			color.Red(fmt.Sprintf("❌  为文件 %s 添加 swaggerignore 失败", file.Name()))
+			os.Exit(1)
 		}
 	}
 
-	color.Green("✅ 模型生成成功! 输出目录: %s", path)
+	color.Green(fmt.Sprintf("✅  模型生成成功! 输出目录: %s", path))
 
 	_ = os.RemoveAll(outPath)
 }

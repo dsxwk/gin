@@ -34,7 +34,7 @@ func (b *BaseCommand) Help() []CommandOption {
 }
 
 func (b *BaseCommand) ExitError(msg string) {
-	color.Red(`❌  ` + msg)
+	color.Red("❌  %s", msg)
 	os.Exit(1)
 }
 
@@ -64,7 +64,7 @@ func (b *BaseCommand) GetTemplate(_make string) string {
 	case "command", "controller", "service", "request", "middleware", "router":
 		templateFile = filepath.Join(utils.GetRootPath(), "common", "template", _make+".tpl")
 	default:
-		b.ExitError("未找到【\" + _make + \"】模版文件")
+		b.ExitError("未找到 \" + _make + \" 模版文件")
 	}
 
 	return templateFile
@@ -75,7 +75,7 @@ func (b *BaseCommand) CheckDirAndFile(file string) *os.File {
 	// 如果目录不存在则创建
 	dir := filepath.Dir(file)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		log.Println("❌ Failed to create directory:", err)
+		color.Red("❌ Failed to create directory:", err)
 		return nil
 	}
 
@@ -97,10 +97,10 @@ func (b *BaseCommand) CheckDirAndFile(file string) *os.File {
 		}
 	}
 
-	fmt.Printf("📄 创建文件: %s\n", color.CyanString(file))
+	color.Green("📄 创建文件: %s\n", color.CyanString(file))
 	f, err := os.Create(file)
 	if err != nil {
-		log.Println("❌ Failed to create file:", err.Error())
+		color.Red("❌ Failed to create file:", err.Error())
 		return nil
 	}
 	return f

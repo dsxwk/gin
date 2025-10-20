@@ -7,7 +7,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
 	"html/template"
-	"log"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -55,18 +55,20 @@ func (m *MakeController) Help() []base.CommandOption {
 }
 
 func (m *MakeController) Execute(args []string) {
-	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
+	var (
+		fs       = pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
+		_make    = strings.TrimPrefix(m.Name(), "make:")
+		file     = fs.StringP("file", "f", "", "文件路径, 如: v1/user")
+		function = fs.StringP("function", "F", "FuncName", "Func Name, 如: index")
+		method   = fs.StringP("method", "m", "get", "Request Method 如: get")
+		router   = fs.StringP("router", "r", "/your/router", "Router Address 如: /user")
+		desc     = fs.StringP("desc", "d", "", "描述")
+	)
 
-	_make := strings.TrimPrefix(m.Name(), "make:")
-	file := fs.StringP("file", "f", "", "文件路径, 如: v1/user")
-	function := fs.StringP("function", "F", "FuncName", "Func Name, 如: index")
-	method := fs.StringP("method", "m", "get", "Request Method 如: get")
-	router := fs.StringP("router", "r", "/your/router", "Router Address 如: /user")
-	desc := fs.StringP("desc", "d", "", "描述")
 	if err := fs.Parse(args); err != nil {
 		color.Red("参数解析失败: %s", err.Error())
 	}
-	log.Printf("✅ 创建控制器: %s (方法: %s 请求方式: %s 路由: %s 描述: %s)\n", *file, *function, *method, *router, *desc)
+	color.Green("✅  创建控制器: %s (方法: %s 请求方式: %s 路由: %s 描述: %s)\n", *file, *function, *method, *router, *desc)
 	f := m.GetMakeFile(*file, _make)
 
 	m.generateFile(_make, f, *function, *method, *router, *desc)
@@ -80,8 +82,8 @@ func (m *MakeController) generateFile(_make, file, function, method, router, des
 	templateFile := m.GetTemplate(_make)
 	tmpl, err := template.ParseFiles(templateFile)
 	if err != nil {
-		log.Println("Error parsing template:", err.Error())
-		return
+		color.Red("Error parsing template:", err.Error())
+		os.Exit(1)
 	}
 
 	// 提取包名 (文件路径中的最后一个目录作为包名)
@@ -111,10 +113,8 @@ func (m *MakeController) generateFile(_make, file, function, method, router, des
 
 	err = tmpl.Execute(f, data)
 	if err != nil {
-		log.Println("Error executing template:", err.Error())
-		return
-	} else {
-		log.Println("Template executed and content written to file.")
+		color.Red("Error executing template:", err.Error())
+		os.Exit(1)
 	}
 
 	color.Green("✅ 控制器文件: " + file + " 生成成功!")
