@@ -53,6 +53,15 @@ type Jwt struct {
 	RefreshExp int64  `yaml:"refresh-exp"`
 }
 
+// Log 日志
+type Log struct {
+	Access     bool   `yaml:"access"`      // 是否记录访问日志
+	MaxSize    int    `yaml:"max-size"`    // 单个日志文件大小（MB）
+	MaxBackups int    `yaml:"max-backups"` // 最多保留的旧日志文件数
+	MaxDay     int    `yaml:"max-day"`     // 保留的最大天数
+	Level      string `yaml:"level"`       // 日志级别
+}
+
 // Config 配置
 type Config struct {
 	App
@@ -60,4 +69,5 @@ type Config struct {
 	Redis
 	Cors
 	Jwt
+	Log
 }

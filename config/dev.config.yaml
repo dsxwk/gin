@@ -37,3 +37,10 @@ jwt:
   key: 123456789!@# # 加解密秘钥key
   exp: 7200 # 过期时间(单位秒) 2*60*60
   refresh-exp: 172800  # 刷新过期时间(单位秒) 2*24*60*60
+# 日志配置
+log:
+  access: true # 是否记录访问日志
+  max-size: 10 # 单个日志文件大小（MB）
+  max-backups: 3  # 最多保留的旧日志文件数
+  max-day: 28 # 保留的最大天数
+  level: debug # 日志级别 debug|info|warn|error|fatal

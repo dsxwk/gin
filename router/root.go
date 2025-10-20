@@ -12,6 +12,7 @@ import (
 
 var (
 	jwtMiddleware = middleware.Jwt{}.Handle()
+	logMiddleware = middleware.Log{}.Handle()
 )
 
 // LoadRouters 加载路由
@@ -33,7 +34,7 @@ func LoadRouters(router *gin.Engine) {
 
 	// 路由分组
 	v1 := router.Group("")
-	auth := v1.Group("", jwtMiddleware)
+	auth := v1.Group("", logMiddleware, jwtMiddleware)
 
 	// 自动注册
 	AutoLoads(v1, auth)
