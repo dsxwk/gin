@@ -1,7 +1,6 @@
 package make
 
 import (
-	"fmt"
 	"gin/common/base"
 	"gin/utils"
 	"gin/utils/cli"
@@ -79,7 +78,6 @@ func init() {
 
 func (m *MakeController) generateFile(_make, file, function, method, router, desc string) {
 	templateFile := m.GetTemplate(_make)
-	color.Green(fmt.Sprintf("✅ 解析模板文件: %v\n", templateFile))
 	tmpl, err := template.ParseFiles(templateFile)
 	if err != nil {
 		log.Println("Error parsing template:", err.Error())

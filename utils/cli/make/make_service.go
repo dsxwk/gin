@@ -66,7 +66,6 @@ func init() {
 
 func (m *MakeService) generateFile(_make, file, function, desc string) {
 	templateFile := m.GetTemplate(_make)
-	color.Green(fmt.Sprintf("Loading template file: %s\n", templateFile))
 	tmpl, err := template.ParseFiles(templateFile)
 	if err != nil {
 		log.Println("Error parsing template:", err.Error())

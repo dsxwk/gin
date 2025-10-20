@@ -44,7 +44,7 @@ func (m *MakeMiddleware) Execute(args []string) {
 	fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 	_make := strings.TrimPrefix(m.Name(), "make:")
 	file := fs.StringP("file", "f", "", "文件路径, 如: v1/user")
-	desc := fs.StringP("desc", "d", "", "描述")
+	desc := fs.StringP("desc", "d", "middleware-desc", "描述")
 	if err := fs.Parse(args); err != nil {
 		color.Red("参数解析失败: %s", err.Error())
 	}
@@ -60,7 +60,6 @@ func init() {
 
 func (m *MakeMiddleware) generateFile(_make, file, desc string) {
 	templateFile := m.GetTemplate(_make)
-	color.Green(fmt.Sprintf("Loading template file: %s\n", templateFile))
 	tmpl, err := template.ParseFiles(templateFile)
 	if err != nil {
 		log.Println("Error parsing template:", err.Error())

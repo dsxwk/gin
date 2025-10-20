@@ -60,7 +60,6 @@ func init() {
 
 func (m *MakeRouter) generateFile(_make, file, desc string) {
 	templateFile := m.GetTemplate(_make)
-	color.Green(fmt.Sprintf("Loading template file: %s\n", templateFile))
 	tmpl, err := template.ParseFiles(templateFile)
 	if err != nil {
 		log.Println("Error parsing template:", err.Error())
