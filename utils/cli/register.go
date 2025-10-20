@@ -6,6 +6,7 @@ import (
 	"gin/common/base"
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
+	"log"
 	"os"
 	"sort"
 	"strings"
@@ -112,7 +113,7 @@ func Execute() {
 		// 如果是未知选项
 		if strings.Contains(err.Error(), "unknown flag") {
 			color.Red("❌  Option \"%s\" is not defined.", extractFlag(err.Error()))
-			fmt.Println()
+			log.Println()
 			printCommandHelp(cmd)
 			os.Exit(1)
 		}
@@ -231,7 +232,7 @@ func printText() {
 		flag string
 		desc string
 	}{
-		{"-f, --format", "The output format (txt, json) [default: \"txt\"]"},
+		{"-f, --format", "The output format (txt, json) [default: txt]"},
 		{"-h, --help", "Display help for the given command. When no command is given display help for the list command"},
 		{"-v, --version", "Display this application version"},
 	}

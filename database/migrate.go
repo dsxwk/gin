@@ -65,7 +65,10 @@ func (m *MigrationManager) LoadMigrationFiles(dir string) ([]Migration, error) {
 		return nil, err
 	}
 
-	var migrations []Migration
+	var (
+		migrations []Migration
+		content    []byte
+	)
 	for _, file := range files {
 		filename := filepath.Base(file)
 		parts := strings.Split(strings.TrimSuffix(filename, ".sql"), "_")
@@ -76,7 +79,7 @@ func (m *MigrationManager) LoadMigrationFiles(dir string) ([]Migration, error) {
 		version := parts[0]
 		name := strings.Join(parts[1:], "_")
 
-		content, err := os.ReadFile(file)
+		content, err = os.ReadFile(file)
 		if err != nil {
 			return nil, err
 		}

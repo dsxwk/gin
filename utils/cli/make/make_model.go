@@ -8,10 +8,8 @@ import (
 	"gin/utils/cli"
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
-	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -55,14 +53,18 @@ func (m *MakeModel) Execute(args []string) {
 	table := fs.StringP("table", "t", "", "表名, 如: user 或 user,menu")
 	path := fs.StringP("path", "p", "", "输出目录, 如: app/model")
 	camel := fs.BoolP("camel", "c", true, "是否驼峰字段, 如: true")
-	fullPath := filepath.Join(utils.GetRootPath(), "app", "model", *path)
+	if err := fs.Parse(args); err != nil {
+		color.Red("参数解析失败: %s", err.Error())
+	}
+	// 去除前斜杠
+	p := filepath.Join("app/model/", strings.TrimPrefix(*path, "/"))
 	tables := strings.Split(*table, ",")
 	for i := range tables {
 		tables[i] = strings.TrimSpace(tables[i])
-		fmt.Printf("✅ 创建模型: %s (表名: %s 是否使用驼峰: %v)\n", fullPath+"/"+tables[i]+".gen.go", tables[i], *camel)
+		fmt.Printf("✅ 创建模型: %s (表名: %s 是否使用驼峰: %v)\n", p+"/"+tables[i]+".gen.go", tables[i], *camel)
 	}
 
-	m.generateFiles(fullPath, tables, *camel)
+	m.generateFiles(p, tables, *camel)
 }
 
 func init() {
@@ -76,30 +78,6 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 	outPath := filepath.Join(root + "/app/temp")
 
 	config.Init()
-	// 读取配置
-	var b strings.Builder
-	// 预分配容量
-	b.Grow(128)
-
-	b.WriteString(config.Conf.Mysql.Username)
-	b.WriteString(":")
-	b.WriteString(config.Conf.Mysql.Password)
-	b.WriteString("@tcp(")
-	b.WriteString(config.Conf.Mysql.Host)
-	b.WriteString(":")
-	b.WriteString(config.Conf.Mysql.Port)
-	b.WriteString(")/")
-	b.WriteString(config.Conf.Mysql.Database)
-	b.WriteString("?charset=utf8mb4&parseTime=True&loc=Local")
-
-	dsn := b.String()
-
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		color.Red("❌ 数据库连接失败: %v", err)
-		log.Fatal()
-	}
-
 	g := gen.NewGenerator(gen.Config{
 		OutPath:           outPath,
 		Mode:              gen.WithoutContext | gen.WithDefaultQuery,
@@ -111,7 +89,7 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		ModelPkgPath:      path,
 	})
 
-	g.UseDB(db)
+	g.UseDB(config.InitMysql())
 
 	dataMap := map[string]func(detailType gorm.ColumnType) (dataType string){
 		"tinyint":   func(detailType gorm.ColumnType) (dataType string) { return "int64" },
@@ -119,7 +97,13 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		"mediumint": func(detailType gorm.ColumnType) (dataType string) { return "int64" },
 		"bigint":    func(detailType gorm.ColumnType) (dataType string) { return "int64" },
 		"int":       func(detailType gorm.ColumnType) (dataType string) { return "int64" },
-		"json":      func(detailType gorm.ColumnType) (dataType string) { return "JsonString" },
+		"json": func(detailType gorm.ColumnType) (dataType string) {
+			if pkg != "model" {
+				return "*model.JsonString"
+			} else {
+				return "*JsonString"
+			}
+		},
 		"datetime": func(detailType gorm.ColumnType) (dataType string) {
 			// 针对 deleted_at 字段特殊处理
 			if detailType.Name() == "deleted_at" {
@@ -183,8 +167,8 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 			return strings.TrimSuffix(match, "`") + " swaggerignore:\"true\"`"
 		})
 
-		if err := os.WriteFile(filePath, []byte(text), 0644); err == nil {
-			color.Blue("✏️ 已为文件 %s 添加 swaggerignore", file.Name())
+		if err = os.WriteFile(filePath, []byte(text), 0644); err == nil {
+			// color.Blue("✏️ 已为文件 %s 添加 swaggerignore", file.Name())
 		}
 	}
 

@@ -1,7 +1,10 @@
 package base
 
 import (
+	"bufio"
+	"fmt"
 	"gin/utils"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -35,20 +38,19 @@ func (b *BaseCommand) ExitError(msg string) {
 	os.Exit(1)
 }
 
-// GetMakePath 获取make文件路径
-func (b *BaseCommand) GetMakePath(file string, _make string) string {
-	if !strings.HasSuffix(file, "/") {
-		file = "/" + file
-	}
+// GetMakeFile 获取make文件
+func (b *BaseCommand) GetMakeFile(file string, _make string) string {
+	// 去除前斜杠
+	file = strings.TrimPrefix(file, "/")
 
 	switch _make {
 	case "router":
-		file = filepath.Join("/", "router", file)
+		file = filepath.Join("router", file)
 	default:
-		file = filepath.Join("/app", _make, file)
+		file = filepath.Join("app", _make, file)
 	}
 
-	return file
+	return file + ".go"
 }
 
 // GetTemplate 获取模版文件
@@ -66,4 +68,40 @@ func (b *BaseCommand) GetTemplate(_make string) string {
 	}
 
 	return templateFile
+}
+
+// CheckDirAndFile 检查目录和文件
+func (b *BaseCommand) CheckDirAndFile(file string) *os.File {
+	// 如果目录不存在则创建
+	dir := filepath.Dir(file)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		log.Println("❌ Failed to create directory:", err)
+		return nil
+	}
+
+	if _, err := os.Stat(file); !os.IsNotExist(err) {
+		fmt.Printf("%s 文件 %s 已存在,是否覆盖?(%s/%s): ",
+			color.YellowString("⚠️"),
+			color.CyanString(file),
+			color.GreenString("Y"),
+			color.RedString("N"),
+		)
+
+		reader := bufio.NewReader(os.Stdin)
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
+
+		if strings.ToLower(input) != "y" && strings.ToLower(input) != "yes" {
+			log.Println("操作已取消")
+			return nil
+		}
+	}
+
+	fmt.Printf("📄 创建文件: %s\n", color.CyanString(file))
+	f, err := os.Create(file)
+	if err != nil {
+		log.Println("❌ Failed to create file:", err.Error())
+		return nil
+	}
+	return f
 }

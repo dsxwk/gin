@@ -36,7 +36,6 @@ func (s *RouteList) Execute(args []string) {
 	routes := engine.Routes()
 
 	// 打印路由列表
-	fmt.Println("📦 当前已注册路由")
 	fmt.Println("---------------------------------------------------------")
 	fmt.Printf("%-8s %-35s %-40s\n", "Method", "Path", "Handler")
 	fmt.Println("---------------------------------------------------------")
@@ -51,7 +50,7 @@ func (s *RouteList) Execute(args []string) {
 	}
 
 	fmt.Println("---------------------------------------------------------")
-	fmt.Printf("✅ 总计 %d 条路由\n", len(routes))
+	color.Cyan("总计 %d 条路由\n", len(routes))
 }
 
 func init() {
@@ -61,8 +60,7 @@ func init() {
 func (s *RouteList) formatHandlerName(handler string) string {
 	// 去掉 -fm 结尾
 	handler = strings.TrimSuffix(handler, "-fm")
-	// 去掉 .func1
-	handler = strings.TrimSuffix(handler, ".func1")
 
-	return handler
+	// 去掉 .func1
+	return strings.TrimSuffix(handler, ".func1")
 }
