@@ -8,9 +8,11 @@ import (
 	"gin/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/mattn/go-runewidth"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -35,7 +37,7 @@ func main() {
 		r = gin.Default()
 	)
 
-	config.Init()
+	config.InitConfig()
 
 	// 运行环境模式 debug模式, test测试模式, release生产模式, 默认是debug,根据当前配置文件读取
 	gin.SetMode(config.Conf.App.Mode)
@@ -59,22 +61,30 @@ func main() {
 	}
 
 	// 启动提示
-	PrintAligned(data)
-	fmt.Println("✅  Gin server started successfully!")
-	fmt.Println("✅  0.0.0.0:" + utils.IntToString(config.Conf.App.Port))
-	fmt.Println("👉 Open Swagger: http://127.0.0.1:" + utils.IntToString(config.Conf.App.Port) + "/swagger/index.html")
-	fmt.Println("👉 Test API: http://127.0.0.1:" + utils.IntToString(config.Conf.App.Port) + "/ping")
+	PrintAligned(data, []string{"应用", "环境", "端口", "数据库"})
+
+	var port = utils.IntToString(config.Conf.App.Port)
+	run := map[string]interface{}{
+		"🌐 Address:":  "http://0.0.0.0:" + port,
+		"👉 Swagger:":  "http://127.0.0.1:" + port + "/swagger/index.html",
+		"👉 Test API:": "http://127.0.0.1:" + port + "/ping",
+		"✅  Success:": "Gin server started successfully!",
+	}
+	PrintAligned(run, []string{"🌐 Address:", "👉 Swagger:", "👉 Test API:", "✅  Success:"})
 
 	srv := &http.Server{
-		Addr:         ":" + utils.IntToString(config.Conf.App.Port),
+		Addr:         ":" + port,
 		Handler:      r,
-		ReadTimeout:  3 * time.Second,  // 设置读取超时
-		WriteTimeout: 3 * time.Second,  // 设置写入超时
+		ReadTimeout:  10 * time.Second, // 设置读取超时
+		WriteTimeout: 10 * time.Second, // 设置写入超时
 		IdleTimeout:  30 * time.Second, // 设置空闲超时
 	}
 
 	go func() {
-		_ = srv.ListenAndServe()
+		err := srv.ListenAndServe()
+		if err != nil {
+			log.Fatal(err.Error())
+		}
 	}()
 
 	// 等待中断信号以优雅地关闭服务器（设置5秒的超时时间）
@@ -87,7 +97,7 @@ func main() {
 }
 
 // PrintAligned 打印冒号对齐,支持中文
-func PrintAligned(data map[string]interface{}) {
+func PrintAligned(data map[string]interface{}, order []string) {
 	// 找出最长key的显示宽度
 	maxLen := 0
 	for k := range data {
@@ -97,11 +107,21 @@ func PrintAligned(data map[string]interface{}) {
 		}
 	}
 
-	// 打印
-	for k, v := range data {
-		padding := maxLen - runewidth.StringWidth(k) + 2
-		fmt.Printf("%s:%s%v\n", k, spaces(padding), v)
+	for _, k := range order {
+		key := ensureEmojiSpace(strings.TrimSuffix(k, ":"))
+		padding := maxLen - runewidth.StringWidth(key) + 2
+		fmt.Printf("%s:%s%v\n", key, spaces(padding), data[k])
 	}
+}
+
+func ensureEmojiSpace(s string) string {
+	r := []rune(s)
+	if len(r) > 0 && (r[0] > 0x1F000 && r[0] < 0x1FAFF) {
+		if len(r) > 1 && r[1] != ' ' {
+			return string(r[0]) + " " + string(r[1:])
+		}
+	}
+	return s
 }
 
 // spaces 生成n个空格
@@ -109,5 +129,6 @@ func spaces(n int) string {
 	if n <= 0 {
 		return ""
 	}
+
 	return fmt.Sprintf("%*s", n, "")
 }

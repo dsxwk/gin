@@ -29,7 +29,7 @@ func InitMysql() *gorm.DB {
 		),
 	})
 	if err != nil {
-		color.Red("❌ 数据库连接失败: %v", err)
+		color.Red("❌  数据库连接失败: %v", err)
 		os.Exit(1)
 	}
 
@@ -45,7 +45,7 @@ func getDsn() string {
 	// 预分配容量
 	b.Grow(128)
 
-	Init()
+	InitConfig()
 	b.WriteString(Conf.Mysql.Username)
 	b.WriteString(":")
 	b.WriteString(Conf.Mysql.Password)

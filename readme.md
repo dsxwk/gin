@@ -283,7 +283,7 @@ D:\www\dsx\go\gin [master]> air
 
   __    _   ___
  / /\  | | | |_)
-/_/--\ |_| |_| \_ v1.63.0, built with Go go1.25.2
+/_/--\ |_| |_| \_ v1.62.0, built with Go go1.24.2
 
 watching .
 watching app
@@ -305,16 +305,18 @@ watching database
 watching docs
 watching public
 watching router
+!exclude storage
 watching tests
 !exclude tmp
 watching utils
 watching utils\cli
+watching utils\cli\db
 watching utils\cli\make
 watching utils\cli\route
+watching utils\ctx
 !exclude vendor
 building...
 running...
-✅ 已加载基础配置文件: D:\www\dsx\go\gin\config\config.yaml
 ✅ 已加载环境配置文件: config\dev.config.yaml
 [GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
 
@@ -322,27 +324,25 @@ running...
  - using env:   export GIN_MODE=release
  - using code:  gin.SetMode(gin.ReleaseMode)
 
-✅ 已加载基础配置文件: D:\www\dsx\go\gin\config\config.yaml
 ✅ 已加载环境配置文件: config\dev.config.yaml
 [GIN-debug] GET    /ping                     --> gin/router.LoadRouters.func1 (3 handlers)
 [GIN-debug] GET    /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
 [GIN-debug] HEAD   /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
 [GIN-debug] GET    /swagger/*any             --> github.com/swaggo/gin-swagger.CustomWrapHandler.func1 (3 handlers)
-[GIN-debug] POST   /api/v1/login             --> gin/app/controller/v1.(*LoginController).Login-fm (3 handlers)
-[GIN-debug] GET    /api/v1/user              --> gin/app/controller/v1.(*UserController).List-fm (4 handlers)
-[GIN-debug] POST   /api/v1/user              --> gin/app/controller/v1.(*UserController).Create-fm (4 handlers)
-[GIN-debug] PUT    /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Update-fm (4 handlers)
-[GIN-debug] DELETE /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Delete-fm (4 handlers)
-[GIN-debug] GET    /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Detail-fm (4 handlers)
-端口:    8080
-数据库:  gin
+[GIN-debug] POST   /api/v1/login             --> gin/app/controller/v1.(*LoginController).Login-fm (4 handlers)
+[GIN-debug] GET    /api/v1/user              --> gin/app/controller/v1.(*UserController).List-fm (5 handlers)
+[GIN-debug] POST   /api/v1/user              --> gin/app/controller/v1.(*UserController).Create-fm (5 handlers)
+[GIN-debug] PUT    /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Update-fm (5 handlers)
+[GIN-debug] DELETE /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Delete-fm (5 handlers)
+[GIN-debug] GET    /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Detail-fm (5 handlers)
 应用:    gin
 环境:    dev
-✅  Gin server started successfully!
-✅  0.0.0.0:8080
-👉 Open Swagger: http://127.0.0.1:8080/swagger/index.html
-👉 Test API: http://127.0.0.1:8080/ping
-[GIN-debug] Listening and serving HTTP on :8080
+端口:    8080
+数据库:  gin
+🌐 Address:    http://0.0.0.0:8080
+👉 Swagger:    http://127.0.0.1:8080/swagger/index.html
+👉 Test API:   http://127.0.0.1:8080/ping
+✅  Success:   Gin server started successfully!
 ```
 
 ## Swagger Document Generation

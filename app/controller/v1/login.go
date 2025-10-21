@@ -40,7 +40,7 @@ type LoginResponse struct {
 // @Router /api/v1/login [post]
 func (s *LoginController) Login(c *gin.Context) {
 	var (
-		svc service.LoginService
+		srv service.LoginService
 		req request.Login
 		jwt middleware.Jwt
 	)
@@ -58,7 +58,7 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	userModel, err := svc.Login(req.Username, req.Password)
+	userModel, err := srv.Login(req.Username, req.Password)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
 		return

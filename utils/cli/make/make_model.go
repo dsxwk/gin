@@ -82,7 +82,7 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		outPath = filepath.Join(root + "/app/temp")
 	)
 
-	config.Init()
+	config.InitConfig()
 	g := gen.NewGenerator(gen.Config{
 		OutPath:           outPath,
 		Mode:              gen.WithoutContext | gen.WithDefaultQuery,
