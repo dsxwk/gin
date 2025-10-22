@@ -80,5 +80,5 @@ func (s *LoginController) Login(c *gin.Context) {
 		"user": userModel,
 	}
 
-	s.Success(c, res, errcode.Success())
+	s.Success(c, errcode.Success().WithData(res))
 }

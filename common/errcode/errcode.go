@@ -2,13 +2,14 @@ package errcode
 
 import "fmt"
 
-// ErrorCode 错误码结构体
+// ErrorCode 公共错误码结构体
 type ErrorCode struct {
-	Code int64  `json:"code"` // 错误码
-	Msg  string `json:"msg"`  // 错误描述
+	Code int64       `json:"code"` // 错误码
+	Msg  string      `json:"msg"`  // 错误描述
+	Data interface{} `json:"data"` // 返回数据
 }
 
-// 实现error接口
+// Error 实现error接口
 func (e ErrorCode) Error() string {
 	return fmt.Sprintf("%s", e.Msg)
 }
@@ -17,6 +18,15 @@ func (e ErrorCode) WithMsg(msg string) ErrorCode {
 	return ErrorCode{
 		Code: e.Code,
 		Msg:  msg,
+		Data: e.Data,
+	}
+}
+
+func (e ErrorCode) WithData(data interface{}) ErrorCode {
+	return ErrorCode{
+		Code: e.Code,
+		Msg:  e.Msg,
+		Data: data,
 	}
 }
 

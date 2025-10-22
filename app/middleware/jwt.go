@@ -19,14 +19,16 @@ type Jwt struct {
 func (s Jwt) Handle() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
+		errCode := errcode.Unauthorized()
 		if token == "" || token == "null" {
-			response.Error(c, errcode.Unauthorized())
+			response.Error(c, &errCode)
 			return
 		}
 
 		data, err := s.Decode(token)
 		if err != nil {
-			response.Error(c, errcode.Unauthorized().WithMsg(err.Error()))
+			errCode = errCode.WithMsg(err.Error())
+			response.Error(c, &errCode)
 			return
 		}
 

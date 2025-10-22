@@ -13,6 +13,10 @@ import (
 	"time"
 )
 
+var (
+	ZapLogger *Logger
+)
+
 // Logger 包装器
 type Logger struct {
 	*zap.Logger
@@ -23,8 +27,7 @@ func NewLogger(zapLogger *zap.Logger) *Logger {
 	return &Logger{zapLogger}
 }
 
-// InitLog 初始化日志系统
-func InitLog() *Logger {
+func init() {
 	// 确保日志目录存在
 	logDir := "storage/logs"
 	if err := os.MkdirAll(logDir, os.ModePerm); err != nil {
@@ -88,7 +91,7 @@ func InitLog() *Logger {
 	)
 	zap.ReplaceGlobals(zapLogger) // 替换全局 zap.L()
 
-	return NewLogger(zapLogger)
+	ZapLogger = NewLogger(zapLogger)
 }
 
 // GetReqFields 从context获取附加日志字段
@@ -98,6 +101,10 @@ func GetReqFields() []zap.Field {
 		return nil
 	}
 
+	debugger := map[string]interface{}{}
+	if GetAllSql() != nil {
+		debugger["mysql"] = GetAllSql()
+	}
 	traceID := logger.GetString(ctx.KeyTraceID)
 	clientIP := logger.ClientIP()
 	method := logger.Request.Method
@@ -110,6 +117,7 @@ func GetReqFields() []zap.Field {
 		zap.String("method", method),
 		zap.String("path", path),
 		zap.String("params", params),
+		zap.Any("debug", debugger),
 	}
 
 	return fields

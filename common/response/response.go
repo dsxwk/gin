@@ -21,26 +21,26 @@ func (r Response) JSON(c *gin.Context) {
 }
 
 // Success 返回成功响应
-func Success(c *gin.Context, data interface{}, e *errcode.ErrorCode) {
+func Success(c *gin.Context, e *errcode.ErrorCode) {
 	var (
 		resp Response
 	)
 
-	if data == nil {
-		data = []interface{}{}
-	}
-
-	if e != nil {
-		resp = Response{
-			Code: e.Code,
-			Msg:  e.Msg,
-			Data: data,
-		}
-	} else {
+	switch e {
+	case nil:
 		resp = Response{
 			Code: errcode.Success().Code,
 			Msg:  errcode.Success().Msg,
-			Data: data,
+			Data: []interface{}{},
+		}
+	default:
+		if e.Data == nil {
+			e.Data = []interface{}{}
+		}
+		resp = Response{
+			Code: e.Code,
+			Msg:  e.Msg,
+			Data: e.Data,
 		}
 	}
 
@@ -48,11 +48,28 @@ func Success(c *gin.Context, data interface{}, e *errcode.ErrorCode) {
 }
 
 // Error 返回失败响应,可传ErrorCode
-func Error(c *gin.Context, e errcode.ErrorCode) {
-	resp := Response{
-		Code: e.Code,
-		Msg:  e.Msg,
-		Data: []interface{}{},
+func Error(c *gin.Context, e *errcode.ErrorCode) {
+	var (
+		resp Response
+	)
+
+	switch e {
+	case nil:
+		resp = Response{
+			Code: errcode.SystemError().Code,
+			Msg:  errcode.SystemError().Msg,
+			Data: []interface{}{},
+		}
+	default:
+		if e.Data == nil {
+			e.Data = []interface{}{}
+		}
+		resp = Response{
+			Code: e.Code,
+			Msg:  e.Msg,
+			Data: e.Data,
+		}
 	}
+
 	resp.JSON(c)
 }

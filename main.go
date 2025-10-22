@@ -37,8 +37,6 @@ func main() {
 		r = gin.Default()
 	)
 
-	config.InitConfig()
-
 	// 运行环境模式 debug模式, test测试模式, release生产模式, 默认是debug,根据当前配置文件读取
 	gin.SetMode(config.Conf.App.Mode)
 

@@ -51,7 +51,7 @@ func (s *UserController) List(c *gin.Context) {
 		return
 	}
 
-	s.Success(c, res, errcode.Success())
+	s.Success(c, errcode.Success().WithData(res))
 }
 
 // Create 创建
@@ -96,7 +96,7 @@ func (s *UserController) Create(c *gin.Context) {
 		return
 	}
 
-	s.Success(c, m, errcode.Success())
+	s.Success(c, errcode.Success().WithData(m))
 }
 
 // Update 更新
@@ -146,7 +146,7 @@ func (s *UserController) Update(c *gin.Context) {
 
 	m, err = srv.Update(m)
 
-	s.Success(c, nil, errcode.Success())
+	s.Success(c, errcode.Success().WithData(m))
 }
 
 // Detail 详情
@@ -182,7 +182,7 @@ func (s *UserController) Detail(c *gin.Context) {
 
 	m, err := srv.Detail(req.ID)
 
-	s.Success(c, m, errcode.Success())
+	s.Success(c, errcode.Success().WithData(m))
 }
 
 // Delete 删除
@@ -218,5 +218,5 @@ func (s *UserController) Delete(c *gin.Context) {
 
 	m, err := srv.Delete(req.ID)
 
-	s.Success(c, m, errcode.Success())
+	s.Success(c, errcode.Success().WithData(m))
 }
