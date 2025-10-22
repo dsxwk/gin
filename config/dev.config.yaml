@@ -15,7 +15,7 @@ mysql:
   password: root
   database: gin
   # 慢查询的时间(ms) 超过这个时间会记录到日志中
-  slow-query-seconds: 3s
+  slow-query-seconds: 3s # time.Duration 3秒
 # 缓存
 cache:
   driver: "memory"  # memory|disk|redis # 为空默认内存缓存

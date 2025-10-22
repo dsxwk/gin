@@ -12,7 +12,7 @@ var (
 )
 
 func init() {
-	Config = config.InitConfig()
-	DB = config.InitMysql()
-	Log = config.InitLog()
+	Config = config.Conf
+	DB = config.DB
+	Log = config.ZapLogger
 }
