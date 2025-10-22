@@ -66,9 +66,9 @@ func main() {
 		"🌐 Address:":  "http://0.0.0.0:" + port,
 		"👉 Swagger:":  "http://127.0.0.1:" + port + "/swagger/index.html",
 		"👉 Test API:": "http://127.0.0.1:" + port + "/ping",
-		"✅  Success:": "Gin server started successfully!",
 	}
-	PrintAligned(run, []string{"🌐 Address:", "👉 Swagger:", "👉 Test API:", "✅  Success:"})
+	PrintAligned(run, []string{"🌐 Address:", "👉 Swagger:", "👉 Test API:"})
+	fmt.Println("Gin server started successfully!")
 
 	srv := &http.Server{
 		Addr:         ":" + port,
