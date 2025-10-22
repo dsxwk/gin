@@ -6,6 +6,7 @@ import (
 	"gin/utils/cli"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
+	"sort"
 	"strings"
 )
 
@@ -33,6 +34,11 @@ func (s *RouteList) Execute(args []string) {
 
 	// 获取所有路由
 	routes := engine.Routes()
+
+	// 按Path排序
+	sort.Slice(routes, func(i, j int) bool {
+		return routes[i].Path < routes[j].Path
+	})
 
 	// 打印路由列表
 	color.Green("---------------------------------------------------------")
