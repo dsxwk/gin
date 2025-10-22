@@ -93,10 +93,6 @@
 │   ├── base                            # Base
 │   ├── errcode                         # Errcode
 │   ├── response                        # Response
-│   ├── extend                          # Extend
-│   ├──├── cache                        # Cache
-│   ├──├── i18n                         # Language
-│   ├──├──├── locales                   # Translation
 │   ├── global                          # Global Variable
 │   ├── template                        # Template
 ├── config                              # Config File
@@ -109,6 +105,9 @@
 │   ├── logs                            # Logs
 ├── tests                               # Test Case
 ├── utils                               # Utils
+│   ├──├── cache                        # Cache
+│   ├──├── i18n                         # Language
+│   ├──├──├── locales                   # Translation
 ├── vendor                              # Vendor
 ├── .air.linux.toml                     # Air Configuration File
 ├── .air.toml                           # Air Configuration File
@@ -116,7 +115,6 @@
 ├── cli.go                              # Command Entry File
 ├── go.mod                              # go mod
 ├── LICENSE                             # LICENSE
-├── LICENSE.COMMERCIAL                  # Business Agreement
 ├── main.go                             # Entry File
 ├── readme.md                           # English Document
 └── readme_zh.md                        # Chinese Document

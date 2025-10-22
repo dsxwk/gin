@@ -93,10 +93,6 @@
 │   ├── base                            # 基类
 │   ├── errcode                         # 错误码
 │   ├── response                        # 响应
-│   ├── extend                          # 扩展
-│   ├──├── cache                        # 缓存
-│   ├──├── i18n                         # 多语言
-│   ├──├──├── locales                   # 翻译文件
 │   ├── global                          # 全局变量
 │   ├── template                        # 模版
 ├── config                              # 配置文件
@@ -109,6 +105,9 @@
 │   ├── logs                            # 日志
 ├── tests                               # 测试用例
 ├── utils                               # 工具包
+│   ├──├── cache                        # 缓存
+│   ├──├── i18n                         # 多语言
+│   ├──├──├── locales                   # 翻译文件
 ├── vendor                              # 依赖包
 ├── .air.linux.toml                     # air配置文件
 ├── .air.toml                           # air配置文件
@@ -116,7 +115,6 @@
 ├── cli.go                              # 命令行入口文件
 ├── go.mod                              # go mod
 ├── LICENSE                             # 开源协议
-├── LICENSE.COMMERCIAL                  # 商业协议
 ├── main.go                             # 入口文件
 ├── readme.md                           # 英文文档
 └── readme_zh.md                        # 中文文档
