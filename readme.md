@@ -44,6 +44,7 @@
     - [Redis缓存](#Redis缓存)
     - [内存缓存](#内存缓存)
     - [磁盘缓存](#磁盘缓存)
+  - [事件](#事件)
   - [响应](#响应)
     - [成功响应](#成功响应)
       - [添加提示](#添加提示)
@@ -58,6 +59,7 @@
   - [swagger文档](#swagger文档)
 
 # Project Introduction
+> A lightweight framework developed based on the Golang language framework Go Gin, out of the box, inspired by mainstream PHP frameworks such as Laravel and ThinPHP. The project architecture directory has a clear hierarchy, which is a blessing for beginners. The framework uses JWT, middleware, cache, validator, event, routing, etc redis、 Command line tools and other technologies. support multiple languages, simple to develop and easy to use, convenient for extension.
 ## Project Address
 - Github: https://github.com/dsxwk/gin.git
 - Gitee: https://gitee.com/dsxwk/gin.git
@@ -71,15 +73,12 @@
 - Efficient: The Gin framework uses sync. Pool to cache objects, reducing memory allocation and release, and improving performance.
 > Golang Gin is a lightweight and efficient Golang web framework. It has the characteristics of high performance, ease of use, and flexibility, and is widely used in the development of various web applications.
 
-## Design Inspiration
-> The design inspiration of Gin framework comes from some popular web frameworks, such as Laravel, ThinkPHP, Hyperf, etc.
-
 # License
 - 📘 Open source version: Following AGPL-3.0, for learning, research, and non-commercial use only.
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Installation Instructions
->
+> 
 
 # Directory Structure
 ```
