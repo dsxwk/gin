@@ -4,7 +4,7 @@ app:
   mode: debug # debug|test|release debug=本地环境 test=测试环境 release=生产环境
   port: 8080
   timezone: Asia/Shanghai
-  proxies: 127.0.0.1/8080,127.0.0.1:8081 # 代理地址多个地址用逗号分隔
+  proxies: 127.0.0.1/8080 # 代理地址多个地址用逗号分隔
   env: dev # dev|testing|production dev=本地环境 testing=测试环境 production=生产环境
 # Mysql数据库
 mysql:
@@ -15,7 +15,7 @@ mysql:
   password: root
   database: gin
   # 慢查询的时间(ms) 超过这个时间会记录到日志中
-  slow-query-seconds: 3s # time.Duration 3秒
+  slow-query-seconds: 3s # 3秒(time.Duration)
 # 缓存
 cache:
   driver: "memory"  # memory|disk|redis # 为空默认内存缓存
@@ -24,6 +24,13 @@ cache:
     host: 127.0.0.1
     port: 6379
     db: 0
+  # 内存缓存
+  memory:
+    default-expire: 5m # 默认过期时间(time.Duration)
+    cleanup-interval: 10m # 清理数据的间隔时间(time.Duration)
+  # 磁盘缓存
+  disk:
+    path: "storage/cache" # 缓存文件存放路径
 # 跨域
 cors:
   enabled: true # 是否开启跨域

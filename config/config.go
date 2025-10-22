@@ -31,6 +31,14 @@ type Mysql struct {
 	SlowQuerySeconds time.Duration `mapstructure:"slow-query-seconds" yaml:"slow-query-seconds"`
 }
 
+// Cache 缓存
+type Cache struct {
+	Driver string `mapstructure:"driver" yaml:"driver"`
+	Redis  Redis  `mapstructure:"redis" yaml:"redis"`
+	Memory Memory `mapstructure:"memory" yaml:"memory"`
+	Disk   Disk   `mapstructure:"disk" yaml:"disk"`
+}
+
 // Redis 数据库
 type Redis struct {
 	Address  string `mapstructure:"address" yaml:"address"`
@@ -38,9 +46,15 @@ type Redis struct {
 	DB       int    `mapstructure:"db" yaml:"db"`
 }
 
-// Cache 缓存
-type Cache struct {
-	Driver string `mapstructure:"driver" yaml:"driver"`
+// Memory 内存缓存
+type Memory struct {
+	DefaultExpire   time.Duration `mapstructure:"default-expire" yaml:"default-expire"`
+	CleanupInterval time.Duration `mapstructure:"cleanup-interval" yaml:"cleanup-interval"`
+}
+
+// Disk 磁盘缓存
+type Disk struct {
+	Path string `mapstructure:"path" yaml:"path"`
 }
 
 // Cors 跨域
@@ -77,6 +91,7 @@ type Config struct {
 	Cors  Cors  `mapstructure:"cors" yaml:"cors"`
 	Jwt   Jwt   `mapstructure:"jwt" yaml:"jwt"`
 	Log   Log   `mapstructure:"log" yaml:"log"`
+	Cache Cache `mapstructure:"cache" yaml:"cache"`
 }
 
 var (
