@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	jwtMiddleware    = middleware.Jwt{}.Handle()
 	loggerMiddleware = middleware.Logger{}.Handle()
+	corsMiddleware   = middleware.Cors{}.Handle()
+	jwtMiddleware    = middleware.Jwt{}.Handle()
 )
 
 // LoadRouters 加载路由
@@ -33,7 +34,7 @@ func LoadRouters(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 路由分组
-	v1 := router.Group("", loggerMiddleware)
+	v1 := router.Group("", loggerMiddleware, corsMiddleware)
 	auth := v1.Group("", jwtMiddleware)
 
 	// 自动注册
