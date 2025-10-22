@@ -6,13 +6,9 @@ import (
 )
 
 const (
-	KeyLogger     string = "logger"
-	KeyTraceID    string = "traceId"
-	KeyClientIP   string = "clientIp"
-	KeyMethod     string = "method"
-	KeyPath       string = "path"
-	KeyParams     string = "params"
-	KeyStackTrace string = "stackTrace"
+	KeyLogger  string = "logger"
+	KeyTraceID string = "traceId"
+	KeyParams  string = "params"
 )
 
 var (

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"gin/common/base"
 	"gin/common/global"
-	"gin/config"
 	"gin/utils/ctx"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -42,8 +41,7 @@ func (s Logger) Handle() gin.HandlerFunc {
 
 		// 是否记录请求日志
 		if global.Config.Log.Access {
-			fields := config.GetFields()
-			global.Log.Info("Access Log", fields...)
+			global.Log.Info("Access Log")
 		}
 
 		c.Next()

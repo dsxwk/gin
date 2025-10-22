@@ -28,7 +28,7 @@ func InitLog() *Logger {
 	// 确保日志目录存在
 	logDir := "storage/logs"
 	if err := os.MkdirAll(logDir, os.ModePerm); err != nil {
-		color.Red("❌ 创建日志目录失败:", err)
+		color.Red("❌  创建日志目录失败:", err)
 		os.Exit(1)
 	}
 
@@ -46,12 +46,17 @@ func InitLog() *Logger {
 
 	// 编码配置
 	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	// encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	encoderConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+		enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
+	}
 	encoderConfig.TimeKey = "timestamp"
 	encoderConfig.CallerKey = "caller"
 	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+	// 格式化堆栈输出(多行缩进)
+	encoderConfig.StacktraceKey = "stackTrace"
 
-	// 同时输出到文件 + 控制台
+	// 创建encoder,同时输出到文件 + 控制台
 	fileEncoder := zapcore.NewJSONEncoder(encoderConfig)
 	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 
@@ -68,20 +73,26 @@ func InitLog() *Logger {
 		level.SetLevel(zap.InfoLevel)
 	}
 
+	// 创建核心
 	core := zapcore.NewTee(
 		zapcore.NewCore(fileEncoder, zapcore.AddSync(lumberJackLogger), level),
 		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level),
 	)
 
 	// 初始化 Logger
-	zapLogger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(2))
+	zapLogger := zap.New(
+		core,
+		zap.AddCaller(),
+		zap.AddCallerSkip(1),
+		zap.AddStacktrace(zapcore.ErrorLevel), // 自动为error级别以上日志添加堆栈
+	)
 	zap.ReplaceGlobals(zapLogger) // 替换全局 zap.L()
 
 	return NewLogger(zapLogger)
 }
 
-// GetFields 从context获取附加日志字段
-func GetFields() []zap.Field {
+// GetReqFields 从context获取附加日志字段
+func GetReqFields() []zap.Field {
 	logger := ctx.GetContext(ctx.KeyLogger)
 	if logger == nil {
 		return nil
@@ -106,7 +117,7 @@ func GetFields() []zap.Field {
 
 // WithFields 添加日志字段
 func (l *Logger) WithFields(fields ...zap.Field) []zap.Field {
-	baseFields := GetFields()
+	baseFields := GetReqFields()
 	if len(baseFields) == 0 {
 		return fields // 无上下文时只返回传入字段
 	}
@@ -146,7 +157,6 @@ func (l *Logger) Error(msg string, fields ...zap.Field) {
 	l.Logger.Error(msg, mergedFields...)
 }
 
-// Panic 堆栈
 func (l *Logger) Panic(msg string, fields ...zap.Field) {
 	mergedFields := l.WithFields(fields...)
 	if mergedFields == nil {
