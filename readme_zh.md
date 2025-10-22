@@ -257,14 +257,18 @@ E:\www\dsx\www-go\gin [master]> go run cli.go route:list
 ---------------------------------------------------------
 Method   Path                                Handler
 ---------------------------------------------------------
+POST     /api/v1/login                       gin/app/controller/v1.(*LoginController).Login
+GET      /api/v1/user                        gin/app/controller/v1.(*UserController).List
+POST     /api/v1/user                        gin/app/controller/v1.(*UserController).Create
+GET      /api/v1/user/:id                    gin/app/controller/v1.(*UserController).Detail
+PUT      /api/v1/user/:id                    gin/app/controller/v1.(*UserController).Update
+DELETE   /api/v1/user/:id                    gin/app/controller/v1.(*UserController).Delete
 GET      /ping                               gin/router.LoadRouters
 GET      /public/*filepath                   github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler
-GET      /swagger/*any                       github.com/swaggo/gin-swagger.CustomWrapHandler
 HEAD     /public/*filepath                   github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler
-POST     /api/v1/login                       gin/app/controller/v1.(*LoginController).Login
-POST     /api/v1/user                        gin/app/controller/v1.(*UserController).List
+GET      /swagger/*any                       github.com/swaggo/gin-swagger.CustomWrapHandler
 ---------------------------------------------------------
-总计 6 条路由
+总计 10 条路由
 ```
 
 ## 模型创建
