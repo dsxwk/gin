@@ -78,7 +78,45 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 安装说明
-> 
+> 项目基于Golang 1.25.2版本开发, 低版本可能存在版本差异, 建议版本 >= 1.25.2。
+## 克隆项目
+```bash
+git clone https://github.com/dsxwk/gin.git
+cd gin
+```
+## 初始化Go环境与依赖
+### 方式一
+```bash
+go env -w GOPROXY=https://goproxy.cn,direct
+go generate ./...
+```
+### 方式二
+```bash
+go env -w GO111MODULE=on
+go env -w GOPROXY=https://goproxy.cn,direct
+go get -u
+go mod tidy
+go mod download
+go mod vendor
+```
+## 启动
+```bash
+go run main.go
+```
+### 使用air热更新
+```bash
+go install github.com/cosmtrek/air@latest
+air
+```
+
+## 编译
+```bash
+go build main.go
+```
+### 运行
+```bash
+./main
+```
 
 # 目录结构
 ```

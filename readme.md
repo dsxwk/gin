@@ -1,9 +1,9 @@
 ## English | [中文](readme_zh.md)
 
-- [Project Introduction](#Project Introduction)
+- [Project Introduction](#Project-Introduction)
 - [License](#License)
-- [Installation Instructions](#Installation Instructions)
-- [Directory Structure](#Directory Structure)
+- [Installation Instructions](#Installation-Instructions)
+- [Directory Structure](#Directory-Structure)
 - [使用方法](#使用方法)
   - [启动服务](#启动服务)
     - [air热更新](#air热更新)
@@ -78,7 +78,45 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Installation Instructions
-> 
+> The project is developed based on Golang version 1.25.2, and there may be version differences in lower versions. It is recommended that the version be greater than or equal to 1.25.2.
+## Clone Project
+```bash
+git clone https://github.com/dsxwk/gin.git
+cd gin
+```
+## Initialize Go environment and dependencies
+### Method One
+```bash
+go env -w GOPROXY=https://goproxy.cn,direct
+go generate ./...
+```
+### Method Two
+```bash
+go env -w GO111MODULE=on
+go env -w GOPROXY=https://goproxy.cn,direct
+go get -u
+go mod tidy
+go mod download
+go mod vendor
+```
+## Start
+```bash
+go run main.go
+```
+### Use Air Hot Update
+```bash
+go install github.com/cosmtrek/air@latest
+air
+```
+
+## Compile
+```bash
+go build main.go
+```
+### Run
+```bash
+./main
+```
 
 # Directory Structure
 ```
