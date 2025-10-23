@@ -23,11 +23,15 @@
   - [Form Validation](#Form-Validation)
     - [Validator Creation Help](#Validator-Creation-Help)
     - [Validator Creation](#Validator-Creation)
-    - [验证规则](#验证规则)
-    - [验证场景](#验证场景)
-    - [提示信息](#提示信息)
-    - [翻译](#翻译)
-    - [自定义验证](#自定义验证)
+    - [Validator Rules](#Validator-Rules)
+    - [Validator Scenes](#Validator-Scenes)
+    - [Prompt Message](#Prompt-Message)
+    - [Field Translation](#Field-Translation)
+    - [Custom Validation](#Custom-Validation)
+      - [Global Rules](#Global-Rules)
+      - [Local Rules](#Local-Rules)
+      - [Temporary Rules](#Temporary-Rules)
+      - [Validator Usage](#Validator-Usage)
   - [服务](#服务)
     - [服务创建帮助](#服务创建帮助)
     - [服务创建](#服务创建)
@@ -425,5 +429,164 @@ func (s User) Translates() map[string]string {
 		"PageSize": "Page Size",
 		"ID":       "ID",
 	}
+}
+```
+
+### Validator Rules
+> For more rules, please refer to [gookit/validate](https://github.com/gookit/validate)
+```go
+// UserCreate User-Create-Validation
+type UserCreate struct {
+  Username string `json:"username" validate:"required" label:"username"`
+  FullName string `json:"fullName" validate:"required" label:"fullname"`
+  Nickname string `json:"nickname" validate:"required" label:"nickname"`
+  Gender   int    `json:"gender" validate:"required|int" label:"gender"`
+  Password string `json:"password" validate:"required" label:"password"`
+}
+
+// UserUpdate User-Update-Validation
+type UserUpdate struct {
+  UserDetail
+  UserCreate
+}
+
+// UserDetail User-Detail-Validation
+type UserDetail struct {
+    ID int64 `json:"id" validate:"required|int|gt:0" label:"ID"`
+}
+
+// User User-Request-Validation
+type User struct {
+  UserDetail
+  UserCreate
+  PageListValidate
+}
+```
+
+### Validator Scenes
+```go
+// ConfigValidation Configuration-Validation
+// - Define validation scenes
+// - You can also add verification settings
+func (s User) ConfigValidation(v *validate.Validation) {
+	v.WithScenes(validate.SValues{
+		// List
+		"List": []string{
+			"PageListValidate.Page",
+			"PageListValidate.PageSize",
+		},
+		// Create
+		"Create": []string{
+			"UserCreate.Username",
+			"UserCreate.FullName",
+			"UserCreate.Nickname",
+			"UserCreate.Gender",
+			"UserCreate.Password",
+		},
+		// Update
+		"Update": []string{
+			"UserUpdate.UserDetail.ID",
+			"UserCreate.Username",
+			"UserCreate.FullName",
+			"UserCreate.Nickname",
+			"UserCreate.Gender",
+		},
+		// Detail
+		"Detail": []string{
+			"UserDetail.ID",
+		},
+		// Delete
+		"Delete": []string{
+			"UserDetail.ID",
+		},
+	})
+}
+```
+
+### Prompt Message
+```go
+// Messages Validator-Error-Message
+func (s User) Messages() map[string]string {
+    return validate.MS{
+        "required":    "Field {field} Required",
+        "int":         "Field {field} Must be an integer",
+        "Page.gt":     "Field {field} Must be greater than 0",
+        "PageSize.gt": "Field {field} Must be greater than 0",
+    }
+}
+```
+
+### Field Translation
+```go
+// Translates Field-Translation
+func (s User) Translates() map[string]string {
+	return validate.MS{
+		"Page":                "Page",
+		"PageSize":            "Page Size",
+		"ID":                  "ID",
+		"UserCreate.Username": "Username",
+		"UserCreate.FullName": "Fullname",
+		"UserCreate.Nickname": "Nickname",
+		"UserCreate.Gender":   "Gender",
+		"UserCreate.Password": "Password",
+	}
+}
+```
+
+### Custom Validation
+#### Global Rules
+> Global rules only need to be defined in the entry file `main.go`,applicable to all validators, without the need for repeated definitions.
+```go
+package main
+
+import (
+  "github.com/gookit/validate"
+)
+
+// Register during initialization
+func init() {
+  validate.AddValidator("is_even", func(val any, rule string) bool {
+    num, ok := val.(int)
+    if !ok {
+      return false
+    }
+    return num%2 == 0
+  })
+}
+```
+
+#### Local Rules
+```go
+// Define local rule methods (naming convention: Validate<rule name>)
+func (s User) ValidateIsEven(val any) bool {
+num := val.(int)
+return num%2 == 0
+}
+```
+
+#### Temporary Rules
+```go
+// GetValidate Request-Validation
+func (s User) GetValidate(data User, scene string) error {
+    v := validate.Struct(data, scene)
+    v.AddValidator("is_even", func(val any, rule string) bool {
+        num, ok := val.(int)
+        if !ok {
+            return false
+        }
+        return num%2 == 0
+    })
+	if !v.Validate(scene) {
+		return errors.New(v.Errors.One())
+	}
+
+    return nil
+}
+```
+
+#### Validator Usage
+```go
+type User struct {
+    Age int `json:"gender" validate:"required|is_even" label:"age"`
 }
 ```

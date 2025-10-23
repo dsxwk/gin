@@ -26,8 +26,12 @@
     - [验证规则](#验证规则)
     - [验证场景](#验证场景)
     - [提示信息](#提示信息)
-    - [翻译](#翻译)
+    - [字段翻译](#字段翻译)
     - [自定义验证](#自定义验证)
+      - [全局规则](#全局规则)
+      - [局部规则](#局部规则)
+      - [临时规则](#临时规则)
+      - [验证使用](#验证使用)
   - [服务](#服务)
     - [服务创建帮助](#服务创建帮助)
     - [服务创建](#服务创建)
@@ -426,5 +430,164 @@ func (s User) Translates() map[string]string {
 		"PageSize": "每页数量",
 		"ID":       "ID",
 	}
+}
+```
+
+### 验证规则
+> 更多规则请查看 [gookit/validate](https://github.com/gookit/validate)
+```go
+// UserCreate 用户创建验证
+type UserCreate struct {
+  Username string `json:"username" validate:"required" label:"用户名"`
+  FullName string `json:"fullName" validate:"required" label:"姓名"`
+  Nickname string `json:"nickname" validate:"required" label:"昵称"`
+  Gender   int    `json:"gender" validate:"required|int" label:"性别"`
+  Password string `json:"password" validate:"required" label:"密码"`
+}
+
+// UserUpdate 用户更新验证
+type UserUpdate struct {
+  UserDetail
+  UserCreate
+}
+
+// UserDetail 用户详情验证
+type UserDetail struct {
+    ID int64 `json:"id" validate:"required|int|gt:0" label:"ID"`
+}
+
+// User 用户请求验证
+type User struct {
+  UserDetail
+  UserCreate
+  PageListValidate
+}
+```
+
+### 验证场景
+```go
+// ConfigValidation 配置验证
+// - 定义验证场景
+// - 也可以添加验证设置
+func (s User) ConfigValidation(v *validate.Validation) {
+	v.WithScenes(validate.SValues{
+		// 列表
+		"List": []string{
+			"PageListValidate.Page",
+			"PageListValidate.PageSize",
+		},
+		// 创建
+		"Create": []string{
+			"UserCreate.Username",
+			"UserCreate.FullName",
+			"UserCreate.Nickname",
+			"UserCreate.Gender",
+			"UserCreate.Password",
+		},
+		// 更新
+		"Update": []string{
+			"UserUpdate.UserDetail.ID",
+			"UserCreate.Username",
+			"UserCreate.FullName",
+			"UserCreate.Nickname",
+			"UserCreate.Gender",
+		},
+		// 详情
+		"Detail": []string{
+			"UserDetail.ID",
+		},
+		// 删除
+		"Delete": []string{
+			"UserDetail.ID",
+		},
+	})
+}
+```
+
+### 提示信息
+```go
+// Messages 验证器错误消息
+func (s User) Messages() map[string]string {
+	return validate.MS{
+		"required":    "字段 {field} 必填",
+		"int":         "字段 {field} 必须为整数",
+		"Page.gt":     "字段 {field} 需大于 0",
+		"PageSize.gt": "字段 {field} 需大于 0",
+	}
+}
+```
+
+### 字段翻译
+```go
+// Translates 字段翻译
+func (s User) Translates() map[string]string {
+	return validate.MS{
+		"Page":                "页码",
+		"PageSize":            "每页数量",
+		"ID":                  "ID",
+		"UserCreate.Username": "用户名",
+		"UserCreate.FullName": "姓名",
+		"UserCreate.Nickname": "昵称",
+		"UserCreate.Gender":   "性别",
+		"UserCreate.Password": "密码",
+	}
+}
+```
+
+### 自定义验证
+#### 全局规则
+> 全局规则只需要在入口文件`main.go`中定义, 适用于所有验证器, 无需重复定义。
+```go
+package main
+
+import (
+	"github.com/gookit/validate"
+)
+
+// 初始化时注册
+func init() {
+	validate.AddValidator("is_even", func(val any, rule string) bool {
+		num, ok := val.(int)
+		if !ok {
+			return false
+		}
+		return num%2 == 0
+	})
+}
+```
+
+#### 局部规则
+```go
+// 定义局部规则方法(命名规则：Validate<规则名>)
+func (s User) ValidateIsEven(val any) bool {
+	num := val.(int)
+	return num%2 == 0
+}
+```
+
+#### 临时规则
+```go
+// GetValidate 请求验证
+func (s User) GetValidate(data User, scene string) error {
+	v := validate.Struct(data, scene)
+	v.AddValidator("is_even", func(val any, rule string) bool {
+        num, ok := val.(int)
+        if !ok {
+            return false
+        }
+        return num%2 == 0
+    })
+	if !v.Validate(scene) {
+		return errors.New(v.Errors.One())
+	}
+
+	return nil
+}
+```
+
+#### 验证使用
+```go
+type User struct {
+    Age int `json:"gender" validate:"required|is_even" label:"年龄"`
 }
 ```

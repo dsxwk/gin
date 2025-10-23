@@ -33,7 +33,7 @@ type UserSearch struct {
 	Gender   int    `form:"gender" validate:"required|int" label:"性别"`
 }
 
-// User 用户请求z验证
+// User 用户请求验证
 type User struct {
 	UserDetail
 	UserCreate
