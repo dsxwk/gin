@@ -6,6 +6,7 @@ import (
 	"gin/config"
 	"gin/router"
 	"gin/utils"
+	"gin/utils/cli"
 	"github.com/gin-gonic/gin"
 	"github.com/mattn/go-runewidth"
 	"log"
@@ -36,6 +37,14 @@ func main() {
 	var (
 		r = gin.Default()
 	)
+
+	// 判断是否为CLI模式
+	if len(os.Args) > 1 && os.Args[1] == "cli" {
+		// 删除第一个参数cli, 让cli.go能正常解析子命令
+		os.Args = append([]string{os.Args[0]}, os.Args[2:]...)
+		cli.Execute()
+		return
+	}
 
 	// 运行环境模式 debug模式, test测试模式, release生产模式, 默认是debug,根据当前配置文件读取
 	gin.SetMode(config.Conf.App.Mode)
