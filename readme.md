@@ -3,6 +3,15 @@
 - [Project Introduction](#Project-Introduction)
 - [License](#License)
 - [Installation Instructions](#Installation-Instructions)
+  -[Clone Project](#Clone-Project)
+  -[Initialize Go Environment And Dependencies](#Initialize-Go-Environment-And-Dependencies)
+    -[Method One](#Method-One)
+    -[Method Two](#Method-Two)
+  -[Start](#Start)
+    -[Use Air Hot Update](#Use-Air-Hot-Update)
+  -[Compile](#Compile)
+    -[Compile Project](#Compile-Project)
+    -[Compile Command](#Compile-Command)
 - [Directory Structure](#Directory-Structure)
 - [Instructions For Use](#Instructions-For-Use)
   - [Start Service](#Start-Service)
@@ -91,7 +100,7 @@
 $ git clone https://github.com/dsxwk/gin.git
 $ cd gin
 ```
-## Initialize Go environment and dependencies
+## Initialize Go Environment And Dependencies
 ### Method One
 ```bash
 $ go env -w GOPROXY=https://goproxy.cn,direct
@@ -117,12 +126,18 @@ $ air
 ```
 
 ## Compile
+### Compile Project
 ```bash
 $ go build main.go
-```
-### Run
-```bash
 $ ./main
+```
+
+### Compile Command
+```bash
+$ go build cli.go
+$ ./cli demo-command --args=11
+
+Excute Command: demo-command, Argument: 11
 ```
 
 # Directory Structure
