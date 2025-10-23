@@ -112,7 +112,7 @@ $ go run main.go
 ```
 ### 使用air热更新
 ```bash
-$ go install github.com/cosmtrek/air@latest
+$ go install github.com/air-verse/air@latest
 $ air
 ```
 
@@ -174,8 +174,71 @@ $ go run main.go
 ```
 ### air热更新
 ```bash
-$ go install github.com/cosmtrek/air@latest
+$ go install github.com/air-verse/air@latest
 $ air
+
+  __    _   ___
+ / /\  | | | |_)
+/_/--\ |_| |_| \_ v1.62.0, built with Go go1.24.2
+
+watching .
+watching app
+watching app\command
+watching app\controller
+watching app\controller\v1
+watching app\middleware
+watching app\model
+watching app\request
+watching app\service
+watching common
+watching common\base
+watching common\errcode
+watching common\global
+watching common\response
+watching common\template
+watching config
+watching database
+watching docs
+watching public
+watching router
+!exclude storage
+watching tests
+!exclude tmp
+watching utils
+watching utils\cli
+watching utils\cli\db
+watching utils\cli\make
+watching utils\cli\route
+watching utils\ctx
+!exclude vendor
+building...
+running...
+✅ 已加载环境配置文件: config\dev.config.yaml
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:   export GIN_MODE=release
+ - using code:  gin.SetMode(gin.ReleaseMode)
+
+✅ 已加载环境配置文件: config\dev.config.yaml
+[GIN-debug] GET    /ping                     --> gin/router.LoadRouters.func1 (3 handlers)
+[GIN-debug] GET    /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] HEAD   /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] GET    /swagger/*any             --> github.com/swaggo/gin-swagger.CustomWrapHandler.func1 (3 handlers)
+[GIN-debug] POST   /api/v1/login             --> gin/app/controller/v1.(*LoginController).Login-fm (4 handlers)
+[GIN-debug] GET    /api/v1/user              --> gin/app/controller/v1.(*UserController).List-fm (5 handlers)
+[GIN-debug] POST   /api/v1/user              --> gin/app/controller/v1.(*UserController).Create-fm (5 handlers)
+[GIN-debug] PUT    /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Update-fm (5 handlers)
+[GIN-debug] DELETE /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Delete-fm (5 handlers)
+[GIN-debug] GET    /api/v1/user/:id          --> gin/app/controller/v1.(*UserController).Detail-fm (5 handlers)
+应用:    gin
+环境:    dev
+端口:    8080
+数据库:  gin
+🌐 Address:    http://0.0.0.0:8080
+👉 Swagger:    http://127.0.0.1:8080/swagger/index.html
+👉 Test API:   http://127.0.0.1:8080/ping
+✅  Success:   Gin server started successfully!
 ```
 
 ## 配置文件
@@ -633,4 +696,27 @@ func (s *UserController) List(c *gin.Context) {
 
 	s.Success(c, errcode.Success().WithData(res))
 }
+```
+
+# swagger文档
+```bash
+$ go install github.com/swaggo/swag/cmd/swag@latest
+$ swag init -g main.go --exclude cli,app/service
+2025/10/23 16:26:42 Generate swagger docs....
+2025/10/23 16:26:42 Generate general API Info, search dir:./
+2025/10/23 16:26:43 Generating request.UserLogin
+2025/10/23 16:26:43 Generating errcode.SuccessResponse
+2025/10/23 16:26:43 Generating v1.LoginResponse
+2025/10/23 16:26:43 Generating v1.Token
+2025/10/23 16:26:43 Generating model.User
+2025/10/23 16:26:43 Generating model.DateTime
+2025/10/23 16:26:43 Generating errcode.ArgsErrorResponse
+2025/10/23 16:26:43 Generating errcode.SystemErrorResponse
+2025/10/23 16:26:43 Generating request.PageData
+2025/10/23 16:26:43 Generating request.UserCreate
+2025/10/23 16:26:43 Generating request.UserUpdate
+2025/10/23 16:26:43 Generating request.UserDetail
+2025/10/23 16:26:43 create docs.go at docs/docs.go
+2025/10/23 16:26:43 create swagger.json at docs/swagger.json
+2025/10/23 16:26:43 create swagger.yaml at docs/swagger.yaml
 ```
