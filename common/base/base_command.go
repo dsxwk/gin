@@ -4,12 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"gin/utils"
+	"github.com/fatih/color"
 	"github.com/spf13/pflag"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/fatih/color"
 )
 
 type BaseCommand struct{}
