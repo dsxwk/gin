@@ -4,37 +4,39 @@
 - [License](#License)
 - [Installation Instructions](#Installation-Instructions)
 - [Directory Structure](#Directory-Structure)
-- [使用方法](#使用方法)
-  - [启动服务](#启动服务)
-    - [air热更新](#air热更新)
-  - [配置文件](#配置文件)
-  - [路由](#路由)
-    - [路由创建](#路由创建)
-      - [路由创建帮助](#路由创建帮助)
-    - [路由列表](#路由列表)
-  - [控制器](#控制器)
-    - [控制器创建](#控制器创建)
-      - [控制器创建帮助](#控制器创建帮助)
+- [Instructions For Use](#Instructions-For-Use)
+  - [Start Service](#Start-Service)
+    - [Air Hot Update](#Air-Hot-Update)
+  - [Configuration File](#Configuration-File)
+    -[Project Configuration](#Project-Configuration)
+    -[Hot Update Configuration](#Hot-Update-Configuration)
+  - [Route](#Route)
+    - [Route Creation Help](#Route-Creation-Help)
+    - [Route Creation](#Route-Creation)
+    - [Route List](#Route-List)
+  - [Controller](#Controller)
+    - [Controller Creation Help](#Controller-Creation-Help)
+    - [Controller Creation](#Controller-Creation)
   - [表单验证](#表单验证)
+    - [验证创建帮助](#验证创建帮助)
     - [验证创建](#验证创建)
-      - [验证创建帮助](#验证创建帮助)
     - [验证场景](#验证场景)
     - [验证规则](#验证规则)
     - [提示信息](#提示信息)
     - [翻译](#翻译)
     - [自定义验证](#自定义验证)
   - [模型](#模型)
+    - [模型创建帮助](#模型创建帮助)
     - [模型创建](#模型创建)
-      - [模型创建帮助](#模型创建帮助)
   - [服务](#服务)
+    - [服务创建帮助](#服务创建帮助)
     - [服务创建](#服务创建)
-      - [服务创建帮助](#服务创建帮助)
   - [命令行](#命令行)
     - [简介](#简介)
     - [命令帮助](#命令帮助)
     - [编写命令](#编写命令)
+    - [创建命令帮助](#创建命令帮助)
     - [创建命令](#创建命令)
-      - [创建命令帮助](#创建命令帮助)
     - [命令结构](#命令结构)
     - [选项参数](#选项参数)
     - [注册命令](#注册命令)
@@ -81,41 +83,41 @@
 > The project is developed based on Golang version 1.25.2, and there may be version differences in lower versions. It is recommended that the version be greater than or equal to 1.25.2.
 ## Clone Project
 ```bash
-git clone https://github.com/dsxwk/gin.git
-cd gin
+$ git clone https://github.com/dsxwk/gin.git
+$ cd gin
 ```
 ## Initialize Go environment and dependencies
 ### Method One
 ```bash
-go env -w GOPROXY=https://goproxy.cn,direct
-go generate ./...
+$ go env -w GOPROXY=https://goproxy.cn,direct
+$ go generate ./...
 ```
 ### Method Two
 ```bash
-go env -w GO111MODULE=on
-go env -w GOPROXY=https://goproxy.cn,direct
-go get -u
-go mod tidy
-go mod download
-go mod vendor
+$ go env -w GO111MODULE=on
+$ go env -w GOPROXY=https://goproxy.cn,direct
+$ go get -u
+$ go mod tidy
+$ go mod download
+$ go mod vendor
 ```
 ## Start
 ```bash
-go run main.go
+$ go run main.go
 ```
 ### Use Air Hot Update
 ```bash
-go install github.com/cosmtrek/air@latest
-air
+$ go install github.com/cosmtrek/air@latest
+$ air
 ```
 
 ## Compile
 ```bash
-go build main.go
+$ go build main.go
 ```
 ### Run
 ```bash
-./main
+$ ./main
 ```
 
 # Directory Structure
@@ -151,9 +153,151 @@ go build main.go
 ├── .air.toml                           # Air Configuration File
 ├── .gitignore                          # Gitignore
 ├── cli.go                              # Command Entry File
+├── config.yaml                         # Default Configuration File
+├── dev.config.yaml                     # Local Environment Configuration File
 ├── go.mod                              # go mod
 ├── LICENSE                             # LICENSE
 ├── main.go                             # Entry File
 ├── readme.md                           # English Document
 └── readme_zh.md                        # Chinese Document
+```
+
+# Instructions For Use
+## Start Service
+```bash
+$ go run main.go
+```
+### Air Hot Update
+```bash
+$ go install github.com/cosmtrek/air@latest
+$ air
+```
+
+## Configuration File
+### Project Configuration
+> `config.yaml` is the default configuration file and can be modified by oneself. `dev.config.yaml` corresponds to the local environment configuration, and environment variables can be configured through the following app.exe file to switch environments
+> ```
+> app:
+>   env: dev # dev|testing|production dev=local-environment testing=test-environment production=production-environment
+> ```
+
+### Hot Update Configuration
+> `.air.toml` is the default configuration file in Windows environment, and `.air.Linux.toml` is the default configuration file in Linux environment. You can modify it according to the overall needs of the project.
+
+## Route
+> The `router/root.go` file defines global routing rules that can be modified by oneself, and in general, they only need to be defaulted.
+### Route Creation Help
+```bash
+$ go run cli.go make:router -h # --help
+make:router - Route Creation
+
+Options:
+  -f, --file  File Path, Expample: user                   required:true
+  -d, --desc  Route Description, Expample: User-Routing   required:false
+```
+
+### Route Creation
+```bash
+$ go run cli.go make:router --file=user --desc=User-Routing
+```
+```go
+package router
+
+import (
+	"gin/app/controller/v1"
+	"github.com/gin-gonic/gin"
+)
+
+// UserRouter User-Routing
+type UserRouter struct{}
+
+func init() {
+	Register(&UserRouter{})
+}
+
+// RegisterRoutes Register Route
+func (r *UserRouter) RegisterRoutes(routerGroup *gin.RouterGroup) {
+	var (
+		user v1.UserController
+	)
+
+	router := routerGroup.Group("api/v1")
+	{
+		// List
+		router.GET("/user", user.List)
+		// Create
+		router.POST("/user", user.Create)
+		// Update
+		router.PUT("/user/:id", user.Update)
+		// Delete
+		router.DELETE("/user/:id", user.Delete)
+		// Detail
+		router.GET("/user/:id", user.Detail)
+	}
+}
+
+// IsAuth Do you need authentication
+func (r *UserRouter) IsAuth() bool {
+	return true
+}
+
+```
+
+### Route List
+```bash
+$ go run cli.go route:list
+---------------------------------------------------------
+Method   Path                                Handler
+---------------------------------------------------------
+POST     /api/v1/login                       gin/app/controller/v1.(*LoginController).Login
+GET      /api/v1/user                        gin/app/controller/v1.(*UserController).List
+POST     /api/v1/user                        gin/app/controller/v1.(*UserController).Create
+GET      /api/v1/user/:id                    gin/app/controller/v1.(*UserController).Detail
+PUT      /api/v1/user/:id                    gin/app/controller/v1.(*UserController).Update
+DELETE   /api/v1/user/:id                    gin/app/controller/v1.(*UserController).Delete
+GET      /ping                               gin/router.LoadRouters
+GET      /public/*filepath                   github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler
+HEAD     /public/*filepath                   github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler
+GET      /swagger/*any                       github.com/swaggo/gin-swagger.CustomWrapHandler
+---------------------------------------------------------
+A total of 10 routes
+```
+
+## Controller
+### Controller Creation Help
+```bash
+$ go run cli.go make:controller -h # --help
+make:controller - Controller Creation
+
+Options:
+  -f, --file      File Path, Example: v1/user       required:true
+  -F, --function  Function Name, Example: list      required:false
+  -m, --method    Request Method, Example: get      required:false
+  -r, --router    Route Adress, Example: /user      required:false
+  -d, --desc      Description, Example: Test-List   required:false
+```
+
+### Controller Creation
+```bash
+$ go run cli.go make:controller --file=v1/test --router=/test --method=get --desc=Test-List --function=list
+```
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+// List Test-List
+// @Router /test [get]
+func (s *TestController) List(c *gin.Context) {
+    // Define your function here
+    s.Success(c, errcode.Success().WithMsg("Test Msg").WithData([]string{}))
+}
 ```

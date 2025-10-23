@@ -8,33 +8,35 @@
   - [启动服务](#启动服务)
     - [air热更新](#air热更新)
   - [配置文件](#配置文件)
+    -[项目配置](#项目配置)
+    -[热更新配置](#热更新配置)
   - [路由](#路由)
-  - [路由创建](#路由创建)
     - [路由创建帮助](#路由创建帮助)
+    - [路由创建](#路由创建)
     - [路由列表](#路由列表)
   - [控制器](#控制器)
+    - [控制器创建帮助](#控制器创建帮助)
     - [控制器创建](#控制器创建)
-      - [控制器创建帮助](#控制器创建帮助)
   - [表单验证](#表单验证)
+    - [验证创建帮助](#验证创建帮助)
     - [验证创建](#验证创建)
-      - [验证创建帮助](#验证创建帮助)
     - [验证场景](#验证场景)
     - [验证规则](#验证规则)
     - [提示信息](#提示信息)
     - [翻译](#翻译)
     - [自定义验证](#自定义验证)
   - [模型](#模型)
+    - [模型创建帮助](#模型创建帮助)
     - [模型创建](#模型创建)
-      - [模型创建帮助](#模型创建帮助)
   - [服务](#服务)
+    - [服务创建帮助](#服务创建帮助)
     - [服务创建](#服务创建)
-      - [服务创建帮助](#服务创建帮助)
   - [命令行](#命令行)
     - [简介](#简介)
     - [命令帮助](#命令帮助)
     - [编写命令](#编写命令)
+    - [创建命令帮助](#创建命令帮助)
     - [创建命令](#创建命令)
-      - [创建命令帮助](#创建命令帮助)
     - [命令结构](#命令结构)
     - [选项参数](#选项参数)
     - [注册命令](#注册命令)
@@ -81,41 +83,41 @@
 > 项目基于Golang 1.25.2版本开发, 低版本可能存在版本差异, 建议版本 >= 1.25.2。
 ## 克隆项目
 ```bash
-git clone https://github.com/dsxwk/gin.git
-cd gin
+$ git clone https://github.com/dsxwk/gin.git
+$ cd gin
 ```
 ## 初始化Go环境与依赖
 ### 方式一
 ```bash
-go env -w GOPROXY=https://goproxy.cn,direct
-go generate ./...
+$ go env -w GOPROXY=https://goproxy.cn,direct
+$ go generate ./...
 ```
 ### 方式二
 ```bash
-go env -w GO111MODULE=on
-go env -w GOPROXY=https://goproxy.cn,direct
-go get -u
-go mod tidy
-go mod download
-go mod vendor
+$ go env -w GO111MODULE=on
+$ go env -w GOPROXY=https://goproxy.cn,direct
+$ go get -u
+$ go mod tidy
+$ go mod download
+$ go mod vendor
 ```
 ## 启动
 ```bash
-go run main.go
+$ go run main.go
 ```
 ### 使用air热更新
 ```bash
-go install github.com/cosmtrek/air@latest
-air
+$ go install github.com/cosmtrek/air@latest
+$ air
 ```
 
 ## 编译
 ```bash
-go build main.go
+$ [master]> go build main.go
 ```
 ### 运行
 ```bash
-./main
+$  ./main
 ```
 
 # 目录结构
@@ -151,9 +153,151 @@ go build main.go
 ├── .air.toml                           # air配置文件
 ├── .gitignore                          # git忽略文件
 ├── cli.go                              # 命令行入口文件
+├── config.yaml                         # 默认配置文件
+├── dev.config.yaml                     # 本地环境配置文件
 ├── go.mod                              # go mod
 ├── LICENSE                             # 开源协议
 ├── main.go                             # 入口文件
 ├── readme.md                           # 英文文档
 └── readme_zh.md                        # 中文文档
+```
+
+# 使用方法
+## 启动服务
+```bash
+$ go run main.go
+```
+### air热更新
+```bash
+$ go install github.com/cosmtrek/air@latest
+$ air
+```
+
+## 配置文件
+### 项目配置
+> `config.yaml`为默认配置文件, 可自行修改。`dev.config.yaml`对应本地环境配置, 通过以下app.env文件配置环境变量来切换环境
+> ```
+> app:
+>   env: dev # dev|testing|production dev=本地环境 testing=测试环境 production=生产环境
+> ```
+
+### 热更新配置
+> `.air.toml`为Windows环境下默认配置文件, `.air.linux.toml`为Linux环境下默认配置文件。可自行根据项目整体需要自行修改。
+
+## 路由
+> `router/root.go` 文件中定义了全局路由规则可自行修改,  一般情况只需要默认即可。
+### 路由创建帮助
+```bash
+$ go run cli.go make:router -h # --help
+make:router - 路由创建
+
+Options:
+  -f, --file  文件路径, 如: user      required:true
+  -d, --desc  路由描述, 如: 用户路由   required:false
+```
+
+### 路由创建
+```bash
+$ go run cli.go make:router --file=user --desc=用户路由
+```
+```go
+package router
+
+import (
+	"gin/app/controller/v1"
+	"github.com/gin-gonic/gin"
+)
+
+// UserRouter 用户路由
+type UserRouter struct{}
+
+func init() {
+	Register(&UserRouter{})
+}
+
+// RegisterRoutes 注册路由
+func (r *UserRouter) RegisterRoutes(routerGroup *gin.RouterGroup) {
+	var (
+		user v1.UserController
+	)
+
+	router := routerGroup.Group("api/v1")
+	{
+		// 列表
+		router.GET("/user", user.List)
+		// 创建
+		router.POST("/user", user.Create)
+		// 更新
+		router.PUT("/user/:id", user.Update)
+		// 删除
+		router.DELETE("/user/:id", user.Delete)
+		// 详情
+		router.GET("/user/:id", user.Detail)
+	}
+}
+
+// IsAuth 是否需要鉴权
+func (r *UserRouter) IsAuth() bool {
+	return true
+}
+
+```
+
+### 路由列表
+```bash
+$ go run cli.go route:list
+---------------------------------------------------------
+Method   Path                                Handler
+---------------------------------------------------------
+POST     /api/v1/login                       gin/app/controller/v1.(*LoginController).Login
+GET      /api/v1/user                        gin/app/controller/v1.(*UserController).List
+POST     /api/v1/user                        gin/app/controller/v1.(*UserController).Create
+GET      /api/v1/user/:id                    gin/app/controller/v1.(*UserController).Detail
+PUT      /api/v1/user/:id                    gin/app/controller/v1.(*UserController).Update
+DELETE   /api/v1/user/:id                    gin/app/controller/v1.(*UserController).Delete
+GET      /ping                               gin/router.LoadRouters
+GET      /public/*filepath                   github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler
+HEAD     /public/*filepath                   github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler
+GET      /swagger/*any                       github.com/swaggo/gin-swagger.CustomWrapHandler
+---------------------------------------------------------
+总计 10 条路由
+```
+
+## 控制器
+### 控制器创建帮助
+```bash
+$ go run cli.go make:controller -h # --help
+make:controller - 控制器创建
+
+Options:
+  -f, --file      文件路径, 如: v1/user  required:true
+  -F, --function  方法名称, 如: list     required:false
+  -m, --method    请求方式, 如: get      required:false
+  -r, --router    路由地址, 如: /user    required:false
+  -d, --desc      描述, 如: 列表         required:false
+```
+
+### 控制器创建
+```bash
+$ go run cli.go make:controller --file=v1/test --router=/test --method=get --desc=列表 --function=list
+```
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+// List 列表
+// @Router /test [get]
+func (s *TestController) List(c *gin.Context) {
+    // Define your function here
+    s.Success(c, errcode.Success().WithMsg("Test Msg").WithData([]string{}))
+}
 ```
