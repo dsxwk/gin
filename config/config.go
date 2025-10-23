@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"gin/utils"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -102,8 +103,8 @@ var (
 func init() {
 	v := viper.New()
 
-	// 默认配置文件目录 ./config
-	configDir := "./config"
+	// 默认配置文件目录为根目录
+	configDir := utils.GetRootPath()
 	v.AddConfigPath(configDir)
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")
