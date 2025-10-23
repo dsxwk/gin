@@ -5,34 +5,30 @@ import (
 	"fmt"
 	"gin/common/base"
 	"github.com/fatih/color"
-	"github.com/spf13/pflag"
-	"log"
+	"github.com/mattn/go-runewidth"
 	"os"
 	"sort"
 	"strings"
 )
 
-// 全局命令注册
-var commands = map[string]base.Command{}
+var (
+	commands = make(map[string]base.Command)
+)
 
-// Register 注册命令
 func Register(cmd base.Command) {
 	name := cmd.Name()
 	if _, exists := commands[name]; exists {
 		color.Yellow("⚠️  Command \"%s\" already registered, skipped.", name)
 		os.Exit(1)
 	}
-
 	commands[name] = cmd
 }
 
-// Get 获取命令
 func Get(name string) (base.Command, bool) {
 	cmd, exists := commands[name]
 	return cmd, exists
 }
 
-// Execute 执行命令
 func Execute() {
 	args := os.Args[1:]
 	if len(args) == 0 {
@@ -76,12 +72,11 @@ func Execute() {
 	cmd, exists := Get(name)
 	if !exists {
 		color.Red("❌  Command \"%s\" is not defined.", name)
-		fmt.Println()
 		printUsage("txt")
 		os.Exit(1)
 	}
 
-	// 如果子命令参数中包含 -h 或 --help，直接打印子命令帮助
+	// --help 自动打印命令帮助
 	for _, arg := range cmdArgs {
 		if arg == "-h" || arg == "--help" {
 			printCommandHelp(cmd)
@@ -89,116 +84,11 @@ func Execute() {
 		}
 	}
 
-	cmdFs := pflag.NewFlagSet(name, pflag.ContinueOnError)
-	cmdFs.SetOutput(os.Stderr) // 避免默认打印
-	cmdFs.Usage = func() {}    // 禁止默认 help
-
-	// 注册子命令选项
-	optionMap := map[string]base.CommandOption{} // 保存对应的 option
-	for _, opt := range cmd.Help() {
-		if strings.Contains(opt.Flag, ",") {
-			parts := strings.Split(opt.Flag, ",")
-			short := strings.TrimSpace(parts[0])
-			long := strings.TrimSpace(parts[1])
-			cmdFs.StringP(strings.TrimPrefix(long, "--"), strings.TrimPrefix(short, "-"), "", opt.Desc)
-			optionMap[strings.TrimPrefix(long, "--")] = opt
-		} else {
-			cmdFs.String(strings.TrimPrefix(opt.Flag, "--"), "", opt.Desc)
-			optionMap[strings.TrimPrefix(opt.Flag, "--")] = opt
-		}
-	}
-
-	// 解析子命令参数
-	if err := cmdFs.Parse(cmdArgs); err != nil {
-		// 如果是未知选项
-		if strings.Contains(err.Error(), "unknown flag") {
-			color.Red("❌  Option \"%s\" is not defined.", extractFlag(err.Error()))
-			log.Println()
-			printCommandHelp(cmd)
-			os.Exit(1)
-		}
-		color.Red("❌  %s", err.Error())
-		printCommandHelp(cmd)
-		os.Exit(2)
-	}
-
-	if err := cmdFs.Parse(cmdArgs); err != nil {
-		color.Red("❌  %s", err.Error())
-		printCommandHelp(cmd)
-		os.Exit(2)
-	}
-
-	// 检查必填参数
-	for key, opt := range optionMap {
-		val := cmdFs.Lookup(key).Value.String()
-		if opt.Required && val == "" {
-			color.Red("❌  参数: --%s 不能为空", key)
-			color.Cyan(fmt.Sprintf("Example: go run cli.go %s --%s", cmd.Name(), key))
-			fmt.Println()
-			color.Cyan(fmt.Sprintf("Helper: go run cli.go %s --help", cmd.Name()))
-			printCommandHelp(cmd)
-			os.Exit(3)
-		}
-	}
-
-	// 执行子命令
+	// 交给命令自己解析参数
 	cmd.Execute(cmdArgs)
 }
 
-// extractFlag 提取未知flag
-func extractFlag(msg string) string {
-	parts := strings.Split(msg, " ")
-	if len(parts) > 2 {
-		return parts[2]
-	}
-	return ""
-}
-
-// 命令选项提示 printCommandHelp
-func printCommandHelp(cmd base.Command) {
-	fmt.Printf("\n%s - %s\n\n", color.GreenString(cmd.Name()), cmd.Description())
-
-	options := cmd.Help()
-	if len(options) == 0 {
-		fmt.Println("该命令暂无选项")
-		return
-	}
-
-	color.Yellow("Options:")
-
-	// 计算flag最大长度用于对齐
-	maxFlagLen := 0
-	maxDescLen := 0
-	for _, opt := range options {
-		if len(opt.Flag) > maxFlagLen {
-			maxFlagLen = len(opt.Flag)
-		}
-		if len(opt.Desc) > maxDescLen {
-			maxDescLen = len(opt.Desc)
-		}
-	}
-
-	for _, opt := range options {
-		// flag与描述之间填充空格
-		flagPadding := strings.Repeat(" ", maxFlagLen-len(opt.Flag)+2)
-		descPadding := strings.Repeat(" ", maxDescLen-len(opt.Desc)+2)
-
-		required := color.GreenString("required:false")
-		if opt.Required {
-			required = color.RedString("required:true")
-		}
-
-		fmt.Printf("  %s%s%s%s%s\n",
-			color.GreenString(opt.Flag),
-			flagPadding,
-			opt.Desc,
-			descPadding,
-			required,
-		)
-	}
-}
-
-// printUsage 打印命令列表
+// 打印命令列表
 func printUsage(format string) {
 	switch format {
 	case "json":
@@ -208,9 +98,8 @@ func printUsage(format string) {
 	}
 }
 
-// printText text格式输出
 func printText() {
-	color.Cyan("Usage: go run cli.go [command] [options]\n")
+	color.Cyan("Usage: cli [command] [options]\n")
 	color.Yellow("Available commands:")
 
 	names := make([]string, 0, len(commands))
@@ -226,30 +115,69 @@ func printText() {
 
 	fmt.Println()
 	color.Yellow("Options:")
+	fmt.Println("  -f, --format        The output format (txt, json) [default: txt]")
+	fmt.Println("  -h, --help          Display help for the given command")
+	fmt.Println("  -v, --version       Display CLI version")
+}
 
-	options := []struct {
-		flag string
-		desc string
-	}{
-		{"-f, --format", "The output format (txt, json) [default: txt]"},
-		{"-h, --help", "Display help for the given command. When no command is given display help for the list command"},
-		{"-v, --version", "Display this application version"},
+// 打印单个命令帮助
+func printCommandHelp(cmd base.Command) {
+	fmt.Printf("\n%s - %s\n\n", color.GreenString(cmd.Name()), cmd.Description())
+
+	options := cmd.Help()
+	if len(options) == 0 {
+		fmt.Println("该命令暂无选项")
+		return
 	}
 
-	maxLen := 0
+	color.Yellow("Options:")
+
+	// 计算最大显示宽度（基于未上色的原始字符串）
+	maxFlagWidth := 0
+	maxDescWidth := 0
 	for _, opt := range options {
-		if len(opt.flag) > maxLen {
-			maxLen = len(opt.flag)
+		flagStr := fmt.Sprintf("-%s, --%s", opt.Flag.Short, opt.Flag.Long)
+		if w := runewidth.StringWidth(flagStr); w > maxFlagWidth {
+			maxFlagWidth = w
+		}
+		if w := runewidth.StringWidth(opt.Desc); w > maxDescWidth {
+			maxDescWidth = w
 		}
 	}
 
+	// 打印，每列手动追加空格(基于显示宽度)
 	for _, opt := range options {
-		padding := strings.Repeat(" ", maxLen-len(opt.flag)+2)
-		fmt.Printf("  %s%s%s\n", color.GreenString(opt.flag), padding, opt.desc)
+		flagStr := fmt.Sprintf("-%s, --%s", opt.Flag.Short, opt.Flag.Long)
+		descStr := opt.Desc
+
+		// 颜色化显示内容(不要用于计算宽度)
+		colFlag := color.GreenString(flagStr)
+		colDesc := descStr // 不上色描述也行,若想上色可以color.YellowString(descStr)
+
+		// 计算需要的空格数(基于显示宽度)
+		flagPad := maxFlagWidth - runewidth.StringWidth(flagStr) + 2 // +2 列间距
+		descPad := maxDescWidth - runewidth.StringWidth(descStr) + 2
+
+		required := color.GreenString("required:false")
+		if opt.Required {
+			required = color.RedString("required:true")
+		}
+
+		// 输出：带颜色的 flag + 空格 + 描述 + 空格 + required
+		fmt.Printf("  %s%s%s%s%s\n",
+			colFlag,
+			spaces(flagPad),
+			colDesc,
+			spaces(descPad),
+			required,
+		)
 	}
 }
 
-// printJSON json格式输出
+func spaces(n int) string {
+	return fmt.Sprintf("%*s", n, "")
+}
+
 func printJSON() {
 	names := make([]string, 0, len(commands))
 	for name := range commands {
@@ -267,7 +195,7 @@ func printJSON() {
 	}
 
 	data := map[string]interface{}{
-		"version":  "Gin CLI v1.0.0",
+		"version":  "Gin CLI v2.0.0",
 		"commands": list,
 	}
 

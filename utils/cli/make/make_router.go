@@ -5,7 +5,6 @@ import (
 	"gin/utils"
 	"gin/utils/cli"
 	"github.com/fatih/color"
-	"github.com/spf13/pflag"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -27,12 +26,19 @@ func (m *MakeRouter) Description() string {
 func (m *MakeRouter) Help() []base.CommandOption {
 	return []base.CommandOption{
 		{
-			"-f, --file",
+			base.Flag{
+				Short: "f",
+				Long:  "file",
+			},
 			"文件路径, 如: user",
 			true,
 		},
 		{
-			"-d, --desc",
+			base.Flag{
+				Short:   "d",
+				Long:    "desc",
+				Default: "router-desc",
+			},
 			"路由描述, 如: 用户路由",
 			false,
 		},
@@ -40,20 +46,15 @@ func (m *MakeRouter) Help() []base.CommandOption {
 }
 
 func (m *MakeRouter) Execute(args []string) {
-	var (
-		fs    = pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
-		_make = strings.TrimPrefix(m.Name(), "make:")
-		file  = fs.StringP("file", "f", "", "文件路径, 如: user")
-		desc  = fs.StringP("desc", "d", "description", "路由描述, 如: 用户路由")
-	)
-
-	if err := fs.Parse(args); err != nil {
-		color.Red("参数解析失败: %s", err.Error())
+	values, err := m.ParseFlags(m.Name(), args, m.Help())
+	if err != nil {
+		m.ExitError(err.Error())
 	}
-	color.Green("✅  创建路由: %s (描述: %s)\n", *file, *desc)
-	f := m.GetMakeFile(*file, _make)
 
-	m.generateFile(_make, f, *desc)
+	color.Green("执行命令: %s %s", m.Name(), m.FormatArgs(values))
+	_make := strings.TrimPrefix(m.Name(), "make:")
+	f := m.GetMakeFile(values["file"], _make)
+	m.generateFile(_make, f, values["desc"])
 }
 
 func init() {

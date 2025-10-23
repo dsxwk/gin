@@ -398,8 +398,8 @@ make:model - 模型创建
 
 Options:
   -t, --table  表名, 如: user 或 user,menu  required:true
-  -p, --path   输出目录, 如: api/user        required:false
-  -c, --camel  是否驼峰字段, 如: true        required:false
+  -p, --path   输出目录, 如: api/user       required:false
+  -c, --camel  是否驼峰字段, 如: true       required:false
 ```
 
 ### 模型创建

@@ -5,7 +5,6 @@ import (
 	"gin/utils"
 	"gin/utils/cli"
 	"github.com/fatih/color"
-	"github.com/spf13/pflag"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -26,27 +25,44 @@ func (m *MakeCommand) Description() string {
 
 func (m *MakeCommand) Help() []base.CommandOption {
 	return []base.CommandOption{
-		{"-f, --file", "文件路径, 如: cronjob/demo", true},
-		{"-m, --name", "命令名称, 如: demo.command", false},
-		{"-d, --desc", "描述, 如: demo-desc", false},
+		{
+			base.Flag{
+				Short: "f",
+				Long:  "file",
+			},
+			"文件路径, 如: cronjob/demo",
+			true,
+		},
+		{
+			base.Flag{
+				Short: "m",
+				Long:  "name",
+			},
+			"命令名称, 如: demo.command",
+			false,
+		},
+		{
+			base.Flag{
+				Short:   "d",
+				Long:    "desc",
+				Default: "command-desc",
+			},
+			"描述, 如: command-desc",
+			false,
+		},
 	}
 }
 
 func (m *MakeCommand) Execute(args []string) {
-	var (
-		fs    = pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
-		_make = strings.TrimPrefix(m.Name(), "make:")
-		file  = fs.StringP("file", "f", "", "文件路径, 如: cronjob/demo")
-		name  = fs.StringP("name", "m", "", "demo.command")
-		desc  = fs.StringP("desc", "d", "", "command-desc")
-	)
-
-	if err := fs.Parse(args); err != nil {
-		color.Red("参数解析失败: %s", err.Error())
+	values, err := m.ParseFlags(m.Name(), args, m.Help())
+	if err != nil {
+		m.ExitError(err.Error())
 	}
-	color.Green("✅  创建命令: %s (命令: %s 描述: %s)\n", *file, *name, *desc)
-	f := m.GetMakeFile(*file, _make)
-	m.generateFile(_make, f, *name, *desc)
+
+	color.Green("执行命令: %s %s", m.Name(), m.FormatArgs(values))
+	_make := strings.TrimPrefix(m.Name(), "make:")
+	f := m.GetMakeFile(values["file"], _make)
+	m.generateFile(_make, f, values["name"], values["desc"])
 }
 
 func init() {
@@ -88,5 +104,5 @@ func (m *MakeCommand) generateFile(_make, file, name, desc string) {
 		os.Exit(1)
 	}
 
-	color.Green("✅ 命令行文件: " + file + " 生成成功!")
+	color.Green("✅  命令行文件: " + file + " 生成成功!")
 }

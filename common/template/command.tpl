@@ -1,11 +1,9 @@
 package {{.Package}}
 
 import (
-	"fmt"
 	"gin/common/base"
 	"gin/utils/cli"
 	"github.com/fatih/color"
-	"github.com/spf13/pflag"
 )
 
 type {{.Name}}Command struct {
@@ -26,22 +24,24 @@ func (m *{{.Name}}Command) Description() string {
 
 func (m *{{.Name}}Command) Help() []base.CommandOption {
 	return []base.CommandOption{
-		{
-            "-a, --args",
+        {
+            base.Flag{
+                Short: "a",
+                Long:  "args",
+            },
             "示例参数, 如: arg1",
             true,
         },
-	}
+    }
 }
 
 func (m *{{.Name}}Command) Execute(args []string) {
-    fs := pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
-    arg := fs.StringP("args", "a", "", "示例参数, 如: arg1")
-    if err := fs.Parse(args); err != nil {
-        color.Red("参数解析失败: %s", err.Error())
+    values, err := m.ParseFlags(m.Name(), args, m.Help())
+    if err != nil {
+        m.ExitError(err.Error())
     }
 
-    fmt.Printf("执行命令: %s, 参数: %s\n", m.Name(), *arg)
+    color.Green("执行命令: %s %s", m.Name(), m.FormatArgs(values))
 }
 
 func init() {

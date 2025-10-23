@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"gin/utils"
-	"log"
+	"github.com/spf13/pflag"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,9 +14,16 @@ import (
 
 type BaseCommand struct{}
 
+// Flag 定义短长参数名
+type Flag struct {
+	Short   string
+	Long    string
+	Default string
+}
+
 // CommandOption 用于命令选项描述
 type CommandOption struct {
-	Flag     string // -f, --file
+	Flag     Flag   // flag定义
 	Desc     string // 描述
 	Required bool   // 是否必填
 }
@@ -31,6 +38,64 @@ type Command interface {
 // Help 默认返回nil
 func (b *BaseCommand) Help() []CommandOption {
 	return nil
+}
+
+// ParseFlags flag解析
+func (b *BaseCommand) ParseFlags(name string, args []string, opts []CommandOption) (map[string]string, error) {
+	fs := pflag.NewFlagSet(name, pflag.ExitOnError)
+
+	// 暂存 flag 引用
+	flagRefs := make(map[string]*string)
+
+	for _, opt := range opts {
+		defVal := opt.Flag.Default
+		flagRefs[opt.Flag.Long] = fs.StringP(opt.Flag.Long, opt.Flag.Short, defVal, opt.Desc)
+	}
+
+	// 解析命令参数
+	err := fs.Parse(args)
+	if err != nil {
+		color.Red("❌  参数解析失败: %s", err.Error())
+		return nil, err
+	}
+
+	// 构建结果 map
+	values := make(map[string]string)
+	for key, ref := range flagRefs {
+		values[key] = *ref
+	}
+
+	// 检查必填参数
+	for _, opt := range opts {
+		val := values[opt.Flag.Long]
+		if opt.Required && val == "" {
+			b.ExitError(fmt.Sprintf("参数 -%s 或 --%s 不能为空", opt.Flag.Short, opt.Flag.Long))
+		}
+	}
+
+	return values, nil
+}
+
+// FormatArgs 格式化参数
+func (b *BaseCommand) FormatArgs(args map[string]string) string {
+	str := ""
+	for arg, value := range args {
+		str += fmt.Sprintf("--%s=%s", arg, value)
+	}
+
+	return str
+}
+
+// StringToBool 将字符串安全地转换为布尔值
+func (b *BaseCommand) StringToBool(s string) bool {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "1", "true", "yes", "y", "on":
+		return true
+	case "0", "false", "no", "n", "off":
+		return false
+	default:
+		return false // 默认返回false,防止解析异常
+	}
 }
 
 func (b *BaseCommand) ExitError(msg string) {
@@ -91,8 +156,8 @@ func (b *BaseCommand) CheckDirAndFile(file string) *os.File {
 		input, _ := reader.ReadString('\n')
 		input = strings.TrimSpace(input)
 
-		if strings.ToLower(input) != "y" && strings.ToLower(input) != "yes" {
-			log.Println("操作已取消")
+		if !b.StringToBool(input) {
+			fmt.Println("操作已取消")
 			return nil
 		}
 	}

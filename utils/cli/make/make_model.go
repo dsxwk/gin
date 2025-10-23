@@ -7,7 +7,6 @@ import (
 	"gin/utils"
 	"gin/utils/cli"
 	"github.com/fatih/color"
-	"github.com/spf13/pflag"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 	"os"
@@ -31,17 +30,27 @@ func (m *MakeModel) Description() string {
 func (m *MakeModel) Help() []base.CommandOption {
 	return []base.CommandOption{
 		{
-			"-t, --table",
+			base.Flag{
+				Short: "t",
+				Long:  "table",
+			},
 			"表名, 如: user 或 user,menu",
 			true,
 		},
 		{
-			"-p, --path",
-			"输出目录, 如: app/model",
+			base.Flag{
+				Short: "p",
+				Long:  "path",
+			},
+			"输出目录, 如: api/user",
 			false,
 		},
 		{
-			"-c, --camel",
+			base.Flag{
+				Short:   "c",
+				Long:    "camel",
+				Default: "true",
+			},
 			"是否驼峰字段, 如: true",
 			false,
 		},
@@ -49,25 +58,21 @@ func (m *MakeModel) Help() []base.CommandOption {
 }
 
 func (m *MakeModel) Execute(args []string) {
-	var (
-		fs    = pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
-		table = fs.StringP("table", "t", "", "表名, 如: user 或 user,menu")
-		path  = fs.StringP("path", "p", "", "输出目录, 如: api/user")
-		camel = fs.BoolP("camel", "c", true, "是否驼峰字段, 如: true")
-	)
-
-	if err := fs.Parse(args); err != nil {
-		color.Red("参数解析失败: %s", err.Error())
+	values, err := m.ParseFlags(m.Name(), args, m.Help())
+	if err != nil {
+		m.ExitError(err.Error())
 	}
+
+	color.Green("执行命令: %s %s", m.Name(), m.FormatArgs(values))
 	// 去除前斜杠
-	p := filepath.Join("app/model/", strings.TrimPrefix(*path, "/"))
-	tables := strings.Split(*table, ",")
+	p := filepath.Join("app/model/", strings.TrimPrefix(values["path"], "/"))
+	tables := strings.Split(values["table"], ",")
 	for i := range tables {
 		tables[i] = strings.TrimSpace(tables[i])
-		color.Green("✅  创建模型: %s (表名: %s 是否使用驼峰: %v)\n", p+"/"+tables[i]+".gen.go", tables[i], *camel)
+		color.Green("✅  创建模型: %s (表名: %s 是否使用驼峰: %v)\n", p+"/"+tables[i]+".gen.go", tables[i], values["camel"])
 	}
 
-	m.generateFiles(p, tables, *camel)
+	m.generateFiles(p, tables, m.StringToBool(values["camel"]))
 }
 
 func init() {

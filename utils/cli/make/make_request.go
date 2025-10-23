@@ -1,12 +1,10 @@
 package make
 
 import (
-	"fmt"
 	"gin/common/base"
 	"gin/utils"
 	"gin/utils/cli"
 	"github.com/fatih/color"
-	"github.com/spf13/pflag"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -28,12 +26,19 @@ func (m *MakeRequest) Description() string {
 func (m *MakeRequest) Help() []base.CommandOption {
 	return []base.CommandOption{
 		{
-			"-f, --file",
+			base.Flag{
+				Short: "f",
+				Long:  "file",
+			},
 			"文件路径, 如: user",
 			true,
 		},
 		{
-			"-d, --desc",
+			base.Flag{
+				Short:   "d",
+				Long:    "desc",
+				Default: "Validator",
+			},
 			"描述, 如: 用户请求验证",
 			false,
 		},
@@ -41,20 +46,15 @@ func (m *MakeRequest) Help() []base.CommandOption {
 }
 
 func (m *MakeRequest) Execute(args []string) {
-	var (
-		fs    = pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
-		_make = strings.TrimPrefix(m.Name(), "make:")
-		file  = fs.StringP("file", "f", "", "文件路径, 如: user")
-		desc  = fs.StringP("desc", "d", "Validator", "描述")
-	)
-
-	if err := fs.Parse(args); err != nil {
-		color.Red("参数解析失败: %s", err.Error())
+	values, err := m.ParseFlags(m.Name(), args, m.Help())
+	if err != nil {
+		m.ExitError(err.Error())
 	}
-	fmt.Printf("✅  创建服务: %s (描述: %s)\n", *file, *desc)
-	f := m.GetMakeFile(*file, _make)
 
-	m.generateFile(_make, f, *desc)
+	color.Green("执行命令: %s %s", m.Name(), m.FormatArgs(values))
+	_make := strings.TrimPrefix(m.Name(), "make:")
+	f := m.GetMakeFile(values["file"], _make)
+	m.generateFile(_make, f, values["desc"])
 }
 
 func init() {
