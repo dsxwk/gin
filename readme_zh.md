@@ -46,8 +46,9 @@
     - [服务创建帮助](#服务创建帮助)
     - [服务创建](#服务创建)
   - [命令行](#命令行)
-    - [简介](#简介)
+    - [获取版本](#获取版本)
     - [命令帮助](#命令帮助)
+    - [命令列表](#命令列表)
     - [编写命令](#编写命令)
     - [创建命令帮助](#创建命令帮助)
     - [创建命令](#创建命令)
@@ -710,6 +711,111 @@ func (s *UserController) List(c *gin.Context) {
 	}
 
 	s.Success(c, errcode.Success().WithData(res))
+}
+```
+
+## 服务
+### 服务创建帮助
+```bash
+$ go run cli.go make:service -h # --help
+
+make:service - 服务创建
+
+Options:
+  -f, --file      文件路径, 如: v1/user  required:true
+  -F, --function  方法名称, 如: list     required:false
+  -d, --desc      描述, 如: 列表         required:false
+exit status 3
+```
+
+### 服务创建
+```bash
+$ go run cli.go make:service -f=user --function=list --desc="列表"
+```
+
+## 命令行
+### 获取版本
+```bash
+$ go run cli.go --version # -v
+Gin CLI v1.0.0
+```
+
+### 命令帮助
+```bash
+$ go run cli.go -h # --help
+
+Usage: go run cli.go [command] [options]
+Available commands:
+  db:migrate               数据库迁移(自动建表/更新结构)
+  db:seed                  数据初始化
+  demo-command             test-demo
+  make:command             服务创建
+  make:controller          控制器创建
+  make:middleware          中间件创建
+  make:model               模型创建
+  make:request             验证请求创建
+  make:router              路由创建
+  make:service             服务创建
+  route:list               路由列表
+
+Options:
+  -f, --format   The output format (txt, json) [default: txt]
+  -h, --help     Display help for the given command. When no command is given display help for the list command
+  -v, --version  Display this application version
+```
+
+### 命令列表
+```bash
+$ go run cli.go --format=json # -f=json
+
+{
+  "commands": [
+    {
+      "description": "数据库迁移(自动建表/更新结构)",
+      "name": "db:migrate"
+    },
+    {
+      "description": "数据初始化",
+      "name": "db:seed"
+    },
+    {
+      "description": "test-demo",
+      "name": "demo-command"
+    },
+    {
+      "description": "服务创建",
+      "name": "make:command"
+    },
+    {
+      "description": "控制器创建",
+      "name": "make:controller"
+    },
+    {
+      "description": "中间件创建",
+      "name": "make:middleware"
+    },
+    {
+      "description": "模型创建",
+      "name": "make:model"
+    },
+    {
+      "description": "验证请求创建",
+      "name": "make:request"
+    },
+    {
+      "description": "路由创建",
+      "name": "make:router"
+    },
+    {
+      "description": "服务创建",
+      "name": "make:service"
+    },
+    {
+      "description": "路由列表",
+      "name": "route:list"
+    }
+  ],
+  "version": "Gin CLI v1.0.0"
 }
 ```
 

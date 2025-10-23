@@ -42,12 +42,13 @@
       - [Temporary Rules](#Temporary-Rules)
       - [Validator Usage](#Validator-Usage)
       - [Used In The Controller](#Used-In-The-Controller)
-  - [服务](#服务)
-    - [服务创建帮助](#服务创建帮助)
-    - [服务创建](#服务创建)
-  - [命令行](#命令行)
-    - [简介](#简介)
-    - [命令帮助](#命令帮助)
+  - [Service](#Service)
+    - [Service Creation Help](#Service-Creation-Help)
+    - [Service Creation](#Service-Creation)
+  - [Command](#Command)
+    - [Get Version](#Get-Version)
+    - [Command Help](#Command-Help)
+    - [Command List](#Command-List)
     - [编写命令](#编写命令)
     - [创建命令帮助](#创建命令帮助)
     - [创建命令](#创建命令)
@@ -709,6 +710,111 @@ func (s *UserController) List(c *gin.Context) {
 	}
 
 	s.Success(c, errcode.Success().WithData(res))
+}
+```
+
+## Service
+### Service Creation Help
+```bash
+$ go run cli.go make:service -h # --help
+
+make:service - Service Creation
+
+Options:
+  -f, --file      File Path, Example: v1/user      required:true
+  -F, --function  Function Name, Example: list     required:false
+  -d, --desc      Description, Example: list       required:false
+exit status 3
+```
+
+### Service Creation
+```bash
+$ go run cli.go make:service -f=user --function=list --desc="list"
+```
+
+## Command
+### Get Version
+```bash
+$ go run cli.go --version # -v
+Gin CLI v1.0.0
+```
+
+### Command Help
+```bash
+$ go run cli.go -h # --help
+
+Usage: go run cli.go [command] [options]
+Available commands:
+  db:migrate               Database Migration(Automatic Table Creation/Schema Updates)
+  db:seed                  Data Initialization
+  demo-command             test-demo
+  make:command             Service Creation
+  make:controller          Controller Creation
+  make:middleware          Middleware Creation
+  make:model               Model Creation
+  make:request             Validator Creation
+  make:router              Route Creation
+  make:service             Service Creation
+  route:list               Route List
+
+Options:
+  -f, --format   The output format (txt, json) [default: txt]
+  -h, --help     Display help for the given command. When no command is given display help for the list command
+  -v, --version  Display this application version
+```
+
+### Command List
+```bash
+$ go run cli.go --format=json # -f=json
+
+{
+  "commands": [
+    {
+      "description": "Database Migration(Automatic Table Creation/Schema Updates)",
+      "name": "db:migrate"
+    },
+    {
+      "description": "Data Initialization",
+      "name": "db:seed"
+    },
+    {
+      "description": "test-demo",
+      "name": "demo-command"
+    },
+    {
+      "description": "Service Creation",
+      "name": "make:command"
+    },
+    {
+      "description": "Controller Creation",
+      "name": "make:controller"
+    },
+    {
+      "description": "Middleware Creation",
+      "name": "make:middleware"
+    },
+    {
+      "description": "Model Creation",
+      "name": "make:model"
+    },
+    {
+      "description": "Validator Creation",
+      "name": "make:request"
+    },
+    {
+      "description": "Route Creation",
+      "name": "make:router"
+    },
+    {
+      "description": "Service Creation",
+      "name": "make:service"
+    },
+    {
+      "description": "Route List",
+      "name": "route:list"
+    }
+  ],
+  "version": "Gin CLI v1.0.0"
 }
 ```
 
