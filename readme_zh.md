@@ -573,10 +573,10 @@ func (s User) ConfigValidation(v *validate.Validation) {
 // Messages 验证器错误消息
 func (s User) Messages() map[string]string {
 	return validate.MS{
-		"required":    "字段 {field} 必填",
-		"int":         "字段 {field} 必须为整数",
-		"Page.gt":     "字段 {field} 需大于 0",
-		"PageSize.gt": "字段 {field} 需大于 0",
+        "required":                     "字段 {field} 必填",
+        "int":                          "字段 {field} 必须为整数",
+        "PageListValidate.Page.gt":     "字段 {field} 需大于 0",
+        "PageListValidate.PageSize.gt": "字段 {field} 需大于 0",
 	}
 }
 ```

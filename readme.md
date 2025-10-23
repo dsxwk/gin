@@ -572,10 +572,10 @@ func (s User) ConfigValidation(v *validate.Validation) {
 // Messages Validator-Error-Message
 func (s User) Messages() map[string]string {
     return validate.MS{
-        "required":    "Field {field} Required",
-        "int":         "Field {field} Must be an integer",
-        "Page.gt":     "Field {field} Must be greater than 0",
-        "PageSize.gt": "Field {field} Must be greater than 0",
+        "required":                     "Field {field} Required",
+        "int":                          "Field {field} Must be an integer",
+        "PageListValidate.Page.gt":     "Field {field} Must be greater than 0",
+        "PageListValidate.PageSize.gt": "Field {field} Must be greater than 0",
     }
 }
 ```
