@@ -314,11 +314,12 @@ make:model - 模型创建
 
 Options:
   -t, --table  表名, 如: user 或 user,menu  required:true
-  -p, --path   输出目录, 如: api/user     required:false
-  -c, --camel  是否驼峰字段, 如: true    required:false
+  -p, --path   输出目录, 如: api/user        required:false
+  -c, --camel  是否驼峰字段, 如: true        required:false
 ```
 
 ### 模型创建
+> 支持创建同时多个模型文件, 如需创建多个模型文件, 传人的表名参数请使用逗号分隔, 如: user,menu
 ```bash
 $ go run cli.go make:model --table=user,menu --path=api/user --camel=true
 ```

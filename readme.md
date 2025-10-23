@@ -318,6 +318,7 @@ Options:
 ```
 
 ### Model Creation
+> Support the creation of multiple model files simultaneously. If multiple model files need to be created, please separate the table name parameters of the descendants with commas, such as: user, menu
 ```bash
 $ go run cli.go make:model --table=user,menu --path=api/user --camel=true
 ```
