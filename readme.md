@@ -63,7 +63,7 @@
   - [日志](#日志)
     - [错误调试](#错误调试)
   - [多语言](#多语言)
-  - [swagger文档](#swagger文档)
+  - [Swagger Documents](#Swagger-Documents)
 
 # Project Introduction
 > A lightweight framework developed based on the Golang language framework Go Gin, out of the box, inspired by mainstream PHP frameworks such as Laravel and ThinPHP. The project architecture directory has a clear hierarchy, which is a blessing for beginners. The framework uses JWT, middleware, cache, validator, event, routing, etc redis、 Command line tools and other technologies. support multiple languages, simple to develop and easy to use, convenient for extension.
