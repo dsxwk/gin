@@ -113,7 +113,7 @@ $ air
 
 ## 编译
 ```bash
-$ [master]> go build main.go
+$ go build main.go
 ```
 ### 运行
 ```bash
