@@ -32,6 +32,7 @@
       - [局部规则](#局部规则)
       - [临时规则](#临时规则)
       - [验证使用](#验证使用)
+      - [在控制器中使用](#在控制器中使用)
   - [服务](#服务)
     - [服务创建帮助](#服务创建帮助)
     - [服务创建](#服务创建)
@@ -438,17 +439,17 @@ func (s User) Translates() map[string]string {
 ```go
 // UserCreate 用户创建验证
 type UserCreate struct {
-  Username string `json:"username" validate:"required" label:"用户名"`
-  FullName string `json:"fullName" validate:"required" label:"姓名"`
-  Nickname string `json:"nickname" validate:"required" label:"昵称"`
-  Gender   int    `json:"gender" validate:"required|int" label:"性别"`
-  Password string `json:"password" validate:"required" label:"密码"`
+	Username string `json:"username" validate:"required" label:"用户名"`
+	FullName string `json:"fullName" validate:"required" label:"姓名"`
+	Nickname string `json:"nickname" validate:"required" label:"昵称"`
+	Gender   int    `json:"gender" validate:"required|int" label:"性别"`
+	Password string `json:"password" validate:"required" label:"密码"`
 }
 
 // UserUpdate 用户更新验证
 type UserUpdate struct {
-  UserDetail
-  UserCreate
+	UserDetail
+	UserCreate
 }
 
 // UserDetail 用户详情验证
@@ -458,9 +459,9 @@ type UserDetail struct {
 
 // User 用户请求验证
 type User struct {
-  UserDetail
-  UserCreate
-  PageListValidate
+	UserDetail
+	UserCreate
+	PageListValidate
 }
 ```
 
@@ -589,5 +590,47 @@ func (s User) GetValidate(data User, scene string) error {
 ```go
 type User struct {
     Age int `json:"gender" validate:"required|is_even" label:"年龄"`
+}
+```
+
+#### 在控制器中使用
+```go
+// List 列表
+// @Tags 用户管理
+// @Summary 列表
+// @Description 用户列表
+// @Param token header string true "认证Token"
+// @Param page query string true "页码"
+// @Param pageSize query string true "分页大小"
+// @Success 200 {object} errcode.SuccessResponse{data=request.PageData{list=[]model.User}} "登录成功"
+// @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
+// @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
+// @Router /api/v1/user [get]
+func (s *UserController) List(c *gin.Context) {
+	var (
+		srv service.UserService
+		req request.User
+	)
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		return
+	}
+
+	// 验证
+	err = request.User{}.GetValidate(req, "List")
+	if err != nil {
+		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		return
+	}
+
+	res, err := srv.List(req)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		return
+	}
+
+	s.Success(c, errcode.Success().WithData(res))
 }
 ```

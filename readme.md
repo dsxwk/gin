@@ -32,6 +32,7 @@
       - [Local Rules](#Local-Rules)
       - [Temporary Rules](#Temporary-Rules)
       - [Validator Usage](#Validator-Usage)
+      - [Used In The Controller](#Used-In-The-Controller)
   - [服务](#服务)
     - [服务创建帮助](#服务创建帮助)
     - [服务创建](#服务创建)
@@ -437,17 +438,17 @@ func (s User) Translates() map[string]string {
 ```go
 // UserCreate User-Create-Validation
 type UserCreate struct {
-  Username string `json:"username" validate:"required" label:"username"`
-  FullName string `json:"fullName" validate:"required" label:"fullname"`
-  Nickname string `json:"nickname" validate:"required" label:"nickname"`
-  Gender   int    `json:"gender" validate:"required|int" label:"gender"`
-  Password string `json:"password" validate:"required" label:"password"`
+	Username string `json:"username" validate:"required" label:"username"`
+	FullName string `json:"fullName" validate:"required" label:"fullname"`
+	Nickname string `json:"nickname" validate:"required" label:"nickname"`
+	Gender   int    `json:"gender" validate:"required|int" label:"gender"`
+	Password string `json:"password" validate:"required" label:"password"`
 }
 
 // UserUpdate User-Update-Validation
 type UserUpdate struct {
-  UserDetail
-  UserCreate
+	UserDetail
+	UserCreate
 }
 
 // UserDetail User-Detail-Validation
@@ -457,9 +458,9 @@ type UserDetail struct {
 
 // User User-Request-Validation
 type User struct {
-  UserDetail
-  UserCreate
-  PageListValidate
+	UserDetail
+	UserCreate
+	PageListValidate
 }
 ```
 
@@ -588,5 +589,47 @@ func (s User) GetValidate(data User, scene string) error {
 ```go
 type User struct {
     Age int `json:"gender" validate:"required|is_even" label:"age"`
+}
+```
+
+#### Used In The Controller
+```go
+// List User-List
+// @Tags User
+// @Summary List
+// @Description User-List
+// @Param token header string true "Authentication Token"
+// @Param page query string true "Page"
+// @Param pageSize query string true "Page Size"
+// @Success 200 {object} errcode.SuccessResponse{data=request.PageData{list=[]model.User}} "Login Successful"
+// @Failure 400 {object} errcode.ArgsErrorResponse "Argument Error"
+// @Failure 500 {object} errcode.SystemErrorResponse "System Error"
+// @Router /api/v1/user [get]
+func (s *UserController) List(c *gin.Context) {
+	var (
+		srv service.UserService
+		req request.User
+	)
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		return
+	}
+
+	// Validator
+	err = request.User{}.GetValidate(req, "List")
+	if err != nil {
+		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		return
+	}
+
+	res, err := srv.List(req)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		return
+	}
+
+	s.Success(c, errcode.Success().WithData(res))
 }
 ```
