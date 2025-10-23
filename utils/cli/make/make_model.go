@@ -52,7 +52,7 @@ func (m *MakeModel) Execute(args []string) {
 	var (
 		fs    = pflag.NewFlagSet(m.Name(), pflag.ExitOnError)
 		table = fs.StringP("table", "t", "", "表名, 如: user 或 user,menu")
-		path  = fs.StringP("path", "p", "", "输出目录, 如: app/model")
+		path  = fs.StringP("path", "p", "", "输出目录, 如: api/user")
 		camel = fs.BoolP("camel", "c", true, "是否驼峰字段, 如: true")
 	)
 
