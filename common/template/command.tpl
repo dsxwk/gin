@@ -36,11 +36,7 @@ func (m *{{.Name}}Command) Help() []base.CommandOption {
 }
 
 func (m *{{.Name}}Command) Execute(args []string) {
-    values, err := m.ParseFlags(m.Name(), args, m.Help())
-    if err != nil {
-        m.ExitError(err.Error())
-    }
-
+    values := m.ParseFlags(m.Name(), args, m.Help())
     color.Green("执行命令: %s %s", m.Name(), m.FormatArgs(values))
 }
 
