@@ -6,6 +6,7 @@ import (
 	"gin/config"
 	"gin/router"
 	"gin/utils"
+	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/mattn/go-runewidth"
 	"log"
@@ -71,11 +72,12 @@ func main() {
 	fmt.Println("Gin server started successfully!")
 
 	srv := &http.Server{
-		Addr:         ":" + port,
-		Handler:      r,
-		ReadTimeout:  10 * time.Second, // 设置读取超时
-		WriteTimeout: 10 * time.Second, // 设置写入超时
-		IdleTimeout:  30 * time.Second, // 设置空闲超时
+		Addr:              ":" + port,
+		Handler:           r,
+		ReadTimeout:       10 * time.Second, // 设置读取超时
+		WriteTimeout:      10 * time.Second, // 设置写入超时
+		IdleTimeout:       30 * time.Second, // 设置空闲超时
+		ReadHeaderTimeout: 5 * time.Second,  // 设置读取头超时
 	}
 
 	go func() {
@@ -89,9 +91,12 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
+	color.Yellow("服务正在关闭...")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_ = srv.Shutdown(ctx)
+	if err := srv.Shutdown(ctx); err != nil {
+		color.Red("❌ 服务关闭异常: %v", err)
+	}
 }
 
 // PrintAligned 打印冒号对齐,支持中文

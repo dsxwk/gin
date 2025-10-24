@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-// HasKey 检查map键名是否存在
-func HasKey(data map[string]interface{}, key string) bool {
+// HasKey 检查map键名是否存在(支持任意键类型,但是键类型必须是可比较类型)
+func HasKey[K comparable, V any](data map[K]V, key K) bool {
 	_, exists := data[key]
 	return exists
 }
