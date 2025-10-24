@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 )
@@ -68,4 +69,9 @@ func CamelToSnake(s string) string {
 		}
 	}
 	return b.String()
+}
+
+// Spaces 返回指定数量的空格
+func Spaces(n int) string {
+	return fmt.Sprintf("%*s", n, "")
 }

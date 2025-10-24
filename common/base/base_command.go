@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gin/utils"
 	"github.com/fatih/color"
+	"github.com/mattn/go-runewidth"
 	"github.com/spf13/pflag"
 	"os"
 	"path/filepath"
@@ -40,10 +41,13 @@ func (b *BaseCommand) Help() []CommandOption {
 }
 
 // ParseFlags flag解析
-func (b *BaseCommand) ParseFlags(name string, args []string, opts []CommandOption) (map[string]string, error) {
-	fs := pflag.NewFlagSet(name, pflag.ExitOnError)
+func (b *BaseCommand) ParseFlags(name string, args []string, opts []CommandOption) map[string]string {
+	// fs := pflag.NewFlagSet(name, pflag.ExitOnError)
+	// ContinueOnError防止自动退出
+	fs := pflag.NewFlagSet(name, pflag.ContinueOnError)
+	fs.SetOutput(nil) // 禁止默认输出Usage信息
 
-	// 暂存 flag 引用
+	// 暂存flag引用
 	flagRefs := make(map[string]*string)
 
 	for _, opt := range opts {
@@ -54,8 +58,12 @@ func (b *BaseCommand) ParseFlags(name string, args []string, opts []CommandOptio
 	// 解析命令参数
 	err := fs.Parse(args)
 	if err != nil {
-		color.Red("❌  参数解析失败: %s", err.Error())
-		return nil, err
+		color.Red("❌  argument error, %s is not defined.", err.Error())
+		color.Cyan("Usage: cli %s [args]", name)
+		fmt.Println()
+		color.Yellow("Available args:")
+		PrintArgs(opts)
+		os.Exit(1)
 	}
 
 	// 构建结果 map
@@ -72,7 +80,51 @@ func (b *BaseCommand) ParseFlags(name string, args []string, opts []CommandOptio
 		}
 	}
 
-	return values, nil
+	return values
+}
+
+// PrintArgs 打印参数
+func PrintArgs(opts []CommandOption) {
+	// 计算最大显示宽度(基于未上色的原始字符串)
+	maxFlagWidth := 0
+	maxDescWidth := 0
+	for _, opt := range opts {
+		flagStr := fmt.Sprintf("-%s, --%s", opt.Flag.Short, opt.Flag.Long)
+		if w := runewidth.StringWidth(flagStr); w > maxFlagWidth {
+			maxFlagWidth = w
+		}
+		if w := runewidth.StringWidth(opt.Desc); w > maxDescWidth {
+			maxDescWidth = w
+		}
+	}
+
+	// 打印，每列手动追加空格(基于显示宽度)
+	for _, opt := range opts {
+		flagStr := fmt.Sprintf("-%s, --%s", opt.Flag.Short, opt.Flag.Long)
+		descStr := opt.Desc
+
+		// 颜色化显示内容(不要用于计算宽度)
+		colFlag := color.GreenString(flagStr)
+		colDesc := descStr // 不上色描述也行,若想上色可以color.YellowString(descStr)
+
+		// 计算需要的空格数(基于显示宽度)
+		flagPad := maxFlagWidth - runewidth.StringWidth(flagStr) + 2 // +2 列间距
+		descPad := maxDescWidth - runewidth.StringWidth(descStr) + 2
+
+		required := color.GreenString("required:false")
+		if opt.Required {
+			required = color.RedString("required:true")
+		}
+
+		// 输出：带颜色的 flag + 空格 + 描述 + 空格 + required
+		fmt.Printf("  %s%s%s%s%s\n",
+			colFlag,
+			utils.Spaces(flagPad),
+			colDesc,
+			utils.Spaces(descPad),
+			required,
+		)
+	}
 }
 
 // FormatArgs 格式化参数

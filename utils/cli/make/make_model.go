@@ -58,11 +58,7 @@ func (m *MakeModel) Help() []base.CommandOption {
 }
 
 func (m *MakeModel) Execute(args []string) {
-	values, err := m.ParseFlags(m.Name(), args, m.Help())
-	if err != nil {
-		m.ExitError(err.Error())
-	}
-
+	values := m.ParseFlags(m.Name(), args, m.Help())
 	color.Green("执行命令: %s %s", m.Name(), m.FormatArgs(values))
 	// 去除前斜杠
 	p := filepath.Join("app/model/", strings.TrimPrefix(values["path"], "/"))

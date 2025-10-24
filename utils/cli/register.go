@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gin/common/base"
 	"github.com/fatih/color"
-	"github.com/mattn/go-runewidth"
 	"os"
 	"sort"
 	"strings"
@@ -99,7 +98,8 @@ func printUsage(format string) {
 }
 
 func printText() {
-	color.Cyan("Usage: cli [command] [options]\n")
+	color.Cyan("Usage: cli [command] [options]")
+	fmt.Println()
 	color.Yellow("Available commands:")
 
 	names := make([]string, 0, len(commands))
@@ -115,9 +115,9 @@ func printText() {
 
 	fmt.Println()
 	color.Yellow("Options:")
-	fmt.Println("  -f, --format        The output format (txt, json) [default: txt]")
-	fmt.Println("  -h, --help          Display help for the given command")
-	fmt.Println("  -v, --version       Display CLI version")
+	fmt.Println(color.GreenString("  -f, --format        ") + "The output format (txt, json) [default: txt]")
+	fmt.Println(color.GreenString("  -h, --help          ") + "Display help for the given command")
+	fmt.Println(color.GreenString("  -v, --version       ") + "Display CLI version")
 }
 
 // 打印单个命令帮助
@@ -131,51 +131,7 @@ func printCommandHelp(cmd base.Command) {
 	}
 
 	color.Yellow("Options:")
-
-	// 计算最大显示宽度（基于未上色的原始字符串）
-	maxFlagWidth := 0
-	maxDescWidth := 0
-	for _, opt := range options {
-		flagStr := fmt.Sprintf("-%s, --%s", opt.Flag.Short, opt.Flag.Long)
-		if w := runewidth.StringWidth(flagStr); w > maxFlagWidth {
-			maxFlagWidth = w
-		}
-		if w := runewidth.StringWidth(opt.Desc); w > maxDescWidth {
-			maxDescWidth = w
-		}
-	}
-
-	// 打印，每列手动追加空格(基于显示宽度)
-	for _, opt := range options {
-		flagStr := fmt.Sprintf("-%s, --%s", opt.Flag.Short, opt.Flag.Long)
-		descStr := opt.Desc
-
-		// 颜色化显示内容(不要用于计算宽度)
-		colFlag := color.GreenString(flagStr)
-		colDesc := descStr // 不上色描述也行,若想上色可以color.YellowString(descStr)
-
-		// 计算需要的空格数(基于显示宽度)
-		flagPad := maxFlagWidth - runewidth.StringWidth(flagStr) + 2 // +2 列间距
-		descPad := maxDescWidth - runewidth.StringWidth(descStr) + 2
-
-		required := color.GreenString("required:false")
-		if opt.Required {
-			required = color.RedString("required:true")
-		}
-
-		// 输出：带颜色的 flag + 空格 + 描述 + 空格 + required
-		fmt.Printf("  %s%s%s%s%s\n",
-			colFlag,
-			spaces(flagPad),
-			colDesc,
-			spaces(descPad),
-			required,
-		)
-	}
-}
-
-func spaces(n int) string {
-	return fmt.Sprintf("%*s", n, "")
+	base.PrintArgs(options)
 }
 
 func printJSON() {
