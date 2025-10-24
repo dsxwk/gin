@@ -8,7 +8,9 @@ import (
 	"github.com/fatih/color"
 )
 
-type Seed struct{}
+type Seed struct {
+	base.BaseCommand
+}
 
 func (s *Seed) Name() string {
 	return "db:seed"
@@ -19,26 +21,29 @@ func (s *Seed) Description() string {
 }
 
 func (s *Seed) Help() []base.CommandOption {
-	return []base.CommandOption{}
+	return []base.CommandOption{
+		{
+			base.Flag{
+				Short:   "f",
+				Long:    "file",
+				Default: "database/seeds/init_user1_data.sql",
+			},
+			"seed 文件, 如: database/seeds/init_user1_data.sql",
+			true,
+		},
+	}
 }
 
 func (s *Seed) Execute(args []string) {
-	color.Cyan("🚀  开始执行数据库 Seed...")
+	values := s.ParseFlags(s.Name(), args, s.Help())
+	color.Cyan("开始执行数据库 Seed...")
 	manager := database.NewMigrationManager(global.DB)
 
-	// 默认 seed 文件路径
-	seedFile := "database/seeds/initial_data.sql"
-	if len(args) > 0 {
-		seedFile = args[0]
-	}
-
-	// 执行 seed
-	if err := manager.Seed(seedFile); err != nil {
-		color.Red("❌ Seed 执行失败: %v", err)
+	// 执行seed
+	if err := manager.Seed(values["file"]); err != nil {
+		color.Red("❌ %v", err)
 		return
 	}
-
-	color.Green("✅ 数据初始化完成!")
 }
 
 func init() {

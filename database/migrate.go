@@ -119,7 +119,7 @@ func (m *MigrationManager) ExecuteMigration(mg Migration) error {
 		return fmt.Errorf("提交迁移失败 %s: %w", mg.Version, err)
 	}
 
-	log.Printf("✅ 执行迁移成功: %s - %s", mg.Version, mg.Name)
+	log.Printf("✅  执行迁移成功: %s - %s", mg.Version, mg.Name)
 	return nil
 }
 
@@ -150,9 +150,9 @@ func (m *MigrationManager) Migrate(dir string) error {
 	}
 
 	if count == 0 {
-		log.Println("✅ 没有待执行的迁移文件")
+		log.Println("✅  没有待执行的迁移文件")
 	} else {
-		log.Printf("✅ 已执行 %d 个迁移", count)
+		log.Printf("✅  已执行 %d 个迁移", count)
 	}
 
 	return nil
@@ -183,7 +183,7 @@ func (m *MigrationManager) Rollback() error {
 		return fmt.Errorf("提交回滚失败: %w", err)
 	}
 
-	log.Printf("✅ 已回滚迁移: %s - %s", migration.Version, migration.Name)
+	log.Printf("✅  已回滚迁移: %s - %s", migration.Version, migration.Name)
 	return nil
 }
 
@@ -205,9 +205,9 @@ func (m *MigrationManager) Status(dir string) error {
 	var pending int
 	for _, mg := range migrations {
 		if _, ok := executed[mg.Version]; ok {
-			fmt.Printf("✅ %s - %s (executed)\n", mg.Version, mg.Name)
+			fmt.Printf("✅  %s - %s (executed)\n", mg.Version, mg.Name)
 		} else {
-			fmt.Printf("⏳ %s - %s (pending)\n", mg.Version, mg.Name)
+			fmt.Printf("⏳  %s - %s (pending)\n", mg.Version, mg.Name)
 			pending++
 		}
 	}
@@ -231,7 +231,7 @@ func (m *MigrationManager) Seed(file string) error {
 	if err = m.db.Exec(string(content)).Error; err != nil {
 		return fmt.Errorf("执行 seed 失败: %w", err)
 	}
-	log.Printf("✅ Seed 执行完成: %s", file)
+	fmt.Printf("✅  Seed 执行完成: %s", file)
 	return nil
 }
 
@@ -250,13 +250,13 @@ func (m *MigrationManager) Reset(dir string) error {
 
 	query := `
 	SET FOREIGN_KEY_CHECKS = 0;
-	DROP TABLE IF EXISTS migrations, user, role, article, category, action, action_roles;
+	DROP TABLE IF EXISTS migrations, user1;
 	SET FOREIGN_KEY_CHECKS = 1;
 	`
 	if err = m.db.Exec(query).Error; err != nil {
 		return err
 	}
 
-	log.Println("✅ 所有表已清空")
+	log.Println("✅  所有表已清空")
 	return m.Migrate(dir)
 }
