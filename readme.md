@@ -76,7 +76,7 @@
   - [Swagger Documents](#Swagger-Documents)
 
 # Project Introduction
-> A lightweight framework developed based on the Golang language framework Go Gin, out of the box, inspired by mainstream PHP frameworks such as Laravel and ThinPHP. The project architecture directory has a clear hierarchy, which is a blessing for beginners. The framework uses JWT, middleware, cache, validator, event, routing, etc redis、 Command line tools and other technologies. support multiple languages, simple to develop and easy to use, convenient for extension.
+> A lightweight framework developed based on the Golang language framework `Go Gin`, out of the box, inspired by mainstream PHP frameworks such as `Laravel` and `ThinkPHP`. The project architecture directory has a clear hierarchy, which is a blessing for beginners. The framework uses `JWT`, `middleware`, `cache`, `validator`, `event`, `routing`, `redis`、 `Command` line tools and other technologies. support multiple languages, simple to develop and easy to use, convenient for extension.
 ## Project Address
 - Github: https://github.com/dsxwk/gin.git
 - Gitee: https://gitee.com/dsxwk/gin.git
