@@ -49,13 +49,13 @@
     - [获取版本](#获取版本)
     - [命令帮助](#命令帮助)
     - [命令列表](#命令列表)
-    - [编写命令](#编写命令)
-    - [创建命令帮助](#创建命令帮助)
-    - [创建命令](#创建命令)
+    - [命令创建帮助](#命令创建帮助)
+    - [命令创建](#命令创建)
     - [命令结构](#命令结构)
-    - [选项参数](#选项参数)
-    - [注册命令](#注册命令)
+    - [命令注册](#命令注册)
+    - [帮助选项](#帮助选项)
     - [执行命令](#执行命令)
+    - [编译执行](#编译执行)
   - [缓存](#缓存)
     - [全局缓存](#全局缓存)
     - [Redis缓存](#Redis缓存)
@@ -817,6 +817,128 @@ $ go run cli.go --format=json # -f=json
   ],
   "version": "Gin CLI v1.0.0"
 }
+```
+
+## 命令创建帮助
+```bash
+$ go run cli.go make:command -h # --help
+
+make:command - 命令创建
+
+Options:
+  -f, --file  文件路径, 如: cronjob/demo  required:true
+  -n, --name  命令名称, 如: demo-test     required:false
+  -d, --desc  描述, 如: command-desc      required:false
+```
+
+## 命令创建
+```bash
+$ go run cli.go make:command --file=cronjob/demo --name=demo-test --desc=command-desc
+```
+
+## 命令结构
+> 生成命令后，应为`Name()` 和 `Description()` 方法定义适当的值。当在显示命令列表时，将使用这些属性。 `Name()` 方法还允许你定义命令的输入期望值。 `Execute()` 执行命令时将调用该方法。你可以将命令逻辑放在此方法中。 让我们看一个示例命令。
+```go
+package cronjob
+
+import (
+	"gin/common/base"
+	"gin/utils/cli"
+	"github.com/fatih/color"
+)
+
+type DemoCommand struct {
+	base.BaseCommand
+}
+
+func (m *DemoCommand) Name() string {
+    return "demo-test"
+}
+
+func (m *DemoCommand) Description() string {
+	return "command-desc"
+}
+
+func (m *DemoCommand) Help() []base.CommandOption {
+	return []base.CommandOption{
+        {
+            base.Flag{
+                Short: "a",
+                Long:  "args",
+            },
+            "示例参数, 如: arg1",
+            true,
+        },
+    }
+}
+
+func (m *DemoCommand) Execute(args []string) {
+    values := m.ParseFlags(m.Name(), args, m.Help())
+    color.Green("执行命令: %s %s", m.Name(), m.FormatArgs(values))
+}
+
+func init() {
+	cli.Register(&DemoCommand{})
+}
+
+```
+
+## 命令注册
+> `cli.go` 默认注册了 `gin/app/command` 目录下的 `command` 包的所有命令，如果你注册的命令不是一个包，可以在 `cli.go` 中添加导入包的路径。
+```go
+package main
+
+import (
+	_ "gin/app/command"
+	_ "gin/app/command/cronjob"
+	"gin/utils/cli"
+	_ "gin/utils/cli/db"
+	_ "gin/utils/cli/make"
+	_ "gin/utils/cli/route"
+)
+
+func main() {
+	cli.Execute()
+}
+
+```
+
+## 帮助选项
+> 命令选项参数使用 `base.CommandOption` 结构体来定义。 `base.CommandOption` 结构体包含两个属性： `Flag` 和 `Description`。 `Flag` 属性用于定义命令选项的标志，可以是短标志（如 `-a`）或长标志（如 `--args`）。 `Description` 属性用于定义命令选项的描述。 `base.CommandOption` 结构体还包含一个 `Required` 属性，用于指定命令选项是否为必需的。同时该方法支持控制台 `--help` 参数，自动生成帮助信息。
+```go
+func (m *DemoCommand) Help() []base.CommandOption {
+	return []base.CommandOption{
+        {
+            base.Flag{
+                Short: "a",
+                Long:  "args",
+            },
+            "示例参数, 如: arg1",
+            true,
+        },
+    }
+}
+```
+```bash
+$ go run cli.go demo-test -h # --help
+
+demo-test - command-desc
+
+Options:
+  -a, --args  示例参数, 如: arg1  required:true
+```
+
+## 执行命令
+```bash
+$ go run cli.go demo-test --args=arg1
+
+执行命令: demo-test --args=arg1
+```
+
+## 编译执行
+```bash
+$ go build cli.go
+$ ./cli demo-test --args=arg1
 ```
 
 # swagger文档

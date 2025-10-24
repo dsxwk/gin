@@ -49,13 +49,13 @@
     - [Get Version](#Get-Version)
     - [Command Help](#Command-Help)
     - [Command List](#Command-List)
-    - [编写命令](#编写命令)
-    - [创建命令帮助](#创建命令帮助)
-    - [创建命令](#创建命令)
-    - [命令结构](#命令结构)
-    - [选项参数](#选项参数)
-    - [注册命令](#注册命令)
-    - [执行命令](#执行命令)
+    - [Command Creation Help](#Command-Creation-Help)
+    - [Command Creation](#Command-Creation)
+    - [Command Structure](#Command-Structure)
+    - [Command Registration](#Command-Registration)
+    - [Help Options](#Help-Options)
+    - [Execute Command](#Execute-Command)
+    - [Compile And Execute Commands](#Compile-And-Execute-Commands)
   - [缓存](#缓存)
     - [全局缓存](#全局缓存)
     - [Redis缓存](#Redis缓存)
@@ -816,6 +816,128 @@ $ go run cli.go --format=json # -f=json
   ],
   "version": "Gin CLI v1.0.0"
 }
+```
+
+## Command Creation Help
+```bash
+$ go run cli.go make:command -h # --help
+
+make:command - Command Creation
+
+Options:
+  -f, --file  File Path, Example: cronjob/demo     required:true
+  -n, --name  Command Name, Example: demo-test     required:false
+  -d, --desc  Description, Example: command-desc   required:false
+```
+
+## Command Creation
+```bash
+$ go run cli.go make:command --file=cronjob/demo --name=demo-test --desc=command-desc
+```
+
+## Command Structure
+> After generating the command, appropriate values should be defined for the ` Name() ` and ` Descript() ` functions. These properties will be used when displaying the command list. The `Name()` function also allows you to define the expected input value for the command. It will call the `Execute()` function when executing the command. You can put the command logic in this method. Let's take a look at an example command.
+```go
+package cronjob
+
+import (
+	"gin/common/base"
+	"gin/utils/cli"
+	"github.com/fatih/color"
+)
+
+type DemoCommand struct {
+	base.BaseCommand
+}
+
+func (m *DemoCommand) Name() string {
+    return "demo-test"
+}
+
+func (m *DemoCommand) Description() string {
+	return "command-desc"
+}
+
+func (m *DemoCommand) Help() []base.CommandOption {
+	return []base.CommandOption{
+        {
+            base.Flag{
+                Short: "a",
+                Long:  "args",
+            },
+            "Example Argument, Example: arg1",
+            true,
+        },
+    }
+}
+
+func (m *DemoCommand) Execute(args []string) {
+    values := m.ParseFlags(m.Name(), args, m.Help())
+    color.Green("Execute Command: %s %s", m.Name(), m.FormatArgs(values))
+}
+
+func init() {
+	cli.Register(&DemoCommand{})
+}
+
+```
+
+## Command Registration
+> `cli. go` registers all commands in the `command` package under the `gin/app/command` directory by default. If the command you registered is not `command` package, you can add the path to import the package in `cli. go`.
+```go
+package main
+
+import (
+	_ "gin/app/command"
+	_ "gin/app/command/cronjob"
+	"gin/utils/cli"
+	_ "gin/utils/cli/db"
+	_ "gin/utils/cli/make"
+	_ "gin/utils/cli/route"
+)
+
+func main() {
+	cli.Execute()
+}
+
+```
+
+## Help Options
+> Command option parameters are defined using the `base. CommandOption` structure. The `base. CommandOption` struct contains two attributes: `Flag` and `Description`. The `Flag` attribute is used to define the flag of command options, which can be a short flag (such as `- a `) or a long flag (such as `--args`). The `Description` attribute is used to define the description of command options. The `base. CommandOption` struct also contains a `Required` attribute that specifies whether a command option is required. At the same time, this method supports the console `--help` parameter and automatically generates help information.
+```go
+func (m *DemoCommand) Help() []base.CommandOption {
+	return []base.CommandOption{
+        {
+            base.Flag{
+                Short: "a",
+                Long:  "args",
+            },
+            "Example Argument, Example: arg1",
+            true,
+        },
+    }
+}
+```
+```bash
+$ go run cli.go demo-test -h # --help
+
+demo-test - command-desc
+
+Options:
+  -a, --args  Example Argument, Example: arg1  required:true
+```
+
+## Execute Command
+```bash
+$ go run cli.go demo-test --args=arg1
+
+Execute Command: demo-test --args=arg1
+```
+
+## Compile And Execute Commands
+```bash
+$ go build cli.go
+$ ./cli demo-test --args=arg1
 ```
 
 # Swagger Documents

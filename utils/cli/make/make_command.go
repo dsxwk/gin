@@ -20,7 +20,7 @@ func (m *MakeCommand) Name() string {
 }
 
 func (m *MakeCommand) Description() string {
-	return "服务创建"
+	return "命令创建"
 }
 
 func (m *MakeCommand) Help() []base.CommandOption {
@@ -35,10 +35,10 @@ func (m *MakeCommand) Help() []base.CommandOption {
 		},
 		{
 			base.Flag{
-				Short: "m",
+				Short: "n",
 				Long:  "name",
 			},
-			"命令名称, 如: demo.command",
+			"命令名称, 如: demo-test",
 			false,
 		},
 		{
