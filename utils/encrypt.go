@@ -18,7 +18,6 @@ func BcryptHash(password string) string {
 // BcryptCheck 对比明文密码和数据库的哈希值
 func BcryptCheck(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-
 	return err == nil
 }
 
@@ -26,6 +25,10 @@ func BcryptCheck(password, hash string) bool {
 func Md5(str []byte, b ...byte) string {
 	h := md5.New()
 	h.Write(str)
-
 	return hex.EncodeToString(h.Sum(b))
+}
+
+// Md5Salt md5加盐加密
+func Md5Salt(str []byte, salt []byte) string {
+	return Md5(append(str, salt...))
 }
