@@ -35,7 +35,7 @@ type LoginResponse struct {
 // @Accept json
 // @Produce json
 // @Param data body request.UserLogin true "登录参数"
-// @Success 200 {object} errcode.SuccessResponse{data=LoginResponse} "登录成功"
+// @Success 200 {object} errcode.SuccessResponse{data=LoginResponse} "成功"
 // @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
 // @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/login [post]
@@ -89,6 +89,9 @@ func (s *LoginController) Login(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param token header string true "刷新Token"
+// @Success 200 {object} errcode.SuccessResponse{data=Token} "成功"
+// @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
+// @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/refresh-token [post]
 func (s *LoginController) RefreshToken(c *gin.Context) {
 	token := c.Request.Header.Get("token")

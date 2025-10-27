@@ -22,7 +22,7 @@ type UserController struct {
 // @Param token header string true "认证Token"
 // @Param page query string true "页码"
 // @Param pageSize query string true "分页大小"
-// @Success 200 {object} errcode.SuccessResponse{data=request.PageData{list=[]model.User}} "登录成功"
+// @Success 200 {object} errcode.SuccessResponse{data=request.PageData{list=[]model.User}} "成功"
 // @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
 // @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/user [get]
@@ -60,7 +60,7 @@ func (s *UserController) List(c *gin.Context) {
 // @Description 用户创建
 // @Param token header string true "认证Token"
 // @Param data body request.UserCreate true "创建参数"
-// @Success 200 {object} errcode.SuccessResponse{data=model.User} "创建成功"
+// @Success 200 {object} errcode.SuccessResponse{data=model.User} "成功"
 // @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
 // @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/user [post]
@@ -106,7 +106,7 @@ func (s *UserController) Create(c *gin.Context) {
 // @Param token header string true "认证Token"
 // @Param id path int true "用户ID"
 // @Param data body request.UserUpdate true "更新参数"
-// @Success 200 {object} errcode.SuccessResponse{data=model.User} "更新成功"
+// @Success 200 {object} errcode.SuccessResponse{data=model.User} "成功"
 // @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
 // @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/user/{id} [put]
@@ -155,7 +155,7 @@ func (s *UserController) Update(c *gin.Context) {
 // @Description 用户详情
 // @Param token header string true "认证Token"
 // @Param id path int true "用户ID"
-// @Success 200 {object} errcode.SuccessResponse{data=model.User} "获取成功"
+// @Success 200 {object} errcode.SuccessResponse{data=model.User} "成功"
 // @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
 // @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/user/{id} [get]
@@ -191,7 +191,7 @@ func (s *UserController) Detail(c *gin.Context) {
 // @Description 用户删除
 // @Param token header string true "认证Token"
 // @Param id path int true "用户ID"
-// @Success 200 {object} errcode.SuccessResponse{data=model.User} "删除成功"
+// @Success 200 {object} errcode.SuccessResponse{data=model.User} "成功"
 // @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
 // @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/user/{id} [delete]

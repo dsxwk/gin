@@ -183,7 +183,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 登录成功
+          description: 成功
           schema:
             allOf:
             - $ref: '#/definitions/errcode.SuccessResponse'
@@ -215,7 +215,24 @@ paths:
         type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/errcode.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.Token'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/errcode.ArgsErrorResponse'
+        "500":
+          description: 系统错误
+          schema:
+            $ref: '#/definitions/errcode.SystemErrorResponse'
       summary: 刷新token
       tags:
       - 登录相关
@@ -240,7 +257,7 @@ paths:
         type: string
       responses:
         "200":
-          description: 登录成功
+          description: 成功
           schema:
             allOf:
             - $ref: '#/definitions/errcode.SuccessResponse'
@@ -282,7 +299,7 @@ paths:
           $ref: '#/definitions/request.UserCreate'
       responses:
         "200":
-          description: 创建成功
+          description: 成功
           schema:
             allOf:
             - $ref: '#/definitions/errcode.SuccessResponse'
@@ -317,7 +334,7 @@ paths:
         type: integer
       responses:
         "200":
-          description: 删除成功
+          description: 成功
           schema:
             allOf:
             - $ref: '#/definitions/errcode.SuccessResponse'
@@ -351,7 +368,7 @@ paths:
         type: integer
       responses:
         "200":
-          description: 获取成功
+          description: 成功
           schema:
             allOf:
             - $ref: '#/definitions/errcode.SuccessResponse'
@@ -391,7 +408,7 @@ paths:
           $ref: '#/definitions/request.UserUpdate'
       responses:
         "200":
-          description: 更新成功
+          description: 成功
           schema:
             allOf:
             - $ref: '#/definitions/errcode.SuccessResponse'
