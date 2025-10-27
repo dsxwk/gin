@@ -944,7 +944,7 @@ $ ./cli demo-test --args=arg1
 # swagger文档
 ```bash
 $ go install github.com/swaggo/swag/cmd/swag@latest
-$ swag init -g main.go --exclude cli,app/service
+$ swag init -g main.go # --exclude cli,app/service
 2025/10/23 16:26:42 Generate swagger docs....
 2025/10/23 16:26:42 Generate general API Info, search dir:./
 2025/10/23 16:26:43 Generating request.UserLogin
