@@ -1,0 +1,14 @@
+[
+  {
+    "id": "middleware.jwt.unsupportedSignatureMethod",
+    "translation": "不支持的签名方法"
+  },
+  {
+    "id": "middleware.jwt.TokenParseErr",
+    "translation": "token解析错误"
+  },
+  {
+    "id": "middleware.jwt.InvalidToken",
+    "translation": "无效的token"
+  }
+]

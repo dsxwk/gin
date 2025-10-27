@@ -1,0 +1,14 @@
+[
+  {
+    "id": "validator.login.username",
+    "translation": "用户名"
+  },
+  {
+    "id": "validator.login.password",
+    "translation": "密码"
+  },
+  {
+    "id": "validator.login.refreshToken",
+    "translation": "刷新token"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "validator.login.username",
+    "translation": "Username"
+  },
+  {
+    "id": "validator.login.password",
+    "translation": "Password"
+  },
+  {
+    "id": "validator.login.refreshToken",
+    "translation": "Refresh Token"
+  }
+]

@@ -84,6 +84,11 @@ type Log struct {
 	Level      string `mapstructure:"level" yaml:"level"`             // 日志级别
 }
 
+// I18n 翻译
+type I18n struct {
+	Dir string `mapstructure:"dir" yaml:"dir"` // 翻译文件目录
+}
+
 // Config 配置
 type Config struct {
 	App   App   `mapstructure:"app" yaml:"app"`
@@ -93,6 +98,7 @@ type Config struct {
 	Jwt   Jwt   `mapstructure:"jwt" yaml:"jwt"`
 	Log   Log   `mapstructure:"log" yaml:"log"`
 	Cache Cache `mapstructure:"cache" yaml:"cache"`
+	I18n  I18n  `mapstructure:"i18n" yaml:"i18n"`
 }
 
 var (

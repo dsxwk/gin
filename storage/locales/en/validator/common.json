@@ -1,0 +1,10 @@
+[
+  {
+    "id": "validator.common.required",
+    "translation": "Is Required"
+  },
+  {
+    "id": "validator.common.field",
+    "translation": "Field"
+  }
+]

@@ -6,6 +6,7 @@ import (
 	"gin/config"
 	"gin/router"
 	"gin/utils"
+	"gin/utils/lang"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/mattn/go-runewidth"
@@ -51,6 +52,9 @@ func main() {
 
 	// 加载路由
 	router.LoadRouters(r)
+
+	// 加载翻译
+	lang.LoadLang()
 
 	data := map[string]interface{}{
 		"应用":  config.Conf.App.Name,

@@ -7,6 +7,7 @@ import (
 	"gin/utils/ctx"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/gookit/goutil/strutil"
 	"io"
 	"net/http"
 )
@@ -36,6 +37,14 @@ func (s Logger) Handle() gin.HandlerFunc {
 		} else {
 			c.Set(ctx.KeyParams, string(body))
 		}
+
+		lang := c.GetHeader("Accept-Language")
+		if strutil.StartsWith(lang, "en") {
+			lang = "en"
+		} else {
+			lang = "zh"
+		}
+		c.Set(ctx.KeyLang, lang)
 
 		ctx.SetContext(ctx.KeyLogger, c)
 

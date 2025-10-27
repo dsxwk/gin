@@ -8,6 +8,7 @@ import (
 	"gin/common/base"
 	"gin/common/errcode"
 	"gin/common/global"
+	"gin/utils/lang"
 	"github.com/gin-gonic/gin"
 )
 
@@ -53,7 +54,7 @@ func (s *LoginController) Login(c *gin.Context) {
 	}
 
 	// 验证
-	err = request.Login{}.GetValidate(req, "login")
+	err = request.Login{}.GetValidate(req, "Login")
 	if err != nil {
 		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
@@ -61,7 +62,7 @@ func (s *LoginController) Login(c *gin.Context) {
 
 	userModel, err := srv.Login(req.Username, req.Password)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
 		return
 	}
 
@@ -71,15 +72,21 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	s.Success(c, errcode.Success().WithData(LoginResponse{
-		Token{
-			AccessToken:        accessToken,
-			RefreshToken:       refreshToken,
-			TokenExpire:        tokenExpire,
-			RefreshTokenExpire: refreshTokenExpire,
-		},
-		userModel,
-	}))
+	s.Success(
+		c, errcode.Success().WithMsg(
+			lang.T("login.success", map[string]interface{}{
+				"name": userModel.Username,
+			}),
+		).WithData(LoginResponse{
+			Token{
+				AccessToken:        accessToken,
+				RefreshToken:       refreshToken,
+				TokenExpire:        tokenExpire,
+				RefreshTokenExpire: refreshTokenExpire,
+			},
+			userModel,
+		}),
+	)
 }
 
 // RefreshToken 刷新token
@@ -94,16 +101,22 @@ func (s *LoginController) Login(c *gin.Context) {
 // @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
 // @Router /api/v1/refresh-token [post]
 func (s *LoginController) RefreshToken(c *gin.Context) {
+	var (
+		req request.Login
+	)
 	token := c.Request.Header.Get("token")
-	if token == "" || token == "null" {
-		s.Error(c, errcode.ArgsError().WithMsg("token不能为空"))
+	req.RefreshToken.Token = token
+	// 验证
+	err := request.Login{}.GetValidate(req, "RefreshToken")
+	if err != nil {
+		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
 	}
 
 	j := middleware.Jwt{}
 	claims, err := j.Decode(token)
 	if err != nil || claims["typ"] != "refresh" {
-		s.Error(c, errcode.Unauthorized().WithMsg("无效的refresh token"))
+		s.Error(c, errcode.Unauthorized().WithMsg(lang.T("login.invalidToken", nil)))
 		return
 	}
 

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "middleware.jwt.unsupportedSignatureMethod",
+    "translation": "JWT signature algorithm does not match local algorithm"
+  },
+  {
+    "id": "middleware.jwt.TokenParseErr",
+    "translation": "Token parsing failed"
+  },
+  {
+    "id": "middleware.jwt.InvalidToken",
+    "translation": "Invalid token"
+  }
+]

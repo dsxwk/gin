@@ -9,6 +9,7 @@ const (
 	KeyLogger  string = "logger"
 	KeyTraceID string = "traceId"
 	KeyParams  string = "params"
+	KeyLang    string = "lang"
 )
 
 var (

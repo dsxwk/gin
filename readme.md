@@ -164,11 +164,15 @@ Excute Command: demo-command, Argument: 11
 ├── storage                             # Storage
 │   ├── cache                           # Disk Cache
 │   ├── logs                            # Logs
+│   ├── locales                         # Translation
+│   ├──├── en                           # English Translation
+│   ├──├── zh                           # Chinese Translation
 ├── tests                               # Test Case
 ├── utils                               # Utils
 │   ├──├── cache                        # Cache
-│   ├──├── i18n                         # Language
-│   ├──├──├── locales                   # Translation
+│   ├──├── cli                          # Command
+│   ├──├── ctx                          # Context
+│   ├──├── lang                         # Language
 ├── vendor                              # Vendor
 ├── .air.linux.toml                     # Air Configuration File
 ├── .air.toml                           # Air Configuration File

@@ -2,6 +2,7 @@ package request
 
 import (
 	"errors"
+	"gin/utils/lang"
 	"github.com/gookit/validate"
 )
 
@@ -41,21 +42,23 @@ func (s Login) GetValidate(data Login, scene string) error {
 // - 也可以添加验证设置
 func (s Login) ConfigValidation(v *validate.Validation) {
 	v.WithScenes(validate.SValues{
-		"login": []string{"Username", "Password"},
+		"Login":        []string{"UserLogin.Username", "UserLogin.Password"},
+		"RefreshToken": []string{"RefreshToken.Token"},
 	})
 }
 
 // Messages 验证器错误消息
 func (s Login) Messages() map[string]string {
 	return validate.MS{
-		"required": "字段 {field} 必填",
+		"required": lang.T("validator.common.field", nil) + " {field} " + lang.T("validator.common.required", nil),
 	}
 }
 
 // Translates 字段翻译
 func (s Login) Translates() map[string]string {
 	return validate.MS{
-		"Username": "用户名",
-		"Password": "密码",
+		"UserLogin.Username": lang.T("validator.login.username", nil),
+		"UserLogin.Password": lang.T("validator.login.password", nil),
+		"RefreshToken.Token": lang.T("validator.login.refreshToken", nil),
 	}
 }

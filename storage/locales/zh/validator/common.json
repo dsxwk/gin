@@ -1,0 +1,10 @@
+[
+  {
+    "id": "validator.common.required",
+    "translation": "必填"
+  },
+  {
+    "id": "validator.common.field",
+    "translation": "字段"
+  }
+]

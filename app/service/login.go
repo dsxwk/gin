@@ -19,13 +19,17 @@ func (s *LoginService) Login(username, password string) (m model.User, err error
 		Where("username = ?", username).
 		First(&m).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return m, errors.New("账号错误")
+			return m, errors.New("login.accountErr")
 		}
 	}
 
 	check := utils.BcryptCheck(password, m.Password)
 	if !check {
-		return m, errors.New("密码错误")
+		return m, errors.New("login.pwdErr")
+	}
+
+	if m.Status == 2 {
+		return m, errors.New("login.accountDisabled")
 	}
 
 	return m, nil

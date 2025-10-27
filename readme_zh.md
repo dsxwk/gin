@@ -164,11 +164,15 @@ $ ./cli demo-command --args=11
 ├── storage                             # 存储
 │   ├── cache                           # 磁盘缓存
 │   ├── logs                            # 日志
+│   ├── locales                         # 翻译文件
+│   ├──├── en                           # 英文翻译
+│   ├──├── zh                           # 中文翻译
 ├── tests                               # 测试用例
 ├── utils                               # 工具包
 │   ├──├── cache                        # 缓存
-│   ├──├── i18n                         # 多语言
-│   ├──├──├── locales                   # 翻译文件
+│   ├──├── cli                          # 命令行
+│   ├──├── ctx                          # 上下文
+│   ├──├── lang                         # 多语言
 ├── vendor                              # 依赖包
 ├── .air.linux.toml                     # air配置文件
 ├── .air.toml                           # air配置文件

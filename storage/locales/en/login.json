@@ -1,0 +1,26 @@
+[
+  {
+    "id": "login.accountErr",
+    "translation": "Login Account Error"
+  },
+  {
+    "id": "login.pwdErr",
+    "translation": "Login Password Error"
+  },
+  {
+    "id": "login.success",
+    "translation": "{{.name}},Login Success"
+  },
+  {
+    "id": "login.accountDisabled",
+    "translation": "Account has been disabled"
+  },
+  {
+    "id": "login.tokenNotEmpty",
+    "translation": "Token cannot be empty"
+  },
+  {
+    "id": "login.invalidToken",
+    "translation": "Invalid token"
+  }
+]
