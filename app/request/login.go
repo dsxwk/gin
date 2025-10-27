@@ -5,12 +5,6 @@ import (
 	"github.com/gookit/validate"
 )
 
-// Login Validator
-type Login struct {
-	UserLogin
-	RefreshToken
-}
-
 // UserLogin 用户登录
 type UserLogin struct {
 	Username string `json:"username" validate:"required" example:"admin" label:"用户名"`
@@ -20,6 +14,16 @@ type UserLogin struct {
 // RefreshToken 刷新token
 type RefreshToken struct {
 	Token string `json:"token" validate:"required" label:"刷新令牌"`
+}
+
+// Register 用户注册
+type Register struct {
+}
+
+// Login Validator
+type Login struct {
+	UserLogin
+	RefreshToken
 }
 
 // GetValidate 请求验证

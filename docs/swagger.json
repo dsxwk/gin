@@ -71,6 +71,31 @@
                 }
             }
         },
+        "/api/v1/refresh-token": {
+            "post": {
+                "description": "刷新token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "登录相关"
+                ],
+                "summary": "刷新token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "刷新Token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/user": {
             "get": {
                 "description": "用户列表",

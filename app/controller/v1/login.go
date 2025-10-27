@@ -7,6 +7,7 @@ import (
 	"gin/app/service"
 	"gin/common/base"
 	"gin/common/errcode"
+	"gin/common/global"
 	"github.com/gin-gonic/gin"
 )
 
@@ -64,21 +65,56 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := jwt.WithRefresh(userModel.ID, 2*60*60, 2*24*60*60)
+	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := jwt.WithRefresh(userModel.ID, global.Config.Jwt.Exp, global.Config.Jwt.RefreshExp)
 	if err != nil {
 		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
 	}
 
-	res := map[string]interface{}{
-		"token": map[string]interface{}{
-			"accessToken":        accessToken,
-			"refreshToken":       refreshToken,
-			"tokenExpire":        tokenExpire,
-			"refreshTokenExpire": refreshTokenExpire,
+	s.Success(c, errcode.Success().WithData(LoginResponse{
+		Token{
+			AccessToken:        accessToken,
+			RefreshToken:       refreshToken,
+			TokenExpire:        tokenExpire,
+			RefreshTokenExpire: refreshTokenExpire,
 		},
-		"user": userModel,
+		userModel,
+	}))
+}
+
+// RefreshToken 刷新token
+// @Tags 登录相关
+// @Summary 刷新token
+// @Description 刷新token
+// @Accept json
+// @Produce json
+// @Param token header string true "刷新Token"
+// @Router /api/v1/refresh-token [post]
+func (s *LoginController) RefreshToken(c *gin.Context) {
+	token := c.Request.Header.Get("token")
+	if token == "" || token == "null" {
+		s.Error(c, errcode.ArgsError().WithMsg("token不能为空"))
+		return
 	}
 
-	s.Success(c, errcode.Success().WithData(res))
+	j := middleware.Jwt{}
+	claims, err := j.Decode(token)
+	if err != nil || claims["typ"] != "refresh" {
+		s.Error(c, errcode.Unauthorized().WithMsg("无效的refresh token"))
+		return
+	}
+
+	uid := int64(claims["id"].(float64))
+	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := j.WithRefresh(uid, global.Config.Jwt.Exp, global.Config.Jwt.RefreshExp)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		return
+	}
+
+	s.Success(c, errcode.Success().WithData(Token{
+		AccessToken:        accessToken,
+		RefreshToken:       refreshToken,
+		TokenExpire:        tokenExpire,
+		RefreshTokenExpire: refreshTokenExpire,
+	}))
 }
