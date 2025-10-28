@@ -73,6 +73,10 @@
   - [日志](#日志)
     - [错误调试](#错误调试)
   - [多语言](#多语言)
+    - [目录配置](#目录配置)
+    - [常规翻译](#常规翻译)
+    - [模版翻译](#模版翻译)
+    - [添加语言](#添加语言)
   - [swagger文档](#swagger文档)
 
 # 项目简介
@@ -943,6 +947,61 @@ $ go run cli.go demo-test --args=arg1
 ```bash
 $ go build cli.go
 $ ./cli demo-test --args=arg1
+```
+
+# 多语言
+> 使用 `i18n` 包实现多语言支持，支持 `zh` 和 `en` 两种语言, 可支持自定义扩展。语言传输默认在`header`中传输 `Accept-Language` 参数, 如 `zh` 或 `en`, 不区分大小写, 不传递默认语言为 `zh`。
+## 目录配置
+> 翻译文件存放路径为 `storage/locales`, 默认语言为 `zh`, 多个语言用逗号分隔。语言存放在对应的语言目录下不区分子目录, 如中文就放在`storage/locales/zh`下,可以支持任意目录下的`json`和`yaml`格式文件。
+```yaml
+# 翻译配置
+i18n:
+  dir: "storage/locales" # 翻译文件存放路径
+  lang: "zh,en" # 默认语言,多个语言用逗号分隔
+```
+
+## 常规翻译
+```go
+import (
+    "gin/utils/lang"
+)
+
+func Test()  {
+    trans := lang.T("login.username", nil)
+	fmt.Println(trans) // 输出: 用户名, 英文输出: Username
+}
+```
+
+## 模版翻译
+> 翻译文件中支持模版翻译, 如 `{{.name}}`, 使用 `map[string]interface{}` 传递参数。
+```json
+[
+  {
+    "id": "login.success",
+    "translation": "{{.name}},登录成功"
+  }
+]
+```
+```go
+import (
+    "gin/utils/lang"
+)
+
+func Test()  {
+    trans := lang.T("login.success", map[string]interface{}{
+        "name": "admin",
+    }),
+	fmt.Println(trans) // 输出: admin,登录成功 英文输出: admin,Login Success
+}
+```
+
+## 添加语言
+> 在 `storage/locales` 目录下添加对应语言目录, 如 `en`, 然后在目录下添加翻译文件, 翻译文件支持 `json` 和 `yaml` 格式, 翻译文件中 `id` 为唯一标识, `translation` 为翻译内容, 翻译文件中可以添加任意数量的翻译内容。配置语言支持需调整配置文件i18n.lang参数。
+```yaml
+# 翻译配置
+i18n:
+  dir: "storage/locales" # 翻译文件存放路径
+  lang: "zh,en" # 默认语言,多个语言用逗号分隔
 ```
 
 # swagger文档

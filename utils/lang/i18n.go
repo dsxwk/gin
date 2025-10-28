@@ -18,9 +18,6 @@ var (
 	Localizers = map[string]*i18n.Localizer{}
 )
 
-// 支持的语言，可扩展
-var supportedLangs = []string{"zh", "en"}
-
 // LoadLang 初始化翻译
 func LoadLang() {
 	Bundle = i18n.NewBundle(language.Chinese)
@@ -33,14 +30,16 @@ func LoadLang() {
 		return
 	}
 
+	langs := strings.Split(config.Conf.I18n.Lang, ",")
+
 	// 遍历语言目录
-	for _, lang := range supportedLangs {
+	for _, lang := range langs {
 		langDir := filepath.Join(baseDir, lang)
 		loadLangDir(lang, langDir)
 	}
 
 	// 初始化Localizer
-	for _, lang := range supportedLangs {
+	for _, lang := range langs {
 		Localizers[lang] = i18n.NewLocalizer(Bundle, lang)
 	}
 }

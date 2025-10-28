@@ -52,6 +52,7 @@ log:
   max-day: 28 # 保留的最大天数
   level: debug # 日志级别 debug|info|warn|error|fatal
 
-  # 翻译配置
+# 翻译配置
 i18n:
   dir: "storage/locales" # 翻译文件存放路径
+  lang: "zh,en" # 默认语言,多个语言用逗号分隔

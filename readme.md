@@ -72,7 +72,11 @@
   - [错误处理](#错误处理)
   - [日志](#日志)
     - [错误调试](#错误调试)
-  - [多语言](#多语言)
+  - [Language Support](#Language-Support)
+    - [Directory Configuration](#Directory-Configuration) 
+    - [Ordinary Translation](#Ordinary-Translation) 
+    - [Template Translation](#Template-Translation) 
+    - [Add Language Support](#Add-Language-Support) 
   - [Swagger Documents](#Swagger-Documents)
 
 # Project Introduction
@@ -942,6 +946,61 @@ Execute Command: demo-test --args=arg1
 ```bash
 $ go build cli.go
 $ ./cli demo-test --args=arg1
+```
+
+# Language Support
+> Implement multilingual support using the `i18n` package, supporting both `zh` and `en` languages, and supporting custom extensions. Language transmission defaults to transmitting the `Accept-Language` parameter in the `header`, such as `zh` or `en`, which is not case sensitive and does not pass the default language as `zh`.
+## Directory Configuration
+> The storage path for translation files is `storage/scales`, the default language is `zh`, and multiple languages are separated by commas. Languages are stored in the corresponding language directory without distinguishing between subdirectories. For example, Chinese is stored in `storage/scales/zh` and can support `json` and `yaml` format files in any directory.
+```yaml
+# Translation Configuration
+i18n:
+  dir: "storage/locales" # Translation file storage path
+  lang: "zh,en" # Default language, multiple languages separated by commas
+```
+
+## Ordinary Translation
+```go
+import (
+    "gin/utils/lang"
+)
+
+func Test()  {
+    trans := lang.T("login.username", nil)
+	fmt.Println(trans) // Output: 用户名, English Output: Username
+}
+```
+
+## Template Translation
+> Template translation is supported in the translation file, such as `{{. name}}`, using `map[string]interface{}` to pass parameters.
+```json
+[
+  {
+    "id": "login.success",
+    "translation": "{{.name}},Login Success"
+  }
+]
+```
+```go
+import (
+    "gin/utils/lang"
+)
+
+func Test()  {
+    trans := lang.T("login.success", map[string]interface{}{
+        "name": "admin",
+    }),
+	fmt.Println(trans) // Output: admin,登录成功 English Output: admin,Login Success
+}
+```
+
+## Add Language Support
+> Add the corresponding language directory, such as `en`, in the `storage/scales` directory, and then add a translation file in the directory. The translation file supports `json` and `yaml` formats, with `id` as the unique identifier and `translation` as the translation content. Any number of translation contents can be added to the translation file. The configuration language support requires adjusting the `i18n.lang` parameter in the configuration file.
+```yaml
+# Translation Configuration
+i18n:
+  dir: "storage/locales" # Translation file storage path
+  lang: "zh,en" # Default language, multiple languages separated by commas
 ```
 
 # Swagger Documents

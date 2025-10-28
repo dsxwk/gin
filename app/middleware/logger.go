@@ -10,6 +10,7 @@ import (
 	"github.com/gookit/goutil/strutil"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type Logger struct {
@@ -38,7 +39,7 @@ func (s Logger) Handle() gin.HandlerFunc {
 			c.Set(ctx.KeyParams, string(body))
 		}
 
-		lang := c.GetHeader("Accept-Language")
+		lang := strings.ToLower(c.GetHeader("Accept-Language"))
 		if strutil.StartsWith(lang, "en") {
 			lang = "en"
 		} else {
