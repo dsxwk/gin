@@ -949,6 +949,184 @@ $ go build cli.go
 $ ./cli demo-test --args=arg1
 ```
 
+# 缓存
+> 使用了全局缓存, 默认使用 `memory` 作为缓存驱动, 支持自定义扩展。默认支持`内存缓存`、`Redis缓存`、`磁盘缓存`三种模式, 可使用全局缓存也可单独使用任意缓存。全局缓存默认只集成了`Set`、`Get`、`Delete`、`Expire`公共方法如需使用更多可以单独使用,你也可以自己集成。
+## 全局缓存
+> 配置全局缓存可通过`yaml`配置文件中的`cache.driver`配置进行切换。
+```go
+import (
+	"fmt"
+    "gin/common/global"
+)
+
+func Test()  {
+    // Set 设置缓存	
+    key := "test_key"
+    value := "test_value"
+    err := global.Cache.Set(key, value, time.Second*10)
+	if err != nil {
+	    // 处理错误	
+    }
+	
+    // Get 获取缓存
+    key := "test_key"
+    value := "test_value"
+    result, ok := global.Cache.Get(key)
+	if ok {
+	    println(result) // test_value	
+    }
+	
+	// Delete 删除缓存
+	key := "test_key"
+	err := global.Cache.Delete(key)
+	if err != nil {
+        // 处理错误	
+    }
+	
+	// Expire 获取缓存过期时间
+	key := "test_key"
+    val, expireAt, ok, err := global.Cache.Expire(key)
+	if err != nil {
+	    // 处理错误
+    }
+	if ok {
+      fmt.Println(val) // test_value
+      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    }
+}
+```
+
+## Redis缓存
+```go
+import (
+	"fmt"
+    "gin/common/global"
+)
+
+func Test()  {
+    // Set 设置缓存	
+    key := "test_key"
+    value := "test_value"
+    err := global.RedisCache.Set(key, value, time.Second*10)
+	if err != nil {
+	    // 处理错误	
+    }
+	
+    // Get 获取缓存
+    key := "test_key"
+    value := "test_value"
+    result, ok := global.RedisCache.Get(key)
+	if ok {
+	    println(result) // test_value	
+    }
+	
+	// Delete 删除缓存
+	key := "test_key"
+	err := global.RedisCache.Delete(key)
+	if err != nil {
+        // 处理错误	
+    }
+	
+	// Expire 获取缓存过期时间
+	key := "test_key"
+    val, expireAt, ok, err := global.RedisCache.Expire(key)
+	if err != nil {
+	    // 处理错误
+    }
+	if ok {
+      fmt.Println(val) // test_value
+      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    }
+	
+	// ... 其他
+}
+```
+
+## 内存缓存
+```go
+import (
+	"fmt"
+    "gin/common/global"
+)
+
+func Test()  {
+    // Set 设置缓存	
+    key := "test_key"
+    value := "test_value"
+    err := global.MemoryCache.Set(key, value, time.Second*10)
+	if err != nil {
+	    // 处理错误	
+    }
+	
+    // Get 获取缓存
+    key := "test_key"
+    value := "test_value"
+    result, ok := global.MemoryCache.Get(key)
+	if ok {
+	    println(result) // test_value	
+    }
+	
+	// Delete 删除缓存
+	key := "test_key"
+	err := global.MemoryCache.Delete(key)
+	if err != nil {
+        // 处理错误	
+    }
+	
+	// Expire 获取缓存过期时间
+	key := "test_key"
+    val, expireAt, ok, err := global.MemoryCache.Expire(key)
+	if err != nil {
+	    // 处理错误
+    }
+	if ok {
+      fmt.Println(val) // test_value
+      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    }
+	
+	// ... 其他
+}
+```
+
+## 磁盘缓存
+```go
+// Set 设置缓存	
+    key := "test_key"
+    value := "test_value"
+    err := global.DiskCache.Set(key, value, time.Second*10)
+	if err != nil {
+	    // 处理错误	
+    }
+	
+    // Get 获取缓存
+    key := "test_key"
+    value := "test_value"
+    result, ok := global.DiskCache.Get(key)
+	if ok {
+	    println(result) // test_value	
+    }
+	
+	// Delete 删除缓存
+	key := "test_key"
+	err := global.DiskCache.Delete(key)
+	if err != nil {
+        // 处理错误	
+    }
+	
+	// Expire 获取缓存过期时间
+	key := "test_key"
+    val, expireAt, ok, err := global.DiskCache.Expire(key)
+	if err != nil {
+	    // 处理错误
+    }
+	if ok {
+      fmt.Println(val) // test_value
+      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    }
+	
+	// ... 其他
+```
+
 # 多语言
 > 使用 `i18n` 包实现多语言支持，支持 `zh` 和 `en` 两种语言, 可支持自定义扩展。语言传输默认在`header`中传输 `Accept-Language` 参数, 如 `zh` 或 `en`, 不区分大小写, 不传递默认语言为 `zh`。
 ## 目录配置

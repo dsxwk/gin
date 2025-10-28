@@ -56,11 +56,11 @@
     - [Help Options](#Help-Options)
     - [Execute Command](#Execute-Command)
     - [Compile And Execute Commands](#Compile-And-Execute-Commands)
-  - [缓存](#缓存)
-    - [全局缓存](#全局缓存)
-    - [Redis缓存](#Redis缓存)
-    - [内存缓存](#内存缓存)
-    - [磁盘缓存](#磁盘缓存)
+  - [Cache](#Cache)
+    - [Global Cache](#Global-Cache)
+    - [Redis Cache](#Redis-Cache)
+    - [Memory Cache](#Memory-Cache)
+    - [Disk Cache](#Disk-Cache)
   - [事件](#事件)
   - [响应](#响应)
     - [成功响应](#成功响应)
@@ -946,6 +946,184 @@ Execute Command: demo-test --args=arg1
 ```bash
 $ go build cli.go
 $ ./cli demo-test --args=arg1
+```
+
+# Cache
+> Global cache is used, with `memory` as the default cache driver and support for custom extensions. By default, it supports three modes: `Memory cache`, `Redis cache`, and `Disk cache`. It can use global cache or any cache separately. The global cache only integrates the common methods of `Set`, `Get`, `Delete`, and `Expire` by default. If you need to use more, you can use them separately, or you can integrate them yourself.
+## Global Cache
+> The configuration of global cache can be switched through the `cache.driver` configuration in the `yaml` configuration file.
+```go
+import (
+	"fmt"
+    "gin/common/global"
+)
+
+func Test()  {
+    // Set Set-Cache	
+    key := "test_key"
+    value := "test_value"
+    err := global.Cache.Set(key, value, time.Second*10)
+	if err != nil {
+	    // Handle error	
+    }
+	
+    // Get Get-Cache
+    key := "test_key"
+    value := "test_value"
+    result, ok := global.Cache.Get(key)
+	if ok {
+	    println(result) // test_value	
+    }
+	
+	// Delete Delete-Cache
+	key := "test_key"
+	err := global.Cache.Delete(key)
+	if err != nil {
+        // Handle error	
+    }
+	
+	// Expire Get-Cache-Expire
+	key := "test_key"
+    val, expireAt, ok, err := global.Cache.Expire(key)
+	if err != nil {
+	    // Handle error
+    }
+	if ok {
+      fmt.Println(val) // test_value
+      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    }
+}
+```
+
+## Redis Cache
+```go
+import (
+	"fmt"
+    "gin/common/global"
+)
+
+func Test()  {
+    // Set Set-Cache	
+    key := "test_key"
+    value := "test_value"
+    err := global.RedisCache.Set(key, value, time.Second*10)
+	if err != nil {
+	    // Handle error	
+    }
+	
+    // Get Get-Cache
+    key := "test_key"
+    value := "test_value"
+    result, ok := global.RedisCache.Get(key)
+	if ok {
+	    println(result) // test_value	
+    }
+	
+	// Delete Delete-Cache
+	key := "test_key"
+	err := global.RedisCache.Delete(key)
+	if err != nil {
+        // Handle error	
+    }
+	
+	// Expire Get-Cache-Expire
+	key := "test_key"
+    val, expireAt, ok, err := global.RedisCache.Expire(key)
+	if err != nil {
+	    // Handle error
+    }
+	if ok {
+      fmt.Println(val) // test_value
+      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    }
+	
+	// ... Other
+}
+```
+
+## Memory Cache
+```go
+import (
+	"fmt"
+    "gin/common/global"
+)
+
+func Test()  {
+    // Set Set-Cache	
+    key := "test_key"
+    value := "test_value"
+    err := global.MemoryCache.Set(key, value, time.Second*10)
+	if err != nil {
+	    // Handle error	
+    }
+	
+    // Get Get-Cache
+    key := "test_key"
+    value := "test_value"
+    result, ok := global.MemoryCache.Get(key)
+	if ok {
+	    println(result) // test_value	
+    }
+	
+	// Delete Delete-Cache
+	key := "test_key"
+	err := global.MemoryCache.Delete(key)
+	if err != nil {
+        // Handle error	
+    }
+	
+	// Expire Get-Cache-Expire
+	key := "test_key"
+    val, expireAt, ok, err := global.MemoryCache.Expire(key)
+	if err != nil {
+	    // Handle error
+    }
+	if ok {
+      fmt.Println(val) // test_value
+      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    }
+	
+	// ... Other
+}
+```
+
+## Disk Cache
+```go
+// Set Set-Cache	
+    key := "test_key"
+    value := "test_value"
+    err := global.DiskCache.Set(key, value, time.Second*10)
+	if err != nil {
+	    // Handle error	
+    }
+	
+    // Get Get-Cache
+    key := "test_key"
+    value := "test_value"
+    result, ok := global.DiskCache.Get(key)
+	if ok {
+	    println(result) // test_value	
+    }
+	
+	// Delete Delete-Cache
+	key := "test_key"
+	err := global.DiskCache.Delete(key)
+	if err != nil {
+        // Handle error	
+    }
+	
+	// Expire Get-Cache-Expire
+	key := "test_key"
+    val, expireAt, ok, err := global.DiskCache.Expire(key)
+	if err != nil {
+	    // Handle error
+    }
+	if ok {
+      fmt.Println(val) // test_value
+      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    }
+	
+	// ... Other
 ```
 
 # Language Support
