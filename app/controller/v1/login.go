@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"gin/app/event"
 	"gin/app/middleware"
 	"gin/app/model"
 	"gin/app/request"
@@ -8,6 +9,7 @@ import (
 	"gin/common/base"
 	"gin/common/errcode"
 	"gin/common/global"
+	"gin/utils/eventbus"
 	"gin/utils/lang"
 	"github.com/gin-gonic/gin"
 )
@@ -71,6 +73,12 @@ func (s *LoginController) Login(c *gin.Context) {
 		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
 	}
+
+	// 发布事件
+	eventbus.Emit(event.UserLogin{
+		UserID:   1,
+		Username: userModel.Username,
+	})
 
 	s.Success(
 		c, errcode.Success().WithMsg(

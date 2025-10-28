@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	_ "gin/app/listener"
 	"gin/config"
 	"gin/router"
 	"gin/utils"
