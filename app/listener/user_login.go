@@ -1,6 +1,7 @@
 package listener
 
 import (
+	"encoding/json"
 	"fmt"
 	"gin/app/event"
 	"gin/utils/eventbus"
@@ -10,7 +11,8 @@ import (
 type UserLoginListener struct{}
 
 func (l *UserLoginListener) Handle(e event.UserLogin) {
-	fmt.Printf("用户登录事件: %s 用户: %s, 用户ID: %d, 时间: %v\n", e.Name(), e.Username, e.UserID, time.Now().Format("2006-01-02 15:04:05"))
+	data, _ := json.Marshal(e)
+	fmt.Printf("收到事件: %s 事件描述: %s 事件数据: %s, 时间: %s\n", e.Name(), e.Description(), data, time.Now().Format("2006-01-02 15:04:05"))
 }
 
 func init() {

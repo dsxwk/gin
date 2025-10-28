@@ -9,7 +9,8 @@ import (
 
 // Event 事件接口
 type Event interface {
-	Name() string // 事件名称
+	Name() string        // 事件名称
+	Description() string // 事件描述
 }
 
 // Listener 泛型接口,处理指定事件类型
