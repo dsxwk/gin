@@ -34,9 +34,9 @@ func LoadRouters(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 路由分组
-	v1 := router.Group("", loggerMiddleware, corsMiddleware)
-	auth := v1.Group("", jwtMiddleware)
+	public := router.Group("", loggerMiddleware, corsMiddleware) // 无需权限
+	auth := public.Group("", jwtMiddleware)                      // 需要权限
 
 	// 自动注册
-	AutoLoads(v1, auth)
+	AutoLoads(public, auth)
 }
