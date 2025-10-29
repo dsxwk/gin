@@ -177,7 +177,7 @@ func (b *BaseCommand) GetTemplate(_make string) string {
 
 	switch _make {
 	case "model":
-	case "command", "controller", "service", "request", "middleware", "router":
+	case "command", "controller", "service", "request", "middleware", "router", "event", "listener":
 		templateFile = filepath.Join(utils.GetRootPath(), "common", "template", _make+".tpl")
 	default:
 		b.ExitError("未找到 " + _make + " 模版文件")

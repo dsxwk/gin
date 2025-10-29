@@ -10,11 +10,11 @@ import (
 
 type UserLoginListener struct{}
 
-func (l *UserLoginListener) Handle(e event.UserLogin) {
+func (l *UserLoginListener) Handle(e event.UserLoginEvent) {
 	data, _ := json.Marshal(e)
 	fmt.Printf("收到事件: %s 事件描述: %s 事件数据: %s, 时间: %s\n", e.Name(), e.Description(), data, time.Now().Format("2006-01-02 15:04:05"))
 }
 
 func init() {
-	eventbus.Register(&UserLoginListener{}, event.UserLogin{})
+	eventbus.Register(&UserLoginListener{}, event.UserLoginEvent{})
 }

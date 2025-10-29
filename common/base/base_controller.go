@@ -6,8 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type BaseController struct {
-}
+type BaseController struct{}
 
 // GetUserId 获取当前登录用户id
 func (s *BaseController) GetUserId(ctx *gin.Context) int64 {

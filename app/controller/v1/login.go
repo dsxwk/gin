@@ -75,7 +75,7 @@ func (s *LoginController) Login(c *gin.Context) {
 	}
 
 	// 发布事件
-	eventbus.Emit(event.UserLogin{
+	eventbus.Publish(event.UserLoginEvent{
 		UserId:   userModel.ID,
 		Username: userModel.Username,
 	})

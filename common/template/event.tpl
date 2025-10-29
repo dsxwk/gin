@@ -1,13 +1,13 @@
-package event
+package {{.Package}}
 
-type {{.Name}} struct {
+type {{.Struct}}Event struct {
 	// define event fields here
 }
 
-func (e {{.Name}}) Name() string {
-	return "{{.Name | lower}}"
+func (e {{.Struct}}Event) Name() string {
+	return "{{.Name}}"
 }
 
-func (e {{.Name}}) Description() string {
+func (e {{.Struct}}Event) Description() string {
 	return "{{.Description}}"
 }
