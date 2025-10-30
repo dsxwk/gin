@@ -60,8 +60,8 @@ func Publish[T base.Event](e T) {
 	}
 }
 
-// ListEvents 列出所有已注册的事件
-func ListEvents() []EventInfo {
+// EventList 已注册事件列表
+func EventList() []EventInfo {
 	var list []EventInfo
 	eventInfos.Range(func(_, value any) bool {
 		list = append(list, value.(EventInfo))
