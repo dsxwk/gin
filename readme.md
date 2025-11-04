@@ -61,7 +61,16 @@
     - [Redis Cache](#Redis-Cache)
     - [Memory Cache](#Memory-Cache)
     - [Disk Cache](#Disk-Cache)
-  - [事件](#事件)
+  - [Event](#Event)
+    - [Event Creation Help](#Event-Creation-Help)
+    - [Event Creation](#Event-Creation)
+  - [Listener](#Listener)
+    - [Listener Creation Help](#Listener-Creation-Help)
+    - [Listener Creation](#Listener-Creation)
+  - [Publish Event](#Publish-Event)
+    - [Event Test](#Event-Test)
+  - [Event List](#Event-List)
+    - [Event Listener List](#Event-Listener-List)
   - [响应](#响应)
     - [成功响应](#成功响应)
       - [添加提示](#添加提示)
@@ -1124,6 +1133,221 @@ func Test()  {
     }
 	
 	// ... Other
+```
+
+# Event
+## Event Creation Help
+```bash
+$ go run cli.go make:event -h # --help
+
+make:event - Event Creation
+
+Options:
+  -f, --file  File Path, Example: login/test             required:true
+  -n, --name  Event Name, Example: test-event            required:false
+  -d, --desc  Event Description, Example: test-event     required:false
+```
+
+## Event Creation
+```bash
+$ go run cli.go make:event -f=user_login -n='user.login' -d=user-login-event
+```
+```go
+package event
+
+// UserLoginEvent event-data
+type UserLoginEvent struct {
+	UserId   int64
+	Username string
+}
+
+// Name event-name
+func (u UserLoginEvent) Name() string {
+	return "user.login"
+}
+
+// Description event-description
+func (u UserLoginEvent) Description() string {
+	return "User Login Event"
+}
+
+```
+
+# Listener
+## Listener Creation Help
+```bash
+$ go run cli.go make:listener -h # --help
+
+make:listener - Listener Creation
+
+Options:
+  -f, --file   File Path, Example: login/test   required:true
+  -e, --event  Event Data, Example: UserLogin   required:true
+```
+
+## Listener Creation
+```bash
+$ go run cli.go make:listener -f=user_login -e=UserLoginEvent
+```
+```go
+package listener
+
+import (
+	"encoding/json"
+	"fmt"
+	"gin/app/event"
+	"gin/utils/eventbus"
+	"time"
+)
+
+type UserLoginListener struct{}
+
+func (l *UserLoginListener) Handle(e event.UserLoginEvent) {
+	data, _ := json.Marshal(e)
+	fmt.Printf("Recieved Event: %s Event Description: %s Event Data: %s, Time: %s\n", e.Name(), e.Description(), data, time.Now().Format("2006-01-02 15:04:05"))
+}
+
+func init() {
+	eventbus.Register(&UserLoginListener{}, event.UserLoginEvent{})
+}
+
+```
+
+# Publish Event
+```go
+package v1
+
+import (
+	"gin/app/event"
+	"gin/app/middleware"
+	"gin/app/model"
+	"gin/app/request"
+	"gin/app/service"
+	"gin/common/base"
+	"gin/common/errcode"
+	"gin/common/global"
+	"gin/utils/eventbus"
+	"gin/utils/lang"
+	"github.com/gin-gonic/gin"
+)
+
+type LoginController struct {
+	base.BaseController
+}
+
+// Token token-info
+type Token struct {
+	AccessToken        string `json:"accessToken"`
+	RefreshToken       string `json:"refreshToken"`
+	TokenExpire        int64  `json:"tokenExpire" example:"7200"`
+	RefreshTokenExpire int64  `json:"refreshTokenExpire" example:"172800"`
+}
+
+type LoginResponse struct {
+	Token Token `json:"token"`
+	User  model.User
+}
+
+// Login login
+// @Tags login
+// @Summary login
+// @Description User login
+// @Accept json
+// @Produce json
+// @Param data body request.UserLogin true "Login Argument"
+// @Success 200 {object} errcode.SuccessResponse{data=LoginResponse} "Success"
+// @Failure 400 {object} errcode.ArgsErrorResponse "Argument Error"
+// @Failure 500 {object} errcode.SystemErrorResponse "System Error"
+// @Router /api/v1/login [post]
+func (s *LoginController) Login(c *gin.Context) {
+	var (
+		srv service.LoginService
+		req request.Login
+		jwt middleware.Jwt
+	)
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		return
+	}
+
+	// Validator
+	err = request.Login{}.GetValidate(req, "Login")
+	if err != nil {
+		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		return
+	}
+
+	userModel, err := srv.Login(req.Username, req.Password)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		return
+	}
+
+	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := jwt.WithRefresh(userModel.ID, global.Config.Jwt.Exp, global.Config.Jwt.RefreshExp)
+	if err != nil {
+		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		return
+	}
+
+	// Publish event
+	eventbus.Publish(event.UserLoginEvent{
+		UserId:   userModel.ID,
+		Username: userModel.Username,
+	})
+
+	s.Success(
+		c, errcode.Success().WithMsg(
+			lang.T("login.success", map[string]interface{}{
+				"name": userModel.Username,
+			}),
+		).WithData(LoginResponse{
+			Token{
+				AccessToken:        accessToken,
+				RefreshToken:       refreshToken,
+				TokenExpire:        tokenExpire,
+				RefreshTokenExpire: refreshTokenExpire,
+			},
+			userModel,
+		}),
+	)
+}
+```
+## Event Test
+```bash
+$ POST /api/v1/login HTTP/1.1
+Host: 127.0.0.1:8080
+Accept-Language: en-Us
+Content-Type: application/json
+Content-Length: 56
+
+{
+    "username": "admin",
+    "password": "123456"
+}
+
+收到事件: user.login Event Description: User Login Event Event Data: {"UserId":1,"Username":"admin"}, Time: 2025-11-04 15:32:12
+```
+
+# Event List
+```bash
+$ go run cli.go event:list
+
+user.login 用户登录事件
+```
+
+## Event Listener List
+```bash
+$ go run cli.go event-listener:list
+
+==== Currently registered events ====
+Event: user.login
+Description: User Login Event
+Listener:
+  - *listener.TestListener
+  - *listener.UserLoginListener
+----------------------
 ```
 
 # Language Support

@@ -62,6 +62,15 @@
     - [内存缓存](#内存缓存)
     - [磁盘缓存](#磁盘缓存)
   - [事件](#事件)
+    - [事件创建帮助](#事件创建帮助)
+    - [事件创建](#事件创建)
+  - [监听](#监听)
+    - [监听创建帮助](#监听创建帮助)
+    - [监听创建](#监听创建)
+  - [发布事件](#发布事件)
+    - [测试事件](#测试事件)
+  - [事件列表](#事件列表)
+    - [事件监听列表](#事件监听列表)
   - [响应](#响应)
     - [成功响应](#成功响应)
       - [添加提示](#添加提示)
@@ -1125,6 +1134,221 @@ func Test()  {
     }
 	
 	// ... 其他
+```
+
+# 事件
+## 事件创建帮助
+```bash
+$ go run cli.go make:event -h # --help
+
+make:event - 创建事件
+
+Options:
+  -f, --file  文件路径, 如: login/test  required:true
+  -n, --name  事件名称, 如: test-event  required:false
+  -d, --desc  事件描述, 如: 测试事件     required:false
+```
+
+## 事件创建
+```bash
+$ go run cli.go make:event -f=user_login -n='user.login' -d=用户登录事件
+```
+```go
+package event
+
+// UserLoginEvent 事件数据
+type UserLoginEvent struct {
+	UserId   int64
+	Username string
+}
+
+// Name 事件名称
+func (u UserLoginEvent) Name() string {
+	return "user.login"
+}
+
+// Description 事件描述
+func (u UserLoginEvent) Description() string {
+	return "用户登录事件"
+}
+
+```
+
+# 监听
+## 监听创建帮助
+```bash
+$ go run cli.go make:listener -h # --help
+
+make:listener - 创建监听
+
+Options:
+  -f, --file   文件路径, 如: login/test  required:true
+  -e, --event  事件数据, 如: UserLogin   required:true
+```
+
+## 监听创建
+```bash
+$ go run cli.go make:listener -f=user_login -e=UserLoginEvent
+```
+```go
+package listener
+
+import (
+	"encoding/json"
+	"fmt"
+	"gin/app/event"
+	"gin/utils/eventbus"
+	"time"
+)
+
+type UserLoginListener struct{}
+
+func (l *UserLoginListener) Handle(e event.UserLoginEvent) {
+	data, _ := json.Marshal(e)
+	fmt.Printf("收到事件: %s 事件描述: %s 事件数据: %s, 时间: %s\n", e.Name(), e.Description(), data, time.Now().Format("2006-01-02 15:04:05"))
+}
+
+func init() {
+	eventbus.Register(&UserLoginListener{}, event.UserLoginEvent{})
+}
+
+```
+
+# 发布事件
+```go
+package v1
+
+import (
+	"gin/app/event"
+	"gin/app/middleware"
+	"gin/app/model"
+	"gin/app/request"
+	"gin/app/service"
+	"gin/common/base"
+	"gin/common/errcode"
+	"gin/common/global"
+	"gin/utils/eventbus"
+	"gin/utils/lang"
+	"github.com/gin-gonic/gin"
+)
+
+type LoginController struct {
+	base.BaseController
+}
+
+// Token token信息
+type Token struct {
+	AccessToken        string `json:"accessToken"`
+	RefreshToken       string `json:"refreshToken"`
+	TokenExpire        int64  `json:"tokenExpire" example:"7200"`
+	RefreshTokenExpire int64  `json:"refreshTokenExpire" example:"172800"`
+}
+
+type LoginResponse struct {
+	Token Token `json:"token"`
+	User  model.User
+}
+
+// Login 登录
+// @Tags 登录相关
+// @Summary 登录
+// @Description 用户登录
+// @Accept json
+// @Produce json
+// @Param data body request.UserLogin true "登录参数"
+// @Success 200 {object} errcode.SuccessResponse{data=LoginResponse} "成功"
+// @Failure 400 {object} errcode.ArgsErrorResponse "参数错误"
+// @Failure 500 {object} errcode.SystemErrorResponse "系统错误"
+// @Router /api/v1/login [post]
+func (s *LoginController) Login(c *gin.Context) {
+	var (
+		srv service.LoginService
+		req request.Login
+		jwt middleware.Jwt
+	)
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		return
+	}
+
+	// 验证
+	err = request.Login{}.GetValidate(req, "Login")
+	if err != nil {
+		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		return
+	}
+
+	userModel, err := srv.Login(req.Username, req.Password)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		return
+	}
+
+	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := jwt.WithRefresh(userModel.ID, global.Config.Jwt.Exp, global.Config.Jwt.RefreshExp)
+	if err != nil {
+		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		return
+	}
+
+	// 发布事件
+	eventbus.Publish(event.UserLoginEvent{
+		UserId:   userModel.ID,
+		Username: userModel.Username,
+	})
+
+	s.Success(
+		c, errcode.Success().WithMsg(
+			lang.T("login.success", map[string]interface{}{
+				"name": userModel.Username,
+			}),
+		).WithData(LoginResponse{
+			Token{
+				AccessToken:        accessToken,
+				RefreshToken:       refreshToken,
+				TokenExpire:        tokenExpire,
+				RefreshTokenExpire: refreshTokenExpire,
+			},
+			userModel,
+		}),
+	)
+}
+```
+## 测试事件
+```bash
+$ POST /api/v1/login HTTP/1.1
+Host: 127.0.0.1:8080
+Accept-Language: en-Us
+Content-Type: application/json
+Content-Length: 56
+
+{
+    "username": "admin",
+    "password": "123456"
+}
+
+收到事件: user.login 事件描述: 用户登录事件 事件数据: {"UserId":1,"Username":"admin"}, 时间: 2025-11-04 15:32:12
+```
+
+# 事件列表
+```bash
+$ go run cli.go event:list
+
+user.login 用户登录事件
+```
+
+## 事件监听列表
+```bash
+$ go run cli.go event-listener:list
+
+==== 当前已注册事件 ====
+事件: user.login
+描述: 用户登录事件
+监听:
+  - *listener.TestListener
+  - *listener.UserLoginListener
+----------------------
 ```
 
 # 多语言
