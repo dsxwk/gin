@@ -159,6 +159,8 @@ $ ./cli demo-command --args=11
 ├── app                                 # 应用程序
 │   ├── command                         # 命令
 │   ├── controller                      # 控制器
+│   ├── event                           # 事件
+│   ├── listener                        # 监听
 │   ├── middleware                      # 中间件
 │   ├── model                           # 模型
 │   ├── request                         # 验证器
@@ -185,6 +187,7 @@ $ ./cli demo-command --args=11
 │   ├──├── cache                        # 缓存
 │   ├──├── cli                          # 命令行
 │   ├──├── ctx                          # 上下文
+│   ├──├── eventbus                     # 事件
 │   ├──├── lang                         # 多语言
 ├── vendor                              # 依赖包
 ├── .air.linux.toml                     # air配置文件
