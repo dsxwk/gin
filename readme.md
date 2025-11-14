@@ -109,6 +109,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.0.2
+> Error code optimization.
+
 ## v1.0.1
 > Add the public package function 'FilterFields', adjust the public package function `StructToMap`, and modify the JSON serialization to use the package `go-json`.
 

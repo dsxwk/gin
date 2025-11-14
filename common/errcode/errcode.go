@@ -14,20 +14,19 @@ func (e ErrorCode) Error() string {
 	return fmt.Sprintf("%s", e.Msg)
 }
 
+func (e ErrorCode) WithCode(code int64) ErrorCode {
+	e.Code = code
+	return e
+}
+
 func (e ErrorCode) WithMsg(msg string) ErrorCode {
-	return ErrorCode{
-		Code: e.Code,
-		Msg:  msg,
-		Data: e.Data,
-	}
+	e.Msg = msg
+	return e
 }
 
 func (e ErrorCode) WithData(data interface{}) ErrorCode {
-	return ErrorCode{
-		Code: e.Code,
-		Msg:  e.Msg,
-		Data: data,
-	}
+	e.Data = data
+	return e
 }
 
 func Success() ErrorCode {
@@ -35,21 +34,36 @@ func Success() ErrorCode {
 }
 
 func Redirect() ErrorCode {
-	return ErrorCode{Code: 301, Msg: "Redirect"}
+	return ErrorCode{
+		Code: 301,
+		Msg:  "Redirect",
+	}
 }
 
 func ArgsError() ErrorCode {
-	return ErrorCode{Code: 400, Msg: "Invalid arguments"}
+	return ErrorCode{
+		Code: 400,
+		Msg:  "Invalid arguments",
+	}
 }
 
 func Unauthorized() ErrorCode {
-	return ErrorCode{Code: 401, Msg: "Unauthorized"}
+	return ErrorCode{
+		Code: 401,
+		Msg:  "Unauthorized",
+	}
 }
 
 func NotFound() ErrorCode {
-	return ErrorCode{Code: 404, Msg: "Resource not found"}
+	return ErrorCode{
+		Code: 404,
+		Msg:  "Resource not found",
+	}
 }
 
 func SystemError() ErrorCode {
-	return ErrorCode{Code: 500, Msg: "Internal server error"}
+	return ErrorCode{
+		Code: 500,
+		Msg:  "Internal server error",
+	}
 }
