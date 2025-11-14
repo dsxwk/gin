@@ -72,13 +72,14 @@
     - [Event Test](#Event-Test)
   - [Event List](#Event-List)
     - [Event Listener List](#Event-Listener-List)
-  - [响应](#响应)
-    - [成功响应](#成功响应)
-      - [添加提示](#添加提示)
-      - [添加数据](#添加数据)
-    - [失败响应](#失败响应)
-      - [添加提示](#添加提示)
-      - [添加数据](#添加数据)
+  - [Response](#Response)
+    - [Response Success](#Response-Success)
+      - [Response Success With Message](#Response-Success-With-Message)
+      - [Response Success With Data](#Response-Success-With-Data)
+    - [Response Error](#Response-Error)
+      - [Response Error With Code](#Response-Error-With-Code)
+      - [Response Error With Message](#Response-Error-With-Message)
+      - [Response Error With Data](#Response-Error-With-Data)
   - [错误处理](#错误处理)
   - [日志](#日志)
     - [错误调试](#错误调试)
@@ -109,6 +110,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.0.3
+> Improve public response usage documentation.
+
 ## v1.0.2
 > Error code optimization.
 
@@ -1362,6 +1366,140 @@ Listener:
   - *listener.TestListener
   - *listener.UserLoginListener
 ----------------------
+```
+
+# Response
+## Response Success
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Success(c, errcode.Success())
+}
+```
+
+###  Response Success With Message
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Success(c, errcode.Success().WithMsg("Success"))
+}
+```
+
+### Response Success With Data
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Success(c, errcode.Success().WithData([]string{"test data"}))
+}
+```
+
+## Response Error
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Error(c, errcode.SystemError())
+}
+```
+
+### Response Error With Code
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Error(c, errcode.SystemError().WithCode(500))
+}
+```
+
+### Response Error With Message
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Error(c, errcode.SystemError().WithMsg("System Error"))
+}
+```
+
+### Response Error With Data
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Error(c, errcode.SystemError().WithData([]string{"test data"}))
+}
 ```
 
 # Language Support

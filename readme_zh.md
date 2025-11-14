@@ -77,6 +77,7 @@
       - [添加提示](#添加提示)
       - [添加数据](#添加数据)
     - [失败响应](#失败响应)
+      - [添加错误码](#添加错误码)
       - [添加提示](#添加提示)
       - [添加数据](#添加数据)
   - [错误处理](#错误处理)
@@ -109,6 +110,9 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.0.3
+> 完善公共响应使用文档。
+
 ## v1.0.2
 > 错误码优化。
 
@@ -1363,6 +1367,140 @@ $ go run cli.go event-listener:list
   - *listener.TestListener
   - *listener.UserLoginListener
 ----------------------
+```
+
+# 响应
+## 成功响应
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Success(c, errcode.Success())
+}
+```
+
+### 添加提示
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Success(c, errcode.Success().WithMsg("Success"))
+}
+```
+
+### 添加数据
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Success(c, errcode.Success().WithData([]string{"test data"}))
+}
+```
+
+## 失败响应
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Error(c, errcode.SystemError())
+}
+```
+
+### 添加错误码
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Error(c, errcode.SystemError().WithCode(500))
+}
+```
+
+### 添加提示
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Error(c, errcode.SystemError().WithMsg("System Error"))
+}
+```
+
+### 添加数据
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/errcode"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+    return s.Error(c, errcode.SystemError().WithData([]string{"test data"}))
+}
 ```
 
 # 多语言

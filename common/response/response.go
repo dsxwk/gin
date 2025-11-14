@@ -13,29 +13,31 @@ type Response struct {
 	Data interface{} `json:"data"` // 返回数据
 }
 
-// JSON 输出 JSON 响应
-func (r Response) JSON(c *gin.Context) {
+// Json 输出Json响应
+func (r Response) Json(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusOK, r)
 	c.Abort()
 }
 
-// Success 返回成功响应
+// Success 返回成功响应,可传ErrorCode
 func Success(c *gin.Context, e *errcode.ErrorCode) {
 	var (
 		resp Response
 	)
 
 	switch e {
+
 	case nil:
 		resp = Response{
 			Code: errcode.Success().Code,
 			Msg:  errcode.Success().Msg,
-			Data: []interface{}{},
+			Data: []string{},
 		}
+
 	default:
 		if e.Data == nil {
-			e.Data = []interface{}{}
+			e.Data = []string{}
 		}
 		resp = Response{
 			Code: e.Code,
@@ -44,7 +46,7 @@ func Success(c *gin.Context, e *errcode.ErrorCode) {
 		}
 	}
 
-	resp.JSON(c)
+	resp.Json(c)
 }
 
 // Error 返回失败响应,可传ErrorCode
@@ -54,15 +56,17 @@ func Error(c *gin.Context, e *errcode.ErrorCode) {
 	)
 
 	switch e {
+
 	case nil:
 		resp = Response{
 			Code: errcode.SystemError().Code,
 			Msg:  errcode.SystemError().Msg,
-			Data: []interface{}{},
+			Data: []string{},
 		}
+
 	default:
 		if e.Data == nil {
-			e.Data = []interface{}{}
+			e.Data = []string{}
 		}
 		resp = Response{
 			Code: e.Code,
@@ -71,5 +75,5 @@ func Error(c *gin.Context, e *errcode.ErrorCode) {
 		}
 	}
 
-	resp.JSON(c)
+	resp.Json(c)
 }
