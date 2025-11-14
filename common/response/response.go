@@ -2,6 +2,7 @@ package response
 
 import (
 	"gin/common/errcode"
+	"gin/common/global"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -54,6 +55,12 @@ func Error(c *gin.Context, e *errcode.ErrorCode) {
 	var (
 		resp Response
 	)
+
+	if e != nil {
+		global.Log.Error(e.Msg)
+	} else {
+		global.Log.Error(errcode.SystemError().Msg)
+	}
 
 	switch e {
 

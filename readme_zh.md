@@ -74,14 +74,14 @@
     - [事件监听列表](#事件监听列表)
   - [响应](#响应)
     - [成功响应](#成功响应)
-      - [添加提示](#添加提示)
-      - [添加数据](#添加数据)
+      - [成功提示](#成功提示)
+      - [成功数据](#成功数据)
     - [失败响应](#失败响应)
-      - [添加错误码](#添加错误码)
-      - [添加提示](#添加提示)
-      - [添加数据](#添加数据)
-  - [错误处理](#错误处理)
+      - [失败错误码](#失败错误码)
+      - [失败提示](#失败提示)
+      - [失败数据](#失败数据)
   - [日志](#日志)
+    - [记录日志](#记录日志)
     - [错误调试](#错误调试)
   - [多语言](#多语言)
     - [目录配置](#目录配置)
@@ -110,6 +110,9 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.1.0
+> 完善日志调试以及使用文档, 完成版本v1.0.0。
+
 ## v1.0.3
 > 完善公共响应使用文档。
 
@@ -1389,7 +1392,7 @@ func (s *TestController) Test(c *gin.Context) {
 }
 ```
 
-### 添加提示
+### 成功提示
 ```go
 package v1
 
@@ -1408,7 +1411,7 @@ func (s *TestController) Test(c *gin.Context) {
 }
 ```
 
-### 添加数据
+### 成功数据
 ```go
 package v1
 
@@ -1446,7 +1449,7 @@ func (s *TestController) Test(c *gin.Context) {
 }
 ```
 
-### 添加错误码
+### 失败错误码
 ```go
 package v1
 
@@ -1465,7 +1468,7 @@ func (s *TestController) Test(c *gin.Context) {
 }
 ```
 
-### 添加提示
+### 失败提示
 ```go
 package v1
 
@@ -1484,7 +1487,7 @@ func (s *TestController) Test(c *gin.Context) {
 }
 ```
 
-### 添加数据
+### 失败数据
 ```go
 package v1
 
@@ -1500,6 +1503,68 @@ type TestController struct {
 
 func (s *TestController) Test(c *gin.Context) {
     return s.Error(c, errcode.SystemError().WithData([]string{"test data"}))
+}
+```
+
+# 日志
+> 使用 `zap` 包实现日志记录，日志文件存放路径为 `storage/logs`, 默认日志级别为 `debug`, 返回错误码不为0时自动记录日志TraceId、堆栈、sql、http、redis等调用信息, 也可以直接调用日志记录也会自动记录调试信息。配置文件`yaml`中`log.access`支持是否自动记录请求日志，如若开启会自动记录请求日志。
+```json
+{
+    "level": "info",
+    "timestamp": "2025-11-04 15:32:12.426",
+    "caller": "middleware/logger.go:54",
+    "msg": "Access Log",
+    "traceId": "cd0fc2e4-49e8-4e6a-afba-f8661f5f2a18",
+    "clientIp": "127.0.0.1",
+    "method": "POST",
+    "path": "/api/v1/login",
+    "params": "{    \"username\": \"admin\",    \"password\": \"123456\"}",
+    "debug": {
+      "mysql": [
+        "SELECT * FROM `user` WHERE username = 'admin' AND `user`.`deleted_at` IS NULL ORDER BY `user`.`id` LIMIT 1"
+      ]
+    }
+  }
+```
+## 记录日志
+> 已封装全局日志在`global`包中，可直接使用`global.Log`记录日志, 日志级别支持debug、info、warn、error、panic、fatal, 默认为`debug`。
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/global"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+  global.Log.Error("System Error")
+}
+```
+
+## 错误调试
+> 返回错误码不为0时自动记录日志TraceId、堆栈、sql、http、redis等调用信息, 直接调用日志记录也会自动记录调试信息, 可根据debug调试信息和trace堆栈信息调试, 日志文件存放路径为 `storage/logs`。
+```json
+{
+  "level": "error",
+  "timestamp": "2025-11-14 15:40:28.137",
+  "caller": "response/response.go:60",
+  "msg": "Login Password Error",
+  "traceId": "b6c908f1-ae0f-4d8f-9758-f79d04b23118",
+  "clientIp": "127.0.0.1",
+  "method": "POST",
+  "path": "/api/v1/login",
+  "params": "{    \"username\": \"admin\",    \"password\": \"123456·\"}",
+  "debug": {
+    "mysql": [
+      "SELECT * FROM `user` WHERE username = 'admin' AND `user`.`deleted_at` IS NULL ORDER BY `user`.`id` LIMIT 1"
+    ]
+  },
+  "stackTrace": "gin/common/response.Error\n\tE:/www/dsx/www-go/gin/common/response/response.go:60\ngin/common/base.(*BaseController).Error\n\tE:/www/dsx/www-go/gin/common/base/base_controller.go:25\ngin/app/controller/v1.(*LoginController).Login\n\tE:/www/dsx/www-go/gin/app/controller/v1/login.go:67\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Cors.Handle.func2\n\tE:/www/dsx/www-go/gin/app/middleware/cors.go:30\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Logger.Handle.func1\n\tE:/www/dsx/www-go/gin/app/middleware/logger.go:57\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.CustomRecoveryWithWriter.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/recovery.go:92\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.LoggerWithConfig.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/logger.go:249\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.(*Engine).handleHTTPRequest\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:689\ngithub.com/gin-gonic/gin.(*Engine).ServeHTTP\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:643\nnet/http.serverHandler.ServeHTTP\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:3340\nnet/http.(*conn).serve\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:2109"
 }
 ```
 

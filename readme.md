@@ -80,9 +80,9 @@
       - [Response Error With Code](#Response-Error-With-Code)
       - [Response Error With Message](#Response-Error-With-Message)
       - [Response Error With Data](#Response-Error-With-Data)
-  - [错误处理](#错误处理)
-  - [日志](#日志)
-    - [错误调试](#错误调试)
+  - [Log](#Log)
+    - [Write Log](#Write-Log)
+    - [Error Debug](#Error-Debug)
   - [Language Support](#Language-Support)
     - [Directory Configuration](#Directory-Configuration) 
     - [Ordinary Translation](#Ordinary-Translation) 
@@ -110,6 +110,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.1.0
+> Improve log debugging and user documentation, and complete version v1.0.0.
+
 ## v1.0.3
 > Improve public response usage documentation.
 
@@ -1499,6 +1502,68 @@ type TestController struct {
 
 func (s *TestController) Test(c *gin.Context) {
     return s.Error(c, errcode.SystemError().WithData([]string{"test data"}))
+}
+```
+
+# Log
+> Use the `zap` package to implement logging. The storage path for log files is `storage/logs`, and the default log level is `debug`. When the error code returned is not 0, it automatically records log TraceId, stack, SQL, HTTP, Redis, and other call information. Logging can also be directly called to automatically record debugging information. Does `log.access` in the configuration file `yaml` support automatic recording of request logs? If enabled, it will automatically record request logs.
+```json
+{
+    "level": "info",
+    "timestamp": "2025-11-04 15:32:12.426",
+    "caller": "middleware/logger.go:54",
+    "msg": "Access Log",
+    "traceId": "cd0fc2e4-49e8-4e6a-afba-f8661f5f2a18",
+    "clientIp": "127.0.0.1",
+    "method": "POST",
+    "path": "/api/v1/login",
+    "params": "{    \"username\": \"admin\",    \"password\": \"123456\"}",
+    "debug": {
+      "mysql": [
+        "SELECT * FROM `user` WHERE username = 'admin' AND `user`.`deleted_at` IS NULL ORDER BY `user`.`id` LIMIT 1"
+      ]
+    }
+  }
+```
+## Write Log
+> The global log has been encapsulated in the `global` package and can be directly recorded using `global.Log`. The log level supports debug, info, warn, error, panic, and fatal, with the default being `debug`.
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/global"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+  global.Log.Error("System Error")
+}
+```
+
+## Error Debug
+> When the return error code is not 0, it automatically records log TraceId, stack, SQL, HTTP, Redis and other call information. Directly calling log recording will also automatically record debugging information. Debugging can be done based on debug debugging information and trace stack information. The log file storage path is `storage/logs`.
+```json
+{
+  "level": "error",
+  "timestamp": "2025-11-14 15:40:28.137",
+  "caller": "response/response.go:60",
+  "msg": "Login Password Error",
+  "traceId": "b6c908f1-ae0f-4d8f-9758-f79d04b23118",
+  "clientIp": "127.0.0.1",
+  "method": "POST",
+  "path": "/api/v1/login",
+  "params": "{    \"username\": \"admin\",    \"password\": \"123456·\"}",
+  "debug": {
+    "mysql": [
+      "SELECT * FROM `user` WHERE username = 'admin' AND `user`.`deleted_at` IS NULL ORDER BY `user`.`id` LIMIT 1"
+    ]
+  },
+  "stackTrace": "gin/common/response.Error\n\tE:/www/dsx/www-go/gin/common/response/response.go:60\ngin/common/base.(*BaseController).Error\n\tE:/www/dsx/www-go/gin/common/base/base_controller.go:25\ngin/app/controller/v1.(*LoginController).Login\n\tE:/www/dsx/www-go/gin/app/controller/v1/login.go:67\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Cors.Handle.func2\n\tE:/www/dsx/www-go/gin/app/middleware/cors.go:30\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Logger.Handle.func1\n\tE:/www/dsx/www-go/gin/app/middleware/logger.go:57\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.CustomRecoveryWithWriter.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/recovery.go:92\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.LoggerWithConfig.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/logger.go:249\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.(*Engine).handleHTTPRequest\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:689\ngithub.com/gin-gonic/gin.(*Engine).ServeHTTP\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:643\nnet/http.serverHandler.ServeHTTP\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:3340\nnet/http.(*conn).serve\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:2109"
 }
 ```
 
