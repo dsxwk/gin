@@ -1,10 +1,10 @@
 package lang
 
 import (
-	"encoding/json"
 	"fmt"
 	"gin/config"
 	"gin/utils/ctx"
+	"github.com/goccy/go-json"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"

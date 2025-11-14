@@ -1,10 +1,10 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"gin/common/base"
 	"github.com/fatih/color"
+	"github.com/goccy/go-json"
 	"os"
 	"sort"
 	"strings"

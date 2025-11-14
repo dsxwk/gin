@@ -2,8 +2,8 @@ package model
 
 import (
 	"database/sql/driver"
-	"encoding/json"
 	"fmt"
+	"github.com/goccy/go-json"
 	"gorm.io/gorm"
 	"time"
 )

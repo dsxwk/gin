@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"reflect"
+	"github.com/goccy/go-json"
 	"strings"
 )
 
@@ -66,16 +66,62 @@ func ArrayFilter[T any](arr []T, fn func(T) bool) []T {
 	return res
 }
 
-// StructToMap 将结构体转换为map
-func StructToMap(obj interface{}) map[string]interface{} {
-	obj1 := reflect.TypeOf(obj)
-	obj2 := reflect.ValueOf(obj)
+// FilterFields 过滤字段
+// map[string]any, map[string]any → map[string]any
+// []map[string]any, []map[string]any → []map[string]any
+func FilterFields(data any, filter any) any {
+	switch d := data.(type) {
 
-	var data = make(map[string]interface{})
-	for i := 0; i < obj1.NumField(); i++ {
-		data[obj1.Field(i).Name] = obj2.Field(i).Interface()
+	// map
+	case map[string]any:
+		f, ok := filter.(map[string]any)
+		if !ok {
+			return d // filter不是map,直接返回原数据
+		}
+		return filterMap(d, f)
+
+	// slice
+	case []map[string]any:
+		f, ok := filter.([]map[string]any)
+		if !ok {
+			return d // filter不是slice,返回原数据
+		}
+
+		// slice长度不一致无法过滤
+		if len(d) != len(f) {
+			return d
+		}
+
+		result := make([]map[string]any, 0, len(d))
+		for i := range d {
+			result = append(result, filterMap(d[i], f[i]))
+		}
+		return result
 	}
+
 	return data
+}
+
+// filterMap 过滤map
+func filterMap(data map[string]any, filter map[string]any) map[string]any {
+	filtered := make(map[string]any)
+	for k, v := range filter {
+		if HasKey(data, k) {
+			filtered[k] = v
+		}
+	}
+	return filtered
+}
+
+// StructToMap 将结构体转换为map
+func StructToMap[T any](v T) any {
+	var (
+		m map[string]any
+	)
+
+	b, _ := json.Marshal(v)
+	_ = json.Unmarshal(b, &m)
+	return m
 }
 
 // ArrayToString 将数组格式化为字符串

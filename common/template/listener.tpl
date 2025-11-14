@@ -1,7 +1,7 @@
 package {{.Package}}
 
 import (
-    "encoding/json"
+    "github.com/goccy/go-json"
 	"fmt"
 	"gin/app/event"
 	"gin/utils/eventbus"

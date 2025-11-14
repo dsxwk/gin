@@ -1,10 +1,10 @@
 package listener
 
 import (
-	"encoding/json"
 	"fmt"
 	"gin/app/event"
 	"gin/utils/eventbus"
+	"github.com/goccy/go-json"
 	"time"
 )
 
