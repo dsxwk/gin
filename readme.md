@@ -2,6 +2,7 @@
 
 - [Project Introduction](#Project-Introduction)
 - [License](#License)
+- [Version History](#Version-History)
 - [Installation Instructions](#Installation-Instructions)
   -[Clone Project](#Clone-Project)
   -[Initialize Go Environment And Dependencies](#Initialize-Go-Environment-And-Dependencies)
@@ -106,6 +107,13 @@
 # License
 - 📘 Open source version: Following AGPL-3.0, for learning, research, and non-commercial use only.
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
+
+# Version History
+## v1.0.1
+> Add the public package function 'FilterFields', adjust the public package function `StructToMap`, and modify the JSON serialization to use the package `go-json`.
+
+## v1.0.0
+> Except for incomplete response, error handling, and log documentation, all other updates have been completed.
 
 # Installation Instructions
 > The project is developed based on Golang version 1.25.2, and there may be version differences in lower versions. It is recommended that the version be greater than or equal to 1.25.2.
@@ -1196,7 +1204,7 @@ $ go run cli.go make:listener -f=user_login -e=UserLoginEvent
 package listener
 
 import (
-	"encoding/json"
+	"github.com/goccy/go-json"
 	"fmt"
 	"gin/app/event"
 	"gin/utils/eventbus"
