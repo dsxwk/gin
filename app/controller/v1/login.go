@@ -56,7 +56,7 @@ func (s *LoginController) Login(c *gin.Context) {
 	}
 
 	// 验证
-	err = request.Login{}.GetValidate(req, "Login")
+	err = request.Login{}.GetValidate(c, req, "Login")
 	if err != nil {
 		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
@@ -64,7 +64,7 @@ func (s *LoginController) Login(c *gin.Context) {
 
 	userModel, err := srv.Login(req.Username, req.Password)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(c, err.Error(), nil)))
 		return
 	}
 
@@ -82,7 +82,7 @@ func (s *LoginController) Login(c *gin.Context) {
 
 	s.Success(
 		c, errcode.Success().WithMsg(
-			lang.T("login.success", map[string]interface{}{
+			lang.T(c, "login.success", map[string]interface{}{
 				"name": userModel.Username,
 			}),
 		).WithData(LoginResponse{
@@ -115,7 +115,7 @@ func (s *LoginController) RefreshToken(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	req.RefreshToken.Token = token
 	// 验证
-	err := request.Login{}.GetValidate(req, "RefreshToken")
+	err := request.Login{}.GetValidate(c, req, "RefreshToken")
 	if err != nil {
 		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
@@ -124,7 +124,7 @@ func (s *LoginController) RefreshToken(c *gin.Context) {
 	j := middleware.Jwt{}
 	claims, err := j.Decode(token)
 	if err != nil || claims["typ"] != "refresh" {
-		s.Error(c, errcode.Unauthorized().WithMsg(lang.T("login.invalidToken", nil)))
+		s.Error(c, errcode.Unauthorized().WithMsg(lang.T(c, "login.invalidToken", nil)))
 		return
 	}
 

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"gin/utils/ctx"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
@@ -94,91 +95,54 @@ func init() {
 	ZapLogger = NewLogger(zapLogger)
 }
 
-// GetReqFields 从context获取附加日志字段
-func GetReqFields() []zap.Field {
-	logger := ctx.GetContext(ctx.KeyLogger)
-	if logger == nil {
-		return nil
+func (l *Logger) WithContext(c context.Context) *zap.Logger {
+	if c == nil {
+		// 没有请求上下文, 返回普通logger
+		return l.Logger
 	}
 
-	debugger := map[string]interface{}{}
-	if GetAllSql() != nil {
-		debugger["mysql"] = GetAllSql()
-	}
-	traceID := logger.GetString(ctx.KeyTraceID)
-	clientIP := logger.ClientIP()
-	method := logger.Request.Method
-	path := logger.Request.URL.Path
-	params := strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(logger.GetString(ctx.KeyParams), "\r", ""), "\n", ""))
-
-	fields := []zap.Field{
-		zap.String("traceId", traceID),
-		zap.String("clientIp", clientIP),
-		zap.String("method", method),
-		zap.String("path", path),
-		zap.String("params", params),
-		zap.Any("debug", debugger),
+	traceId := ctx.GetValue(c, ctx.KeyTraceId).(string)
+	// 动态计算 ms
+	var ms any
+	if startTime, ok := ctx.GetValue(c, ctx.KeyStartTime).(time.Time); ok {
+		ms = time.Since(startTime).Milliseconds()
+	} else {
+		ms = ctx.GetValue(c, ctx.KeyMs)
 	}
 
-	return fields
+	return l.Logger.With(
+		zap.Any("traceId", traceId),
+		zap.Any("ip", ctx.GetValue(c, ctx.KeyIp)),
+		zap.Any("path", ctx.GetValue(c, ctx.KeyPath)),
+		zap.Any("method", ctx.GetValue(c, ctx.KeyMethod)),
+		zap.Any("params", ctx.GetValue(c, ctx.KeyParams)),
+		zap.Any("ms", ms),
+		zap.Any("debugger", ctx.GetDebugger(traceId)),
+	)
 }
 
-// WithFields 添加日志字段
-func (l *Logger) WithFields(fields ...zap.Field) []zap.Field {
-	baseFields := GetReqFields()
-	if len(baseFields) == 0 {
-		return fields // 无上下文时只返回传入字段
-	}
-
-	return append(baseFields, fields...)
+func (l *Logger) Debug(c context.Context, msg string, fields ...zap.Field) {
+	l.WithContext(c).Debug(msg, fields...)
 }
 
-func (l *Logger) Debug(msg string, fields ...zap.Field) {
-	mergedFields := l.WithFields(fields...)
-	if mergedFields == nil {
-		mergedFields = fields
-	}
-	l.Logger.Debug(msg, mergedFields...)
+func (l *Logger) Info(c context.Context, msg string, fields ...zap.Field) {
+	l.WithContext(c).Info(msg, fields...)
 }
 
-func (l *Logger) Info(msg string, fields ...zap.Field) {
-	mergedFields := l.WithFields(fields...)
-	if mergedFields == nil {
-		mergedFields = fields
-	}
-	l.Logger.Info(msg, mergedFields...)
+func (l *Logger) Warn(c context.Context, msg string, fields ...zap.Field) {
+	l.WithContext(c).Warn(msg, fields...)
 }
 
-func (l *Logger) Warn(msg string, fields ...zap.Field) {
-	mergedFields := l.WithFields(fields...)
-	if mergedFields == nil {
-		mergedFields = fields
-	}
-	l.Logger.Warn(msg, mergedFields...)
+func (l *Logger) Error(c context.Context, msg string, fields ...zap.Field) {
+	l.WithContext(c).Error(msg, fields...)
 }
 
-func (l *Logger) Error(msg string, fields ...zap.Field) {
-	mergedFields := l.WithFields(fields...)
-	if mergedFields == nil {
-		mergedFields = fields
-	}
-	l.Logger.Error(msg, mergedFields...)
+func (l *Logger) Panic(c context.Context, msg string, fields ...zap.Field) {
+	l.WithContext(c).Panic(msg, fields...)
 }
 
-func (l *Logger) Panic(msg string, fields ...zap.Field) {
-	mergedFields := l.WithFields(fields...)
-	if mergedFields == nil {
-		mergedFields = fields
-	}
-	l.Logger.Panic(msg, mergedFields...)
-}
-
-func (l *Logger) Fatal(msg string, fields ...zap.Field) {
-	mergedFields := l.WithFields(fields...)
-	if mergedFields == nil {
-		mergedFields = fields
-	}
-	l.Logger.Fatal(msg, mergedFields...)
+func (l *Logger) Fatal(c context.Context, msg string, fields ...zap.Field) {
+	l.WithContext(c).Fatal(msg, fields...)
 }
 
 type StackTrace struct{}

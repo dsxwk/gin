@@ -48,7 +48,7 @@ func (s *UserController) List(c *gin.Context) {
 
 	res, err := srv.List(req)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(c, err.Error(), nil)))
 		return
 	}
 
@@ -87,13 +87,13 @@ func (s *UserController) Create(c *gin.Context) {
 
 	err = copier.Copy(&m, &req)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(c, err.Error(), nil)))
 		return
 	}
 
 	m, err = srv.Create(m)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(c, err.Error(), nil)))
 		return
 	}
 

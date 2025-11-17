@@ -2,7 +2,9 @@ package config
 
 import (
 	"fmt"
+	ctx2 "gin/utils/ctx"
 	"github.com/fatih/color"
+	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -10,15 +12,14 @@ import (
 	"log"
 	"os"
 	"strings"
-	"sync"
 	"time"
 )
 
 var (
-	SqlRes []string
-	mu     sync.Mutex
-	DB     *gorm.DB
+	DB *gorm.DB
 )
+
+const startTimeKey = "gorm_start_time"
 
 func init() {
 	db, err := gorm.Open(mysql.Open(getDsn()), &gorm.Config{
@@ -71,66 +72,58 @@ func getDsn() string {
 
 // SqlCallback sql回调
 func SqlCallback(db *gorm.DB) {
-	// 注册查询前回调
-	_ = db.Callback().Query().Before("gorm:query").Register("slowquery:begin", func(db *gorm.DB) {
-		// 记录查询开始时间
-		db.InstanceSet("gorm:query_slowquery_start_time", time.Now())
-	})
+	// 查询
+	_ = db.Callback().Query().Before("gorm:query").Register("log:before_query", before)
+	_ = db.Callback().Query().After("gorm:query").Register("log:after_query", after)
 
-	// 注册查询后回调
-	_ = db.Callback().Query().After("gorm:query").Register("slowquery:end", func(db *gorm.DB) {
-		var (
-			sql  = db.Statement.SQL.String()
-			vars = db.Statement.Vars
+	// 创建
+	_ = db.Callback().Create().Before("gorm:create").Register("log:before_create", before)
+	_ = db.Callback().Create().After("gorm:create").Register("log:after_create", after)
+
+	// 更新
+	_ = db.Callback().Update().Before("gorm:update").Register("log:before_update", before)
+	_ = db.Callback().Update().After("gorm:update").Register("log:after_update", after)
+
+	// 删除
+	_ = db.Callback().Delete().Before("gorm:delete").Register("log:before_delete", before)
+	_ = db.Callback().Delete().After("gorm:delete").Register("log:after_delete", after)
+}
+
+func before(db *gorm.DB) {
+	db.InstanceSet(startTimeKey, time.Now())
+}
+
+func after(db *gorm.DB) {
+	ctx := db.Statement.Context
+	start, ok := db.InstanceGet(startTimeKey)
+	if !ok {
+		return
+	}
+
+	// 耗时
+	cost := time.Since(start.(time.Time))
+	costMs := float64(cost) / float64(time.Millisecond) // 精确到小数
+	sql := db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
+
+	// 慢查询警告
+	if cost > Conf.Mysql.SlowQuerySeconds {
+		ZapLogger.Warn(
+			ctx,
+			"Slow SQL",
+			zap.Float64("costMs", costMs),
+			zap.String("sql", sql),
 		)
+	}
 
-		// 追加sql数据
-		AddSql(sql, vars)
+	// traceId := db.Statement.Context.Value(ctx2.KeyTraceId).(string)
+	// fmt.Printf("traceId: %s, sql: %s, cost: %d ms\n", traceId, sql, cost.Milliseconds())
+	data := map[string]any{
+		"sql":  sql,
+		"rows": db.Statement.RowsAffected,
+		"ms":   costMs,
+	}
 
-		// 获取查询开始时间
-		startTime, _ := db.InstanceGet("gorm:query_slowquery_start_time")
-		if startTime != nil {
-			elapsed := time.Since(startTime.(time.Time))
-			// 超过阈值则记录慢查询
-			if elapsed > Conf.Mysql.SlowQuerySeconds {
-				// 记录慢查询的执行时间和查询语句
-				ZapLogger.Warn(fmt.Sprintf("执行慢查询: %s, sql: %s", elapsed.String(), getSQL(sql, vars)))
-			}
-		}
-	})
-
-	// 注册创建
-	_ = db.Callback().Create().After("gorm:create").Register("slowquery:create", func(db *gorm.DB) {
-		var (
-			sql  = db.Statement.SQL.String()
-			vars = db.Statement.Vars
-		)
-
-		// 追加sql数据
-		AddSql(sql, vars)
-	})
-
-	// 注册更新
-	_ = db.Callback().Update().After("gorm:update").Register("slowquery:update", func(db *gorm.DB) {
-		var (
-			sql  = db.Statement.SQL.String()
-			vars = db.Statement.Vars
-		)
-
-		// 追加sql数据
-		AddSql(sql, vars)
-	})
-
-	// 注册删除
-	_ = db.Callback().Delete().After("gorm:delete").Register("slowquery:delete", func(db *gorm.DB) {
-		var (
-			sql  = db.Statement.SQL.String()
-			vars = db.Statement.Vars
-		)
-
-		// 追加sql数据
-		AddSql(sql, vars)
-	})
+	ctx2.AddSql(db.Statement.Context, data)
 }
 
 // getSQL 替换 SQL 中的占位符 "?" 为实际值
@@ -166,24 +159,4 @@ func getSQL(sql string, vars []interface{}) string {
 	}
 
 	return sql
-}
-
-// AddSql 线程安全地追加sql数据
-func AddSql(sql string, vars []interface{}) {
-	mu.Lock()
-	defer mu.Unlock()
-
-	SqlRes = append(SqlRes, getSQL(sql, vars))
-}
-
-// GetAllSql 获取所有sql记录
-func GetAllSql() []string {
-	mu.Lock()
-	defer mu.Unlock()
-
-	// 复制一份SqlRes返回,避免外部修改
-	sqlRes := make([]string, len(SqlRes))
-	copy(sqlRes, SqlRes)
-
-	return sqlRes
 }

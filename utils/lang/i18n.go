@@ -1,6 +1,7 @@
 package lang
 
 import (
+	"context"
 	"fmt"
 	"gin/config"
 	"gin/utils/ctx"
@@ -26,7 +27,7 @@ func LoadLang() {
 
 	baseDir := config.Conf.I18n.Dir
 	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
-		config.ZapLogger.Info(fmt.Sprintf("i18n baseDir not found: %s", baseDir))
+		config.ZapLogger.Info(nil, fmt.Sprintf("i18n baseDir not found: %s", baseDir))
 		return
 	}
 
@@ -48,7 +49,7 @@ func LoadLang() {
 func loadLangDir(lang, dir string) {
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			config.ZapLogger.Info(err.Error())
+			config.ZapLogger.Info(nil, err.Error())
 			return nil
 		}
 
@@ -58,33 +59,43 @@ func loadLangDir(lang, dir string) {
 
 		ext := strings.ToLower(filepath.Ext(path))
 		if ext != ".json" && ext != ".yaml" && ext != ".yml" {
-			config.ZapLogger.Info("Unsupported lang file type: " + ext)
+			config.ZapLogger.Info(nil, "Unsupported lang file type: "+ext)
 			return nil
 		}
 
 		data, err := os.ReadFile(path)
 		if err != nil {
-			config.ZapLogger.Info(err.Error())
+			config.ZapLogger.Info(nil, err.Error())
 		}
 
 		// 模拟路径格式如zh.json/en.yaml,让go-i18n能识别语言
 		virtualFileName := fmt.Sprintf("%s%s", lang, ext)
 		_, err = Bundle.ParseMessageFileBytes(data, virtualFileName)
 		if err != nil {
-			config.ZapLogger.Info(err.Error())
+			config.ZapLogger.Info(nil, err.Error())
 		}
 
 		return nil
 	})
 	if err != nil {
-		config.ZapLogger.Info(err.Error())
+		config.ZapLogger.Info(nil, err.Error())
 	}
 }
 
 // T 翻译
-func T(messageID string, data map[string]interface{}) string {
-	context := ctx.GetContext(ctx.KeyLogger)
-	langCode := context.GetString(ctx.KeyLang)
+func T(c context.Context, messageID string, data map[string]interface{}) string {
+	if c == nil {
+		c = context.Background()
+	}
+
+	var (
+		langCode string
+	)
+	if v := c.Value(ctx.KeyLang); v != nil {
+		if s, ok := v.(string); ok && s != "" {
+			langCode = s
+		}
+	}
 	if langCode == "" {
 		langCode = "zh"
 	}
@@ -99,7 +110,7 @@ func T(messageID string, data map[string]interface{}) string {
 		TemplateData: data,
 	})
 	if err != nil {
-		config.ZapLogger.Info(fmt.Sprintf("缺少翻译: %s (%s)\n", messageID, langCode))
+		config.ZapLogger.Info(nil, fmt.Sprintf("缺少翻译: %s (%s)\n", messageID, langCode))
 		return messageID
 	}
 	return msg

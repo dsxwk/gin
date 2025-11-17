@@ -1302,7 +1302,7 @@ func (s *LoginController) Login(c *gin.Context) {
 
 	userModel, err := srv.Login(req.Username, req.Password)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(c, err.Error(), nil)))
 		return
 	}
 
@@ -1320,7 +1320,7 @@ func (s *LoginController) Login(c *gin.Context) {
 
 	s.Success(
 		c, errcode.Success().WithMsg(
-			lang.T("login.success", map[string]interface{}{
+			lang.T(c, "login.success", map[string]interface{}{
 				"name": userModel.Username,
 			}),
 		).WithData(LoginResponse{
@@ -1509,21 +1509,32 @@ func (s *TestController) Test(c *gin.Context) {
 > Use the `zap` package to implement logging. The storage path for log files is `storage/logs`, and the default log level is `debug`. When the error code returned is not 0, it automatically records log TraceId, stack, SQL, HTTP, Redis, and other call information. Logging can also be directly called to automatically record debugging information. Does `log.access` in the configuration file `yaml` support automatic recording of request logs? If enabled, it will automatically record request logs.
 ```json
 {
-    "level": "info",
-    "timestamp": "2025-11-04 15:32:12.426",
-    "caller": "middleware/logger.go:54",
-    "msg": "Access Log",
-    "traceId": "cd0fc2e4-49e8-4e6a-afba-f8661f5f2a18",
-    "clientIp": "127.0.0.1",
-    "method": "POST",
-    "path": "/api/v1/login",
-    "params": "{    \"username\": \"admin\",    \"password\": \"123456\"}",
-    "debug": {
-      "mysql": [
-        "SELECT * FROM `user` WHERE username = 'admin' AND `user`.`deleted_at` IS NULL ORDER BY `user`.`id` LIMIT 1"
-      ]
-    }
+  "level": "info",
+  "timestamp": "2025-11-17 16:35:09.402",
+  "caller": "middleware/logger.go:83",
+  "msg": "Access Log",
+  "traceId": "fa505122-d31e-4d4f-a05c-13c1641d6c6c",
+  "ip": "127.0.0.1",
+  "path": "/api/v1/login",
+  "method": "POST",
+  "params": {
+    "password": "1234561",
+    "username": "admin"
+  },
+  "ms": 59,
+  "debugger": {
+    "Sql": [
+      {
+        "ms": 2.5008,
+        "rows": 1,
+        "sql": "SELECT * FROM `user` WHERE username = 'admin' AND `user`.`deleted_at` IS NULL ORDER BY `user`.`id` LIMIT 1"
+      }
+    ],
+    "Redis": null,
+    "Http": null,
+    "Rabbitmq": null
   }
+}
 ```
 ## Write Log
 > The global log has been encapsulated in the `global` package and can be directly recorded using `global.Log`. The log level supports debug, info, warn, error, panic, and fatal, with the default being `debug`.
@@ -1541,7 +1552,7 @@ type TestController struct {
 }
 
 func (s *TestController) Test(c *gin.Context) {
-  global.Log.Error("System Error")
+  global.Log.Error(c, "System Error")
 }
 ```
 
@@ -1550,20 +1561,31 @@ func (s *TestController) Test(c *gin.Context) {
 ```json
 {
   "level": "error",
-  "timestamp": "2025-11-14 15:40:28.137",
+  "timestamp": "2025-11-17 16:35:09.401",
   "caller": "response/response.go:60",
   "msg": "Login Password Error",
-  "traceId": "b6c908f1-ae0f-4d8f-9758-f79d04b23118",
-  "clientIp": "127.0.0.1",
-  "method": "POST",
+  "traceId": "fa505122-d31e-4d4f-a05c-13c1641d6c6c",
+  "ip": "127.0.0.1",
   "path": "/api/v1/login",
-  "params": "{    \"username\": \"admin\",    \"password\": \"123456·\"}",
-  "debug": {
-    "mysql": [
-      "SELECT * FROM `user` WHERE username = 'admin' AND `user`.`deleted_at` IS NULL ORDER BY `user`.`id` LIMIT 1"
-    ]
+  "method": "POST",
+  "params": {
+    "password": "1234561",
+    "username": "admin"
   },
-  "stackTrace": "gin/common/response.Error\n\tE:/www/dsx/www-go/gin/common/response/response.go:60\ngin/common/base.(*BaseController).Error\n\tE:/www/dsx/www-go/gin/common/base/base_controller.go:25\ngin/app/controller/v1.(*LoginController).Login\n\tE:/www/dsx/www-go/gin/app/controller/v1/login.go:67\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Cors.Handle.func2\n\tE:/www/dsx/www-go/gin/app/middleware/cors.go:30\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Logger.Handle.func1\n\tE:/www/dsx/www-go/gin/app/middleware/logger.go:57\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.CustomRecoveryWithWriter.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/recovery.go:92\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.LoggerWithConfig.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/logger.go:249\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.(*Engine).handleHTTPRequest\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:689\ngithub.com/gin-gonic/gin.(*Engine).ServeHTTP\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:643\nnet/http.serverHandler.ServeHTTP\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:3340\nnet/http.(*conn).serve\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:2109"
+  "ms": 58,
+  "debugger": {
+    "Sql": [
+      {
+        "ms": 2.5008,
+        "rows": 1,
+        "sql": "SELECT * FROM `user` WHERE username = 'admin' AND `user`.`deleted_at` IS NULL ORDER BY `user`.`id` LIMIT 1"
+      }
+    ],
+    "Redis": null,
+    "Http": null,
+    "Rabbitmq": null
+  },
+  "stackTrace": "gin/common/response.Error\n\tE:/www/dsx/www-go/gin/common/response/response.go:60\ngin/common/base.(*BaseController).Error\n\tE:/www/dsx/www-go/gin/common/base/base_controller.go:25\ngin/app/controller/v1.(*LoginController).Login\n\tE:/www/dsx/www-go/gin/app/controller/v1/login.go:67\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Cors.Handle.func2\n\tE:/www/dsx/www-go/gin/app/middleware/cors.go:30\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Logger.Handle.func1\n\tE:/www/dsx/www-go/gin/app/middleware/logger.go:76\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.CustomRecoveryWithWriter.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/recovery.go:92\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.LoggerWithConfig.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/logger.go:249\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.(*Engine).handleHTTPRequest\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:689\ngithub.com/gin-gonic/gin.(*Engine).ServeHTTP\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:643\nnet/http.serverHandler.ServeHTTP\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:3340\nnet/http.(*conn).serve\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:2109"
 }
 ```
 
@@ -1585,14 +1607,14 @@ import (
 )
 
 func Test()  {
-    trans := lang.T("login.username", nil)
+    trans := lang.T(nil, "login.username", nil)
 	fmt.Println(trans) // Output: 用户名, English Output: Username
 }
 ```
 
 ## Template Translation
 > Template translation is supported in the translation file, such as `{{. name}}`, using `map[string]interface{}` to pass parameters.
-```json
+ms
 [
   {
     "id": "login.success",
@@ -1606,7 +1628,7 @@ import (
 )
 
 func Test()  {
-    trans := lang.T("login.success", map[string]interface{}{
+    trans := lang.T(nil, "login.success", map[string]interface{}{
         "name": "admin",
     }),
 	fmt.Println(trans) // Output: admin,登录成功 English Output: admin,Login Success

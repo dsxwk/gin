@@ -3,6 +3,7 @@ package global
 import (
 	"gin/config"
 	"gin/utils/cache"
+	"gin/utils/message"
 	"gorm.io/gorm"
 )
 
@@ -14,6 +15,7 @@ var (
 	RedisCache  *cache.RedisCache  // redis缓存
 	MemoryCache *cache.MemoryCache // 内存缓存
 	DiskCache   *cache.DiskCache   // 磁盘缓存
+	Message     = message.New()    // 消息事件
 )
 
 func init() {
