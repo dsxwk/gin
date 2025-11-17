@@ -110,6 +110,12 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.2.0
+> - Optimize context processing
+> - Optimize log processing
+> - Add Messages Release Subscription
+> - Improved readme document after optimization
+
 ## v1.1.0
 > Improve log debugging and user documentation, and complete version v1.0.0.
 
