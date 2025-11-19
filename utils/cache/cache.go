@@ -63,7 +63,7 @@ func (p *CacheProxy) publish(method, key string, val interface{}, cost time.Dura
 			Name:   method,
 			Cmd:    key,
 			Args:   val,
-			Ms:     float64(cost) / float64(time.Millisecond) / 1000,
+			Ms:     float64(cost.Nanoseconds()) / 1e6,
 		})
 	}
 }

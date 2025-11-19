@@ -90,7 +90,7 @@ func HttpRequest(method, uri string, opt *HttpOption) (string, error) {
 	defer func() {
 		// 耗时
 		cost := time.Since(start)
-		costMs := float64(cost) / float64(time.Millisecond)
+		costMs := float64(cost.Nanoseconds()) / 1e6
 
 		message.MsgEventBus.Publish(debugger.TopicHttp, debugger.HttpEvent{
 			Url:      uri,

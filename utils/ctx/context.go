@@ -29,10 +29,10 @@ var (
 
 // Debugger 记录调试信息
 type Debugger struct {
-	Sql      []map[string]any
-	Redis    []map[string]any
-	Http     []map[string]any
-	Rabbitmq []map[string]any
+	Sql   []map[string]any
+	Cache []map[string]any
+	Http  []map[string]any
+	Mq    []map[string]any
 }
 
 // 获取当前goroutine Id
@@ -86,9 +86,9 @@ func AddSql(data map[string]any) {
 	}
 }
 
-func AddRedis(data map[string]any) {
+func AddCache(data map[string]any) {
 	if dbg := GetDebugger(); dbg != nil {
-		dbg.Redis = append(dbg.Redis, data)
+		dbg.Cache = append(dbg.Cache, data)
 	}
 }
 
@@ -98,9 +98,9 @@ func AddHttp(data map[string]any) {
 	}
 }
 
-func AddRabbitmq(data map[string]any) {
+func AddMq(data map[string]any) {
 	if dbg := GetDebugger(); dbg != nil {
-		dbg.Rabbitmq = append(dbg.Rabbitmq, data)
+		dbg.Mq = append(dbg.Mq, data)
 	}
 }
 

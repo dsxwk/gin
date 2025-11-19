@@ -68,7 +68,7 @@ func (s Logger) Handle() gin.HandlerFunc {
 		start := time.Now()
 		c.Set(ctx.KeyStartTime, start) // 保存开始时间
 		c.Next()
-		cost := time.Since(start).Milliseconds()
+		cost := float64(time.Since(start).Nanoseconds()) / 1e6
 		c.Set(ctx.KeyMs, cost)
 
 		// 记录请求日志

@@ -32,13 +32,14 @@ func (s *LoginService) Login(username, password string) (m model.User, err error
 		return m, errors.New("login.accountDisabled")
 	}
 
-	//_ = global.RedisCache.Set("test", 1, 100)
-	//_ = global.RedisCache.Set("test1", 1, 100)
-	//_ = global.DiskCache.Set("test", 1, 100)
-	//_ = global.DiskCache.Set("test1", 1, 100)
-	//_ = global.MemoryCache.Set("test", 1, 100)
-	//_ = global.MemoryCache.Set("test1", 1, 100)
-	//_, _ = utils.HttpRequestJson[map[string]interface{}]("GET", "https://www.baidu.com", nil)
+	_ = global.RedisCache.Set("test", 1, 100)
+	_ = global.RedisCache.Set("test1", 1, 100)
+	_ = global.DiskCache.Set("test", 1, 100)
+	_ = global.DiskCache.Set("test1", 1, 100)
+	_ = global.MemoryCache.Set("test", 1, 100)
+	_ = global.MemoryCache.Set("test1", 1, 100)
+	_, _ = utils.HttpRequestJson[map[string]interface{}]("GET", "http://127.0.0.1:8080/ping", nil)
+	_, _ = utils.HttpRequestJson[map[string]interface{}]("GET", "http://127.0.0.1:8080/ping", nil)
 
 	return m, nil
 }

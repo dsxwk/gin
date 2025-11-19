@@ -103,7 +103,7 @@ func after(db *gorm.DB) {
 
 	// 耗时
 	cost := time.Since(start.(time.Time))
-	costMs := float64(cost) / float64(time.Millisecond) // 精确到小数
+	costMs := float64(cost.Nanoseconds()) / 1e6 // 精确到小数
 	sql := db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
 
 	// 慢查询警告

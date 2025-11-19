@@ -29,7 +29,7 @@ func (d *Debugger) Start() {
 	})
 	d.subIds[TopicCache] = d.Bus.Subscribe(TopicCache, func(ev any) {
 		if e, ok := ev.(CacheEvent); ok {
-			ctx.AddRedis(map[string]any{
+			ctx.AddCache(map[string]any{
 				"driver": e.Driver,
 				"name":   e.Name,
 				"cmd":    e.Cmd,
@@ -53,10 +53,14 @@ func (d *Debugger) Start() {
 	})
 	d.subIds[TopicMQ] = d.Bus.Subscribe(TopicMQ, func(ev any) {
 		if e, ok := ev.(MqEvent); ok {
-			ctx.AddRabbitmq(map[string]any{
-				"topic": e.Topic,
-				"body":  e.Body,
-				"type":  e.Type,
+			ctx.AddMq(map[string]any{
+				"driver":  e.Driver,
+				"topic":   e.Topic,
+				"message": e.Message,
+				"key":     e.Key,
+				"group":   e.Group,
+				"ms":      e.Ms,
+				"extra":   e.Extra,
 			})
 		}
 	})

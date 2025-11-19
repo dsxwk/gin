@@ -23,7 +23,7 @@ func (h *RedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error {
 	if !ok {
 		start = time.Now()
 	}
-	costMs := float64(time.Since(start)) / float64(time.Millisecond)
+	costMs := float64(time.Since(start).Nanoseconds()) / 1e6
 
 	// 发布事件
 	if h.bus != nil {
@@ -48,7 +48,7 @@ func (h *RedisHook) AfterProcessPipeline(ctx context.Context, cmds []redis.Cmder
 	if !ok {
 		start = time.Now()
 	}
-	costMs := float64(time.Since(start)) / float64(time.Millisecond) / 1000
+	costMs := float64(time.Since(start).Nanoseconds()) / 1e6
 
 	for _, cmd := range cmds {
 		if h.bus != nil {
@@ -190,7 +190,7 @@ func (r *RedisCache) Subscribe(channel string, handler func(channel string, payl
 		return fmt.Errorf("failed to subscribe to channel %s: %v", channel, err)
 	}
 
-	// 保存 pubsub 对象
+	// 保存pubsub对象
 	r.pubsubs[channel] = pubsub
 
 	// 消息处理协程
