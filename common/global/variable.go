@@ -8,14 +8,14 @@ import (
 )
 
 var (
-	Config      *config.Config     // 配置
-	DB          *gorm.DB           // 数据库
-	Log         *config.Logger     // 日志
-	Cache       cache.Cache        // 缓存
-	RedisCache  *cache.RedisCache  // redis缓存
-	MemoryCache *cache.MemoryCache // 内存缓存
-	DiskCache   *cache.DiskCache   // 磁盘缓存
-	Message     = message.New()    // 消息事件
+	Config      *config.Config        // 配置
+	DB          *gorm.DB              // 数据库
+	Log         *config.Logger        // 日志
+	Cache       cache.Cache           // 缓存
+	RedisCache  *cache.RedisCache     // redis缓存
+	MemoryCache *cache.CacheProxy     // 内存缓存
+	DiskCache   *cache.CacheProxy     // 磁盘缓存
+	Message     = message.MsgEventBus // 消息事件
 )
 
 func init() {

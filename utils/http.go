@@ -2,6 +2,8 @@ package utils
 
 import (
 	"fmt"
+	"gin/utils/debugger"
+	"gin/utils/message"
 	"github.com/goccy/go-json"
 	"github.com/valyala/fasthttp"
 	"net/url"
@@ -36,6 +38,7 @@ func buildUrl(baseURL string, query map[string]string) string {
 
 // HttpRequest 发送http请求
 func HttpRequest(method, uri string, opt *HttpOption) (string, error) {
+	start := time.Now()
 	req := fasthttp.AcquireRequest()
 	resp := fasthttp.AcquireResponse()
 	defer func() {
@@ -82,14 +85,32 @@ func HttpRequest(method, uri string, opt *HttpOption) (string, error) {
 		WriteTimeout:    timeout, // 写入超时
 	}
 
+	var respBody string
+	var status int
+	defer func() {
+		// 耗时
+		cost := time.Since(start)
+		costMs := float64(cost) / float64(time.Millisecond)
+
+		message.MsgEventBus.Publish(debugger.TopicHttp, debugger.HttpEvent{
+			Url:      uri,
+			Method:   method,
+			Header:   opt.Headers,
+			Body:     string(req.Body()),
+			Status:   status,
+			Response: respBody,
+			Ms:       costMs,
+		})
+	}()
+
 	// 发送请求
 	if err := client.Do(req, resp); err != nil {
 		return "", fmt.Errorf("请求失败: %w", err)
 	}
 
 	// 获取响应内容
-	respBody := string(resp.Body())
-
+	respBody = string(resp.Body())
+	status = resp.StatusCode()
 	if resp.StatusCode() != 200 {
 		return "", fmt.Errorf("请求失败, 状态码: %d, 响应: %s", resp.Header.StatusCode(), respBody)
 	}

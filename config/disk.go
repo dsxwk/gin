@@ -1,11 +1,10 @@
 package config
 
-import "gin/utils/cache"
+import (
+	"gin/utils/cache"
+	"gin/utils/message"
+)
 
-func DiskInstance() *cache.DiskCache {
-	instance, err := cache.NewDisk(Conf.Cache.Disk.Path)
-	if err != nil {
-		ZapLogger.Fatal(nil, "disk cache init failed: "+err.Error())
-	}
-	return instance
+func DiskInstance() *cache.CacheProxy {
+	return cache.NewDisk(Conf.Cache.Disk.Path, message.MsgEventBus)
 }

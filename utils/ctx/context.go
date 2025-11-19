@@ -3,6 +3,9 @@ package ctx
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"runtime"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -14,14 +17,14 @@ const (
 	KeyParams    = "params"
 	KeyMs        = "ms"
 	KeyLang      = "lang"
-	KeyDebugger  = "debugger"
 	KeyStartTime = "startTime"
 )
 
 var (
 	contextStore = make(map[string]interface{})
 	mu           sync.RWMutex
-	debuggerMap  sync.Map // traceId -> *Debugger
+	traceMap     sync.Map // goroutineId -> traceId
+	debuggers    sync.Map // traceId -> *Debugger
 )
 
 // Debugger 记录调试信息
@@ -32,45 +35,71 @@ type Debugger struct {
 	Rabbitmq []map[string]any
 }
 
-// InitDebugger 初始化调试器并绑定traceId
-func InitDebugger(traceId string) *Debugger {
-	dbg := &Debugger{}
-	debuggerMap.Store(traceId, dbg)
-	return dbg
+// 获取当前goroutine Id
+func goId() int64 {
+	buf := make([]byte, 64)
+	n := runtime.Stack(buf, false)
+	// goroutine 18 [running]:
+	parts := strings.Split(string(buf[:n]), " ")
+	id, _ := strconv.ParseInt(parts[1], 10, 64)
+	return id
 }
 
-// GetDebugger 通过traceId获取debugger
-func GetDebugger(traceId string) *Debugger {
-	if v, ok := debuggerMap.Load(traceId); ok {
-		return v.(*Debugger)
+// BindTraceId 中间件设置：绑定 goroutine → traceId
+func BindTraceId(traceId string) {
+	traceMap.Store(goId(), traceId)
+}
+
+// CurrentTrace 获取当前traceId
+func CurrentTrace() string {
+	id := goId()
+	v, ok := traceMap.Load(id)
+	if !ok {
+		return ""
 	}
-	return nil
+	return v.(string)
 }
 
-func AddSql(ctx context.Context, data map[string]any) {
-	traceId, _ := ctx.Value(KeyTraceId).(string)
-	if dbg := GetDebugger(traceId); dbg != nil {
+// GetDebugger 获取debugger
+func GetDebugger() *Debugger {
+	traceId := CurrentTrace()
+	if traceId == "" {
+		return nil
+	}
+	v, _ := debuggers.LoadOrStore(traceId, &Debugger{})
+	return v.(*Debugger)
+}
+
+// Clear 清除
+func Clear() {
+	id := goId()
+	v, ok := traceMap.Load(id)
+	if ok {
+		debuggers.Delete(v.(string))
+		traceMap.Delete(id)
+	}
+}
+
+func AddSql(data map[string]any) {
+	if dbg := GetDebugger(); dbg != nil {
 		dbg.Sql = append(dbg.Sql, data)
 	}
 }
 
-func AddRedis(ctx context.Context, data map[string]any) {
-	traceId, _ := ctx.Value(KeyTraceId).(string)
-	if dbg := GetDebugger(traceId); dbg != nil {
+func AddRedis(data map[string]any) {
+	if dbg := GetDebugger(); dbg != nil {
 		dbg.Redis = append(dbg.Redis, data)
 	}
 }
 
-func AddHttp(ctx context.Context, data map[string]any) {
-	traceId, _ := ctx.Value(KeyTraceId).(string)
-	if dbg := GetDebugger(traceId); dbg != nil {
+func AddHttp(data map[string]any) {
+	if dbg := GetDebugger(); dbg != nil {
 		dbg.Http = append(dbg.Http, data)
 	}
 }
 
-func AddMq(ctx context.Context, data map[string]any) {
-	traceId, _ := ctx.Value(KeyTraceId).(string)
-	if dbg := GetDebugger(traceId); dbg != nil {
+func AddRabbitmq(data map[string]any) {
+	if dbg := GetDebugger(); dbg != nil {
 		dbg.Rabbitmq = append(dbg.Rabbitmq, data)
 	}
 }

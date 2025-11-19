@@ -1,7 +1,6 @@
 package lang
 
 import (
-	"context"
 	"fmt"
 	"gin/config"
 	"gin/utils/ctx"
@@ -83,19 +82,9 @@ func loadLangDir(lang, dir string) {
 }
 
 // T 翻译
-func T(c context.Context, messageID string, data map[string]interface{}) string {
-	if c == nil {
-		c = context.Background()
-	}
-
-	var (
-		langCode string
-	)
-	if v := c.Value(ctx.KeyLang); v != nil {
-		if s, ok := v.(string); ok && s != "" {
-			langCode = s
-		}
-	}
+func T(messageID string, data map[string]interface{}) string {
+	context := ctx.GetContext(ctx.KeyLang)
+	langCode := context.GetString(ctx.KeyLang)
 	if langCode == "" {
 		langCode = "zh"
 	}

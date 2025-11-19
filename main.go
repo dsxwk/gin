@@ -7,7 +7,9 @@ import (
 	"gin/config"
 	"gin/router"
 	"gin/utils"
+	"gin/utils/debugger"
 	"gin/utils/lang"
+	"gin/utils/message"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/mattn/go-runewidth"
@@ -56,6 +58,11 @@ func main() {
 
 	// 加载翻译
 	lang.LoadLang()
+
+	// debugger订阅
+	dbg := debugger.NewDebugger(message.MsgEventBus)
+	dbg.Start()
+	defer dbg.Stop()
 
 	data := map[string]interface{}{
 		"应用":  config.Conf.App.Name,

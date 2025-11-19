@@ -2,7 +2,8 @@ package config
 
 import (
 	"fmt"
-	ctx2 "gin/utils/ctx"
+	"gin/utils/debugger"
+	"gin/utils/message"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
@@ -115,15 +116,11 @@ func after(db *gorm.DB) {
 		)
 	}
 
-	// traceId := db.Statement.Context.Value(ctx2.KeyTraceId).(string)
-	// fmt.Printf("traceId: %s, sql: %s, cost: %d ms\n", traceId, sql, cost.Milliseconds())
-	data := map[string]any{
-		"sql":  sql,
-		"rows": db.Statement.RowsAffected,
-		"ms":   costMs,
-	}
-
-	ctx2.AddSql(db.Statement.Context, data)
+	message.MsgEventBus.Publish(debugger.TopicSql, debugger.SqlEvent{
+		Sql:  sql,
+		Rows: db.Statement.RowsAffected,
+		Ms:   costMs,
+	})
 }
 
 // getSQL 替换 SQL 中的占位符 "?" 为实际值

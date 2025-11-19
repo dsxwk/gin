@@ -117,7 +117,7 @@ func (l *Logger) WithContext(c context.Context) *zap.Logger {
 		zap.Any("method", ctx.GetValue(c, ctx.KeyMethod)),
 		zap.Any("params", ctx.GetValue(c, ctx.KeyParams)),
 		zap.Any("ms", ms),
-		zap.Any("debugger", ctx.GetDebugger(traceId)),
+		zap.Any("debugger", ctx.GetDebugger()),
 	)
 }
 

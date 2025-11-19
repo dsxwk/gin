@@ -1309,7 +1309,7 @@ func (s *LoginController) Login(c *gin.Context) {
 
 	userModel, err := srv.Login(req.Username, req.Password)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(c, err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
 		return
 	}
 
@@ -1327,7 +1327,7 @@ func (s *LoginController) Login(c *gin.Context) {
 
 	s.Success(
 		c, errcode.Success().WithMsg(
-			lang.T(c, "login.success", map[string]interface{}{
+			lang.T("login.success", map[string]interface{}{
 				"name": userModel.Username,
 			}),
 		).WithData(LoginResponse{
@@ -1614,7 +1614,7 @@ import (
 )
 
 func Test()  {
-    trans := lang.T(nil, "login.username", nil)
+    trans := lang.T("login.username", nil)
 	fmt.Println(trans) // 输出: 用户名, 英文输出: Username
 }
 ```
@@ -1635,7 +1635,7 @@ import (
 )
 
 func Test()  {
-    trans := lang.T(nil, "login.success", map[string]interface{}{
+    trans := lang.T("login.success", map[string]interface{}{
         "name": "admin",
     }),
 	fmt.Println(trans) // 输出: admin,登录成功 英文输出: admin,Login Success

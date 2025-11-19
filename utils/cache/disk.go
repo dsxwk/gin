@@ -3,6 +3,7 @@ package cache
 import (
 	"errors"
 	"fmt"
+	"gin/utils/message"
 	"github.com/dgraph-io/badger/v4"
 	"log"
 	"time"
@@ -13,14 +14,15 @@ type DiskCache struct {
 	db *badger.DB
 }
 
-func NewDisk(dir string) (*DiskCache, error) {
+func NewDisk(dir string, bus *message.EventBus) *CacheProxy {
 	opts := badger.DefaultOptions(dir)
 	db, err := badger.Open(opts)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("init disk cache failed: %s", err.Error()))
-		return nil, err
+		return nil
 	}
-	return &DiskCache{db: db}, nil
+	disk := &DiskCache{db: db}
+	return NewCacheProxy("disk", disk, bus)
 }
 
 func (d *DiskCache) Set(key string, value interface{}, expire time.Duration) error {
@@ -66,7 +68,7 @@ func (d *DiskCache) Expire(key string) (interface{}, time.Time, bool, error) {
 		expireTime time.Time
 	)
 
-	// Badger 不直接支持获取剩余 TTL，只能判断是否存在
+	// Badger 不直接支持获取剩余ttl,只能判断是否存在
 	err := d.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(key))
 		if err != nil {

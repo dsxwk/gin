@@ -3,9 +3,67 @@ package cache
 import (
 	"context"
 	"fmt"
+	"gin/utils/debugger"
+	"gin/utils/message"
 	"github.com/go-redis/redis/v8"
 	"time"
 )
+
+type RedisHook struct {
+	bus *message.EventBus
+}
+
+func (h *RedisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (context.Context, error) {
+	// 在context中记录开始时间
+	return context.WithValue(ctx, "startTime", time.Now()), nil
+}
+
+func (h *RedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error {
+	start, ok := ctx.Value("startTime").(time.Time)
+	if !ok {
+		start = time.Now()
+	}
+	costMs := float64(time.Since(start)) / float64(time.Millisecond)
+
+	// 发布事件
+	if h.bus != nil {
+		h.bus.Publish(debugger.TopicCache, debugger.CacheEvent{
+			Driver: "redis",
+			Name:   cmd.Name(),
+			Cmd:    cmd.String(),
+			Args:   cmd.Args(),
+			Ms:     costMs,
+		})
+	}
+
+	return nil
+}
+
+func (h *RedisHook) BeforeProcessPipeline(ctx context.Context, cmds []redis.Cmder) (context.Context, error) {
+	return context.WithValue(ctx, "startTime", time.Now()), nil
+}
+
+func (h *RedisHook) AfterProcessPipeline(ctx context.Context, cmds []redis.Cmder) error {
+	start, ok := ctx.Value("startTime").(time.Time)
+	if !ok {
+		start = time.Now()
+	}
+	costMs := float64(time.Since(start)) / float64(time.Millisecond) / 1000
+
+	for _, cmd := range cmds {
+		if h.bus != nil {
+			h.bus.Publish(debugger.TopicCache, debugger.CacheEvent{
+				Driver: "redis",
+				Name:   cmd.Name(),
+				Cmd:    cmd.String(),
+				Args:   cmd.Args(),
+				Ms:     costMs,
+			})
+		}
+	}
+
+	return nil
+}
 
 // RedisCache Redis缓存
 type RedisCache struct {
@@ -15,12 +73,15 @@ type RedisCache struct {
 }
 
 // NewRedis redis实例
-func NewRedis(address, password string, db int) *RedisCache {
+func NewRedis(address, password string, db int, bus *message.EventBus) *RedisCache {
 	client := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: password,
 		DB:       db,
 	})
+
+	// 添加Hook
+	client.AddHook(&RedisHook{bus: bus})
 
 	return &RedisCache{
 		client:  client,
