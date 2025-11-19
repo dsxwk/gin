@@ -110,6 +110,11 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.2.1
+> - Optimize context processing
+> - Optimize log processing and log processing for Redis, HTTP, MySQL
+> - Improved readme document after optimization
+
 ## v1.2.0
 > - Optimize context processing
 > - Optimize log processing
