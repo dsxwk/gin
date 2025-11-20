@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"context"
 	"gin/common/base"
 	"gin/common/global"
 	"gin/utils/ctx"
@@ -62,7 +63,7 @@ func (s Logger) Handle() gin.HandlerFunc {
 		c.Set(ctx.KeyLang, lang)
 		ctx.SetContext(ctx.KeyLang, c)
 		c.Header("Trace-Id", traceId)
-		reqCtx := c.Request.Context()
+		reqCtx := context.WithValue(c.Request.Context(), ctx.KeyTraceId, traceId)
 		c.Request = c.Request.WithContext(reqCtx)
 
 		start := time.Now()

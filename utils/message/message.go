@@ -117,7 +117,7 @@ func (b *EventBus) SubscribeIds(topic string) []uint64 {
 	return ids
 }
 
-// QueryAll 查询所有topic + 订阅者 Id
+// QueryAll 查询所有topic + 订阅者Id
 func (b *EventBus) QueryAll() map[string][]uint64 {
 	b.mu.RLock()
 	defer b.mu.RUnlock()

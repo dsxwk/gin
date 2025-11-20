@@ -4,7 +4,7 @@ const (
 	TopicSql   = "debug:sql"
 	TopicCache = "debug:cache"
 	TopicHttp  = "debug:http"
-	TopicMQ    = "debug:mq"
+	TopicMq    = "debug:mq"
 )
 
 // SqlEvent Sql事件

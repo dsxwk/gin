@@ -85,8 +85,10 @@ func HttpRequest(method, uri string, opt *HttpOption) (string, error) {
 		WriteTimeout:    timeout, // 写入超时
 	}
 
-	var respBody string
-	var status int
+	var (
+		respJson interface{}
+		status   int
+	)
 	defer func() {
 		// 耗时
 		cost := time.Since(start)
@@ -98,7 +100,7 @@ func HttpRequest(method, uri string, opt *HttpOption) (string, error) {
 			Header:   opt.Headers,
 			Body:     string(req.Body()),
 			Status:   status,
-			Response: respBody,
+			Response: respJson,
 			Ms:       costMs,
 		})
 	}()
@@ -109,7 +111,11 @@ func HttpRequest(method, uri string, opt *HttpOption) (string, error) {
 	}
 
 	// 获取响应内容
-	respBody = string(resp.Body())
+	respBody := string(resp.Body())
+	err := json.Unmarshal([]byte(respBody), &respJson)
+	if err != nil {
+		respJson = respBody
+	}
 	status = resp.StatusCode()
 	if resp.StatusCode() != 200 {
 		return "", fmt.Errorf("请求失败, 状态码: %d, 响应: %s", resp.Header.StatusCode(), respBody)

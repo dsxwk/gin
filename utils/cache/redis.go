@@ -6,6 +6,7 @@ import (
 	"gin/utils/debugger"
 	"gin/utils/message"
 	"github.com/go-redis/redis/v8"
+	"github.com/goccy/go-json"
 	"time"
 )
 
@@ -173,7 +174,24 @@ func (r *RedisCache) UnLock(key string, value string) error {
 
 // Publish 发布
 func (r *RedisCache) Publish(channel string, message interface{}) error {
-	err := r.client.Publish(r.ctx, channel, message).Err()
+	var (
+		payload string
+	)
+
+	switch v := message.(type) {
+	case string:
+		payload = v
+	case []byte:
+		payload = string(v)
+	default:
+		b, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Errorf("failed to marshal message: %v", err)
+		}
+		payload = string(b)
+	}
+
+	err := r.client.Publish(r.ctx, channel, payload).Err()
 	if err != nil {
 		return fmt.Errorf("failed to publish message: %v", err)
 	}

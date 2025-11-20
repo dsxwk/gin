@@ -51,7 +51,7 @@ func (d *Debugger) Start() {
 			})
 		}
 	})
-	d.subIds[TopicMQ] = d.Bus.Subscribe(TopicMQ, func(ev any) {
+	d.subIds[TopicMq] = d.Bus.Subscribe(TopicMq, func(ev any) {
 		if e, ok := ev.(MqEvent); ok {
 			ctx.AddMq(map[string]any{
 				"driver":  e.Driver,
