@@ -83,7 +83,7 @@ func loadLangDir(lang, dir string) {
 
 // T 翻译
 func T(messageID string, data map[string]interface{}) string {
-	context := ctx.GetContext(ctx.KeyLang)
+	context := ctx.GetContext(ctx.TraceId())
 	langCode := context.GetString(ctx.KeyLang)
 	if langCode == "" {
 		langCode = "zh"

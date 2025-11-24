@@ -1,11 +1,7 @@
 package ctx
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
-	"runtime"
-	"strconv"
-	"strings"
 	"sync"
 )
 
@@ -23,11 +19,10 @@ const (
 var (
 	contextStore = make(map[string]interface{})
 	mu           sync.RWMutex
-	traceMap     sync.Map // goroutineId -> traceId
 	debuggers    sync.Map // traceId -> *Debugger
 )
 
-// Debugger 记录调试信息
+// Debugger 收集调试信息（Sql、Cache、Http、Mq）
 type Debugger struct {
 	Sql   []map[string]any
 	Cache []map[string]any
@@ -35,78 +30,50 @@ type Debugger struct {
 	Mq    []map[string]any
 }
 
-// 获取当前goroutine Id
-func goId() int64 {
-	buf := make([]byte, 64)
-	n := runtime.Stack(buf, false)
-	// goroutine 18 [running]:
-	parts := strings.Split(string(buf[:n]), " ")
-	id, _ := strconv.ParseInt(parts[1], 10, 64)
-	return id
+func TraceId() string {
+	return GetContext(KeyTraceId).GetString(KeyTraceId)
 }
 
-// BindTraceId 中间件设置：绑定 goroutine → traceId
-func BindTraceId(traceId string) {
-	traceMap.Store(goId(), traceId)
+// InitDebugger 初始化
+func InitDebugger(traceId string) *Debugger {
+	dbg := &Debugger{}
+	debuggers.Store(traceId, dbg)
+	return dbg
 }
 
-// CurrentTrace 获取当前traceId
-func CurrentTrace() string {
-	id := goId()
-	v, ok := traceMap.Load(id)
-	if !ok {
-		return ""
+func GetDebugger(traceId string) *Debugger {
+	if v, ok := debuggers.Load(traceId); ok {
+		return v.(*Debugger)
 	}
-	return v.(string)
+	return nil
 }
 
-// GetDebugger 获取debugger
-func GetDebugger() *Debugger {
-	traceId := CurrentTrace()
-	if traceId == "" {
-		return nil
-	}
-	v, _ := debuggers.LoadOrStore(traceId, &Debugger{})
-	return v.(*Debugger)
-}
-
-// Clear 清除
-func Clear() {
-	id := goId()
-	v, ok := traceMap.Load(id)
-	if ok {
-		debuggers.Delete(v.(string))
-		traceMap.Delete(id)
-	}
-}
-
-func AddSql(data map[string]any) {
-	if dbg := GetDebugger(); dbg != nil {
+// AddSql 添加Sql记录
+func AddSql(traceId string, data map[string]any) {
+	if dbg := GetDebugger(traceId); dbg != nil {
 		dbg.Sql = append(dbg.Sql, data)
 	}
 }
 
-func AddCache(data map[string]any) {
-	if dbg := GetDebugger(); dbg != nil {
-		dbg.Cache = append(dbg.Cache, data)
+// AddCache 添加Cache记录
+func AddCache(traceId string, data map[string]any) {
+	if dbg := GetDebugger(traceId); dbg != nil {
+		dbg.Sql = append(dbg.Sql, data)
 	}
 }
 
-func AddHttp(data map[string]any) {
-	if dbg := GetDebugger(); dbg != nil {
+// AddHttp 添加Http记录
+func AddHttp(traceId string, data map[string]any) {
+	if dbg := GetDebugger(traceId); dbg != nil {
 		dbg.Http = append(dbg.Http, data)
 	}
 }
 
-func AddMq(data map[string]any) {
-	if dbg := GetDebugger(); dbg != nil {
+// AddMq 添加Mq记录
+func AddMq(traceId string, data map[string]any) {
+	if dbg := GetDebugger(traceId); dbg != nil {
 		dbg.Mq = append(dbg.Mq, data)
 	}
-}
-
-// GetValue 通用获取context
-func GetValue(ctx context.Context, key string) any {
-	return ctx.Value(key)
 }
 
 // SetContext 全局gin.Context缓存(可选)

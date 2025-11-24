@@ -53,21 +53,21 @@ func (s Logger) Handle() gin.HandlerFunc {
 		}
 
 		traceId := uuid.New().String()
-		// 绑定 goroutine → traceId
-		ctx.BindTraceId(traceId)
 		c.Set(ctx.KeyTraceId, traceId)
+		c.Header("Trace-Id", traceId)
 		c.Set(ctx.KeyIp, c.ClientIP())
 		c.Set(ctx.KeyPath, c.Request.URL.Path)
 		c.Set(ctx.KeyMethod, c.Request.Method)
 		c.Set(ctx.KeyParams, params)
 		c.Set(ctx.KeyLang, lang)
-		ctx.SetContext(ctx.KeyLang, c)
-		c.Header("Trace-Id", traceId)
-		reqCtx := context.WithValue(c.Request.Context(), ctx.KeyTraceId, traceId)
-		c.Request = c.Request.WithContext(reqCtx)
-
 		start := time.Now()
 		c.Set(ctx.KeyStartTime, start) // 保存开始时间
+		ctx.SetContext(ctx.KeyTraceId, c)
+		ctx.SetContext(traceId, c)
+		reqCtx := c.Request.Context()
+		reqCtx = context.WithValue(reqCtx, ctx.KeyTraceId, traceId)
+		c.Request = c.Request.WithContext(reqCtx)
+		ctx.InitDebugger(traceId)
 		c.Next()
 		cost := float64(time.Since(start).Nanoseconds()) / 1e6
 		c.Set(ctx.KeyMs, cost)
@@ -76,5 +76,7 @@ func (s Logger) Handle() gin.HandlerFunc {
 		if global.Config.Log.Access {
 			global.Log.Info(c, "Access Log")
 		}
+		ctx.ClearContext(ctx.KeyTraceId)
+		ctx.ClearContext(traceId)
 	}
 }

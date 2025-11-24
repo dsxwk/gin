@@ -20,7 +20,7 @@ func NewDebugger(bus *message.EventBus) *Debugger {
 func (d *Debugger) Start() {
 	d.subIds[TopicSql] = d.Bus.Subscribe(TopicSql, func(ev any) {
 		if e, ok := ev.(SqlEvent); ok {
-			ctx.AddSql(map[string]any{
+			ctx.AddSql(ctx.TraceId(), map[string]any{
 				"sql":  e.Sql,
 				"rows": e.Rows,
 				"ms":   e.Ms,
@@ -29,7 +29,7 @@ func (d *Debugger) Start() {
 	})
 	d.subIds[TopicCache] = d.Bus.Subscribe(TopicCache, func(ev any) {
 		if e, ok := ev.(CacheEvent); ok {
-			ctx.AddCache(map[string]any{
+			ctx.AddCache(ctx.TraceId(), map[string]any{
 				"driver": e.Driver,
 				"name":   e.Name,
 				"cmd":    e.Cmd,
@@ -40,7 +40,7 @@ func (d *Debugger) Start() {
 	})
 	d.subIds[TopicHttp] = d.Bus.Subscribe(TopicHttp, func(ev any) {
 		if e, ok := ev.(HttpEvent); ok {
-			ctx.AddHttp(map[string]any{
+			ctx.AddHttp(ctx.TraceId(), map[string]any{
 				"url":      e.Url,
 				"method":   e.Method,
 				"header":   e.Header,
@@ -53,7 +53,7 @@ func (d *Debugger) Start() {
 	})
 	d.subIds[TopicMq] = d.Bus.Subscribe(TopicMq, func(ev any) {
 		if e, ok := ev.(MqEvent); ok {
-			ctx.AddMq(map[string]any{
+			ctx.AddMq(ctx.TraceId(), map[string]any{
 				"driver":  e.Driver,
 				"topic":   e.Topic,
 				"message": e.Message,

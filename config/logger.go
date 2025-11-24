@@ -95,54 +95,59 @@ func init() {
 	ZapLogger = NewLogger(zapLogger)
 }
 
-func (l *Logger) WithContext(c context.Context) *zap.Logger {
-	if c == nil {
-		// 没有请求上下文, 返回普通logger
-		return l.Logger
+func (l *Logger) WithDebugger() *zap.Logger {
+	traceId := ctx.TraceId()
+	c := ctx.GetContext(traceId)
+	// 动态计算ms
+	var ms float64
+	if startTimeVal, ok := c.Get(ctx.KeyStartTime); ok {
+		if startTime, _ok := startTimeVal.(time.Time); _ok {
+			ms = float64(time.Since(startTime).Milliseconds())
+		}
+	}
+	if ms == 0 {
+		if msVal, ok := c.Get(ctx.KeyMs); ok {
+			if m, _ok := msVal.(float64); _ok {
+				ms = m
+			}
+		}
 	}
 
-	traceId := ctx.GetValue(c, ctx.KeyTraceId).(string)
-	// 动态计算 ms
-	var ms any
-	if startTime, ok := ctx.GetValue(c, ctx.KeyStartTime).(time.Time); ok {
-		ms = time.Since(startTime).Milliseconds()
-	} else {
-		ms = ctx.GetValue(c, ctx.KeyMs)
-	}
+	params, _ := c.Get(ctx.KeyParams)
 
 	return l.Logger.With(
-		zap.Any("traceId", traceId),
-		zap.Any("ip", ctx.GetValue(c, ctx.KeyIp)),
-		zap.Any("path", ctx.GetValue(c, ctx.KeyPath)),
-		zap.Any("method", ctx.GetValue(c, ctx.KeyMethod)),
-		zap.Any("params", ctx.GetValue(c, ctx.KeyParams)),
+		zap.String("traceId", traceId),
+		zap.String("ip", c.GetString(ctx.KeyIp)),
+		zap.String("path", c.GetString(ctx.KeyPath)),
+		zap.String("method", c.GetString(ctx.KeyMethod)),
+		zap.Any("params", params),
 		zap.Any("ms", ms),
-		zap.Any("debugger", ctx.GetDebugger()),
+		zap.Any("debugger", ctx.GetDebugger(traceId)),
 	)
 }
 
 func (l *Logger) Debug(c context.Context, msg string, fields ...zap.Field) {
-	l.WithContext(c).Debug(msg, fields...)
+	l.WithDebugger().Debug(msg, fields...)
 }
 
 func (l *Logger) Info(c context.Context, msg string, fields ...zap.Field) {
-	l.WithContext(c).Info(msg, fields...)
+	l.WithDebugger().Info(msg, fields...)
 }
 
 func (l *Logger) Warn(c context.Context, msg string, fields ...zap.Field) {
-	l.WithContext(c).Warn(msg, fields...)
+	l.WithDebugger().Warn(msg, fields...)
 }
 
 func (l *Logger) Error(c context.Context, msg string, fields ...zap.Field) {
-	l.WithContext(c).Error(msg, fields...)
+	l.WithDebugger().Error(msg, fields...)
 }
 
 func (l *Logger) Panic(c context.Context, msg string, fields ...zap.Field) {
-	l.WithContext(c).Panic(msg, fields...)
+	l.WithDebugger().Panic(msg, fields...)
 }
 
 func (l *Logger) Fatal(c context.Context, msg string, fields ...zap.Field) {
-	l.WithContext(c).Fatal(msg, fields...)
+	l.WithDebugger().Fatal(msg, fields...)
 }
 
 type StackTrace struct{}

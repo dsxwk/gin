@@ -110,7 +110,7 @@ func after(db *gorm.DB) {
 	if cost > Conf.Mysql.SlowQuerySeconds {
 		ZapLogger.Warn(
 			ctx,
-			"Slow SQL",
+			"Slow Sql",
 			zap.Float64("costMs", costMs),
 			zap.String("sql", sql),
 		)
@@ -123,8 +123,8 @@ func after(db *gorm.DB) {
 	})
 }
 
-// getSQL 替换 SQL 中的占位符 "?" 为实际值
-func getSQL(sql string, vars []interface{}) string {
+// getSql 替换Sql中的占位符"?"为实际值
+func getSql(sql string, vars []interface{}) string {
 	for _, v := range vars {
 		// 将参数值格式化为字符串
 		var (
@@ -151,7 +151,7 @@ func getSQL(sql string, vars []interface{}) string {
 			formattedValue = fmt.Sprintf("%v", value)
 		}
 
-		// 替换第一个 "?" 为实际值
+		// 替换第一个"?"为实际值
 		sql = strings.Replace(sql, "?", formattedValue, 1)
 	}
 
