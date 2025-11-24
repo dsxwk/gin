@@ -26,7 +26,7 @@ func LoadLang() {
 
 	baseDir := config.Conf.I18n.Dir
 	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
-		config.ZapLogger.Info(nil, fmt.Sprintf("i18n baseDir not found: %s", baseDir))
+		config.ZapLogger.Info(fmt.Sprintf("i18n baseDir not found: %s", baseDir))
 		return
 	}
 
@@ -48,7 +48,7 @@ func LoadLang() {
 func loadLangDir(lang, dir string) {
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			config.ZapLogger.Info(nil, err.Error())
+			config.ZapLogger.Info(err.Error())
 			return nil
 		}
 
@@ -58,26 +58,26 @@ func loadLangDir(lang, dir string) {
 
 		ext := strings.ToLower(filepath.Ext(path))
 		if ext != ".json" && ext != ".yaml" && ext != ".yml" {
-			config.ZapLogger.Info(nil, "Unsupported lang file type: "+ext)
+			config.ZapLogger.Info("Unsupported lang file type: " + ext)
 			return nil
 		}
 
 		data, err := os.ReadFile(path)
 		if err != nil {
-			config.ZapLogger.Info(nil, err.Error())
+			config.ZapLogger.Info(err.Error())
 		}
 
 		// 模拟路径格式如zh.json/en.yaml,让go-i18n能识别语言
 		virtualFileName := fmt.Sprintf("%s%s", lang, ext)
 		_, err = Bundle.ParseMessageFileBytes(data, virtualFileName)
 		if err != nil {
-			config.ZapLogger.Info(nil, err.Error())
+			config.ZapLogger.Info(err.Error())
 		}
 
 		return nil
 	})
 	if err != nil {
-		config.ZapLogger.Info(nil, err.Error())
+		config.ZapLogger.Info(err.Error())
 	}
 }
 
@@ -99,7 +99,7 @@ func T(messageID string, data map[string]interface{}) string {
 		TemplateData: data,
 	})
 	if err != nil {
-		config.ZapLogger.Info(nil, fmt.Sprintf("缺少翻译: %s (%s)\n", messageID, langCode))
+		config.ZapLogger.Info(fmt.Sprintf("缺少翻译: %s (%s)\n", messageID, langCode))
 		return messageID
 	}
 	return msg

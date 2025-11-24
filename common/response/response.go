@@ -57,9 +57,9 @@ func Error(c *gin.Context, e *errcode.ErrorCode) {
 	)
 
 	if e != nil {
-		global.Log.Error(c, e.Msg)
+		global.Log.Error(e.Msg)
 	} else {
-		global.Log.Error(c, errcode.SystemError().Msg)
+		global.Log.Error(errcode.SystemError().Msg)
 	}
 
 	switch e {

@@ -17,7 +17,7 @@ func CacheInstance() cache.Cache {
 	case "disk":
 		instance = DiskInstance()
 	default:
-		ZapLogger.Fatal(nil, "不支持的缓存驱动: "+Conf.Cache.Driver)
+		ZapLogger.Fatal("不支持的缓存驱动: " + Conf.Cache.Driver)
 	}
 
 	return instance

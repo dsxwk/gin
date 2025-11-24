@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"gin/utils/ctx"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
@@ -126,27 +125,27 @@ func (l *Logger) WithDebugger() *zap.Logger {
 	)
 }
 
-func (l *Logger) Debug(c context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Debug(msg string, fields ...zap.Field) {
 	l.WithDebugger().Debug(msg, fields...)
 }
 
-func (l *Logger) Info(c context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Info(msg string, fields ...zap.Field) {
 	l.WithDebugger().Info(msg, fields...)
 }
 
-func (l *Logger) Warn(c context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Warn(msg string, fields ...zap.Field) {
 	l.WithDebugger().Warn(msg, fields...)
 }
 
-func (l *Logger) Error(c context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Error(msg string, fields ...zap.Field) {
 	l.WithDebugger().Error(msg, fields...)
 }
 
-func (l *Logger) Panic(c context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Panic(msg string, fields ...zap.Field) {
 	l.WithDebugger().Panic(msg, fields...)
 }
 
-func (l *Logger) Fatal(c context.Context, msg string, fields ...zap.Field) {
+func (l *Logger) Fatal(msg string, fields ...zap.Field) {
 	l.WithDebugger().Fatal(msg, fields...)
 }
 

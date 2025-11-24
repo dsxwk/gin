@@ -1569,7 +1569,7 @@ type TestController struct {
 }
 
 func (s *TestController) Test(c *gin.Context) {
-  global.Log.Error(c, "System Error")
+  global.Log.Error("System Error")
 }
 ```
 

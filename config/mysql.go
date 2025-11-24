@@ -95,7 +95,6 @@ func before(db *gorm.DB) {
 }
 
 func after(db *gorm.DB) {
-	ctx := db.Statement.Context
 	start, ok := db.InstanceGet(startTimeKey)
 	if !ok {
 		return
@@ -109,7 +108,6 @@ func after(db *gorm.DB) {
 	// 慢查询警告
 	if cost > Conf.Mysql.SlowQuerySeconds {
 		ZapLogger.Warn(
-			ctx,
 			"Slow Sql",
 			zap.Float64("costMs", costMs),
 			zap.String("sql", sql),
