@@ -110,6 +110,10 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.2.4
+> - Add Kafka and RabbitMQ message queues and configurations
+> - New Assistant Function - Tree Structure Generation
+
 ## v1.2.3
 > - Optimize context processing and log processing, adjust readme document update records
 
