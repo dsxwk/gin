@@ -53,7 +53,7 @@ func (d *Debugger) Start() {
 	})
 	d.subIds[TopicMq] = d.Bus.Subscribe(TopicMq, func(ev any) {
 		if e, ok := ev.(MqEvent); ok {
-			ctx.AddMq(ctx.TraceId(), map[string]any{
+			ctx.AddMq(e.TraceId, map[string]any{
 				"driver":  e.Driver,
 				"topic":   e.Topic,
 				"message": e.Message,

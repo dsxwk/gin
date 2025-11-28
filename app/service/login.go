@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"gin/app/model"
+	"gin/app/queue/kafka/producer"
+	p "gin/app/queue/rabbitmq/producer"
 	"gin/common/base"
 	"gin/common/global"
 	"gin/utils"
@@ -48,6 +50,57 @@ func (s *LoginService) Login(username, password string) (m model.User, err error
 	_ = global.RedisCache.Publish("testChan", map[string]interface{}{
 		"test": "test",
 	})
+	kPub := producer.NewKafkaDemoProducer()
+	defer func(kPub *producer.KafkaDemoProducer) {
+		err = kPub.Close()
+		if err != nil {
+
+		}
+	}(kPub)
+	err = kPub.Publish([]byte(`{"orderId":111}`))
+	if err != nil {
+		fmt.Println("kafka publish error:", err)
+		return m, err
+	}
+
+	kPub1 := producer.NewKafkaDelayDemoProducer()
+	defer func(kPub1 *producer.KafkaDelayDemoProducer) {
+		err = kPub1.Close()
+		if err != nil {
+
+		}
+	}(kPub1)
+	err = kPub1.Publish([]byte(`{"orderId":222}`))
+	if err != nil {
+		fmt.Println("kafka publish error:", err)
+		return m, err
+	}
+
+	rPub1 := p.NewRabbitmqDemoPublisher()
+	defer func(rPub1 *p.RabbitmqDemoPublisher) {
+		err = rPub1.Close()
+		if err != nil {
+
+		}
+	}(rPub1)
+	err = rPub1.Publish([]byte(`{"orderId":333}`))
+	if err != nil {
+		fmt.Println("rabbitmq publish error:", err)
+		return m, err
+	}
+
+	rPub2 := p.NewRabbitmqDelayDemoPublisher()
+	defer func(rPub2 *p.RabbitmqDelayDemoPublisher) {
+		err = rPub2.Close()
+		if err != nil {
+
+		}
+	}(rPub2)
+	err = rPub2.Publish([]byte(`{"orderId":444}`))
+	if err != nil {
+		fmt.Println("rabbitmq publish error:", err)
+		return m, err
+	}
 
 	return m, nil
 }

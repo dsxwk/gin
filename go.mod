@@ -9,14 +9,18 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/goccy/go-json v0.10.5
 	github.com/google/uuid v1.6.0
+	github.com/gookit/goutil v0.7.1
 	github.com/gookit/validate v1.5.6
 	github.com/jinzhu/copier v0.4.0
 	github.com/mattn/go-runewidth v0.0.19
 	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/segmentio/kafka-go v0.4.49
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
+	github.com/streadway/amqp v1.1.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
@@ -63,11 +67,9 @@ require (
 	github.com/go-playground/validator/v10 v10.28.0 // indirect
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
-	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect
 	github.com/google/flatbuffers v25.9.23+incompatible // indirect
 	github.com/gookit/filter v1.2.3 // indirect
-	github.com/gookit/goutil v0.7.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -79,6 +81,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
+	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.55.0 // indirect
 	github.com/sagikazarmark/locafero v0.12.0 // indirect

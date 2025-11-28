@@ -15,7 +15,7 @@ mysql:
   password: root
   database: gin
   # 慢查询的时间(ms) 超过这个时间会记录到日志中
-  slow-query-seconds: 3ms # 3秒(time.Duration)
+  slow-query-seconds: 3000ms # 3秒(time.Duration)
 # 缓存
 cache:
   driver: "memory"  # memory|disk|redis # 为空默认内存缓存
@@ -56,3 +56,12 @@ log:
 i18n:
   dir: "storage/locales" # 翻译文件存放路径
   lang: "zh,en" # 默认语言,多个语言用逗号分隔
+
+kafka:
+  enabled: true # 是否启用kafka
+  brokers:
+    - "172.17.139.67:9092"
+
+rabbitmq:
+  enabled: true # 是否启用rabbitmq
+  url: "amqp://admin:admin@172.17.139.67:5672/"

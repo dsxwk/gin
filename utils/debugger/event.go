@@ -36,6 +36,7 @@ type HttpEvent struct {
 
 // MqEvent 消息队列事件
 type MqEvent struct {
+	TraceId string                 // tranceId
 	Driver  string                 // kafka rabbitmq redis-stream
 	Topic   string                 // topic queue stream
 	Message string                 // 消息内容

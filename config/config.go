@@ -90,16 +90,28 @@ type I18n struct {
 	Lang string `mapstructure:"lang" yaml:"lang"` // 默认语言,多个语言用逗号分隔
 }
 
+type Kafka struct {
+	Enabled bool     `mapstructure:"enabled" yaml:"enabled"` // 是否启用
+	Brokers []string `mapstructure:"brokers" yaml:"brokers"`
+}
+
+type Rabbitmq struct {
+	Enabled bool   `mapstructure:"enabled" yaml:"enabled"` // 是否启用
+	Url     string `mapstructure:"url" yaml:"url"`
+}
+
 // Config 配置
 type Config struct {
-	App   App   `mapstructure:"app" yaml:"app"`
-	Mysql Mysql `mapstructure:"mysql" yaml:"mysql"`
-	Redis Redis `mapstructure:"redis" yaml:"redis"`
-	Cors  Cors  `mapstructure:"cors" yaml:"cors"`
-	Jwt   Jwt   `mapstructure:"jwt" yaml:"jwt"`
-	Log   Log   `mapstructure:"log" yaml:"log"`
-	Cache Cache `mapstructure:"cache" yaml:"cache"`
-	I18n  I18n  `mapstructure:"i18n" yaml:"i18n"`
+	App      App      `mapstructure:"app" yaml:"app"`
+	Mysql    Mysql    `mapstructure:"mysql" yaml:"mysql"`
+	Redis    Redis    `mapstructure:"redis" yaml:"redis"`
+	Cors     Cors     `mapstructure:"cors" yaml:"cors"`
+	Jwt      Jwt      `mapstructure:"jwt" yaml:"jwt"`
+	Log      Log      `mapstructure:"log" yaml:"log"`
+	Cache    Cache    `mapstructure:"cache" yaml:"cache"`
+	I18n     I18n     `mapstructure:"i18n" yaml:"i18n"`
+	Kafka    Kafka    `mapstructure:"kafka" yaml:"kafka"`
+	Rabbitmq Rabbitmq `mapstructure:"rabbitmq" yaml:"rabbitmq"`
 }
 
 var (

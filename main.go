@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	_ "gin/app/listener"
+	_ "gin/app/queue/kafka/consumer"
+	_ "gin/app/queue/rabbitmq/consumer"
 	"gin/config"
 	"gin/router"
 	"gin/utils"
@@ -58,7 +60,6 @@ func main() {
 
 	// 加载翻译
 	lang.LoadLang()
-
 	// debugger订阅
 	dbg := debugger.NewDebugger(message.MsgEventBus)
 	dbg.Start()
@@ -109,6 +110,8 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		color.Red("❌ 服务关闭异常: %v", err)
 	}
+
+	select {}
 }
 
 // PrintAligned 打印冒号对齐,支持中文
