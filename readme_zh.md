@@ -202,6 +202,13 @@ $ ./cli demo-command --args=11
 │   ├── listener                        # 监听
 │   ├── middleware                      # 中间件
 │   ├── model                           # 模型
+│   ├── queue                           # 消息队列
+│   ├──├── kafka                        # Kafka
+│   ├──├──├── consumer                  # 消费者
+│   ├──├──├── producer                  # 生产者
+│   ├──├── rabbitmq                     # Rabbitmq
+│   ├──├──├── consumer                  # 消费者
+│   ├──├──├── producer                  # 生产者
 │   ├── request                         # 验证器
 │   ├── service                         # 服务
 ├── common                              # 公共模块

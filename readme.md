@@ -202,6 +202,13 @@ Excute Command: demo-command, Argument: 11
 │   ├── listener                        # Listener
 │   ├── middleware                      # Middleware
 │   ├── model                           # Model
+│   ├── queue                           # Queue
+│   ├──├── kafka                        # Kafka
+│   ├──├──├── consumer                  # Consumer
+│   ├──├──├── producer                  # Producer
+│   ├──├── rabbitmq                     # Rabbitmq
+│   ├──├──├── consumer                  # Consumer
+│   ├──├──├── producer                  # Producer
 │   ├── request                         # Validator
 │   ├── service                         # Service
 ├── common                              # Common Module
