@@ -68,6 +68,9 @@
   - [监听](#监听)
     - [监听创建帮助](#监听创建帮助)
     - [监听创建](#监听创建)
+  - [队列](#队列)
+    - [队列创建帮助](#队列创建帮助)
+    - [队列创建](#队列创建)
   - [发布事件](#发布事件)
     - [测试事件](#测试事件)
   - [事件列表](#事件列表)
@@ -110,6 +113,11 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.3.0 
+> 完善kafka和rabbitmq消息队列命令行快捷创建消费者和生产者
+> 完善命令行创建消息队列文档
+> 发布包v1.3.0
+
 ## v1.2.4
 > - 新增kafka和rabbitmq消息队列以及配置
 > - 新增助手函数-树形结构生成
@@ -1259,6 +1267,106 @@ func (l *UserLoginListener) Handle(e event.UserLoginEvent) {
 
 func init() {
 	eventbus.Register(&UserLoginListener{}, event.UserLoginEvent{})
+}
+
+```
+
+# 队列
+> 执行队列创建命令会根据队列类型同时创建消费者和生产者, 如: kafka会创建kafka消费者和生产者, rabbitmq会创建rabbitmq消费者和生产者. 你只需要完善消费者当中`Handle`方法完善你的业务逻辑即可, 支持自动错误重试以及延迟队列.
+## 队列创建帮助
+```bash
+$ go run cli.go make:queue -h # --help
+
+make:queue - 消息队列创建
+
+Options:
+  -t, --type      队列类型, 如: kafka或rabbitmq  required:true
+  -n, --name      队列文件名称, 如: order_create  required:true
+  -d, --isDelay   是否延迟队列, 如: true或false   required:false
+  -T, --topic     队列主题, 如: kafka_demo       required:false
+  -k, --key       消息键, 如: kafka_demo         required:false
+  -g, --group     消费组, 如: kafka_demo         required:false
+  -q, --queue     队列名, 如: rabbitmq_demo      required:false
+  -e, --exchange  交换机, 如: rabbitmq_demo      required:false
+  -r, --routing   路由键, 如: rabbitmq_demo      required:false
+  -R, --retry     错误重试次数, 如: 3             required:false
+  -m, --delayMs   延迟毫秒, 如: 10000            required:false
+```
+
+## 队列创建
+```bash
+$ go run cli.go make:queue --type=rabbitmq --name=rabbitmq_demo --queue=rabbitmq_demo --exchange=rabbitmq_demo --routing=rabbitmq_demo 
+```
+```go
+package consumer
+
+import (
+  "fmt"
+  "gin/common/base"
+  "gin/config"
+)
+
+type RabbitmqDemoConsumer struct {
+  *base.RabbitmqConsumer
+}
+
+func NewRabbitmqDemoConsumer() *RabbitmqDemoConsumer {
+  c := &RabbitmqDemoConsumer{
+    &base.RabbitmqConsumer{
+      Mq:           base.InitRabbitmq(),
+      Queue:        "rabbitmq_demo",
+      Exchange:     "rabbitmq_demo_exchange",
+      Routing:      "rabbitmq_demo",
+      Retry:        3,
+      IsDelayQueue: false,
+    },
+  }
+
+  c.Start()
+
+  return c
+}
+
+// Start 启动消费者
+func (c *RabbitmqDemoConsumer) Start() {
+  c.RabbitmqConsumer.Start(c)
+}
+
+func (c *RabbitmqDemoConsumer) Handle(msg string) error {
+  fmt.Println("RabbitMq Received Msg:", msg)
+  return nil
+}
+
+func init() {
+  if config.Conf.Rabbitmq.Enabled {
+    NewRabbitmqDemoConsumer()
+  }
+}
+
+```
+```go
+package producer
+
+import (
+  "gin/common/base"
+)
+
+type RabbitmqDemoPublisher struct {
+  *base.RabbitmqProducer
+}
+
+func NewRabbitmqDemoPublisher() *RabbitmqDemoPublisher {
+  return &RabbitmqDemoPublisher{
+    &base.RabbitmqProducer{
+      Mq:           base.InitRabbitmq(),
+      Queue:        "rabbitmq_demo",
+      Exchange:     "rabbitmq_demo_exchange",
+      Routing:      "rabbitmq_demo",
+      IsDelayQueue: false,
+      DelayMs:      0,
+      Headers:      nil,
+    },
+  }
 }
 
 ```

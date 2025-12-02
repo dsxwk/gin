@@ -68,6 +68,9 @@
   - [Listener](#Listener)
     - [Listener Creation Help](#Listener-Creation-Help)
     - [Listener Creation](#Listener-Creation)
+  - [Queue](#Queue)
+    - [Queue Creation Help](#Queue-Creation-Help)
+    - [Queue Creation](#Queue-Creation)
   - [Publish Event](#Publish-Event)
     - [Event Test](#Event-Test)
   - [Event List](#Event-List)
@@ -110,6 +113,11 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.3.0
+> Improve Kafka and RabbitMQ message queue command line shortcut to create consumers and producers
+> Improve the command line to create a message queue document
+> Release Package v1.3.0
+
 ## v1.2.4
 > - Add Kafka and RabbitMQ message queues and configurations
 > - New Assistant Function - Tree Structure Generation
@@ -1258,6 +1266,106 @@ func (l *UserLoginListener) Handle(e event.UserLoginEvent) {
 
 func init() {
 	eventbus.Register(&UserLoginListener{}, event.UserLoginEvent{})
+}
+
+```
+
+# Queue
+> Executing the queue creation command will create both consumers and producers based on the queue type. For example, Kafka will create Kafka consumers and producers, while RabbitMQ will create RabbitMQ consumers and producers You only need to improve the `Handle` method among consumers to enhance your business logic, supporting automatic error retries and delayed queues
+## Queue Creation Help
+```bash
+$ go run cli.go make:queue -h # --help
+
+make:queue - Queue Creation
+
+Options:
+  -t, --type      Queue Type, Example: kafka or rabbitmq     required:true
+  -n, --name      Queue File Name, Example: order_create     required:true
+  -d, --isDelay   Is Delay Queue, Example: true or false     required:false
+  -T, --topic     Queue Topic, Example: kafka_demo           required:false
+  -k, --key       Message Key, Example: kafka_demo           required:false
+  -g, --group     Goup, Example: kafka_demo                  required:false
+  -q, --queue     Queue Name, Example: rabbitmq_demo         required:false
+  -e, --exchange  Exchange, Example: rabbitmq_demo           required:false
+  -r, --routing   Routing Key, Example: rabbitmq_demo        required:false
+  -R, --retry     Retry Times, Example: 3                    required:false
+  -m, --delayMs   Delay In Milliseconds, Example: 10000      required:false
+```
+
+## Queue Creation
+```bash
+$ go run cli.go make:queue --type=rabbitmq --name=rabbitmq_demo --queue=rabbitmq_demo --exchange=rabbitmq_demo --routing=rabbitmq_demo 
+```
+```go
+package consumer
+
+import (
+  "fmt"
+  "gin/common/base"
+  "gin/config"
+)
+
+type RabbitmqDemoConsumer struct {
+  *base.RabbitmqConsumer
+}
+
+func NewRabbitmqDemoConsumer() *RabbitmqDemoConsumer {
+  c := &RabbitmqDemoConsumer{
+    &base.RabbitmqConsumer{
+      Mq:           base.InitRabbitmq(),
+      Queue:        "rabbitmq_demo",
+      Exchange:     "rabbitmq_demo_exchange",
+      Routing:      "rabbitmq_demo",
+      Retry:        3,
+      IsDelayQueue: false,
+    },
+  }
+
+  c.Start()
+
+  return c
+}
+
+// Start Run the consumer
+func (c *RabbitmqDemoConsumer) Start() {
+  c.RabbitmqConsumer.Start(c)
+}
+
+func (c *RabbitmqDemoConsumer) Handle(msg string) error {
+  fmt.Println("RabbitMq Received Msg:", msg)
+  return nil
+}
+
+func init() {
+  if config.Conf.Rabbitmq.Enabled {
+    NewRabbitmqDemoConsumer()
+  }
+}
+
+```
+```go
+package producer
+
+import (
+  "gin/common/base"
+)
+
+type RabbitmqDemoPublisher struct {
+  *base.RabbitmqProducer
+}
+
+func NewRabbitmqDemoPublisher() *RabbitmqDemoPublisher {
+  return &RabbitmqDemoPublisher{
+    &base.RabbitmqProducer{
+      Mq:           base.InitRabbitmq(),
+      Queue:        "rabbitmq_demo",
+      Exchange:     "rabbitmq_demo_exchange",
+      Routing:      "rabbitmq_demo",
+      IsDelayQueue: false,
+      DelayMs:      0,
+      Headers:      nil,
+    },
+  }
 }
 
 ```

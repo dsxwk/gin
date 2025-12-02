@@ -131,7 +131,9 @@ func PrintArgs(opts []CommandOption) {
 func (b *BaseCommand) FormatArgs(args map[string]string) string {
 	str := ""
 	for arg, value := range args {
-		str += fmt.Sprintf("--%s=%s", arg, value)
+		if value != "" {
+			str += fmt.Sprintf("--%s=%s ", arg, value)
+		}
 	}
 
 	return str
@@ -169,6 +171,20 @@ func (b *BaseCommand) GetMakeFile(file string, _make string) string {
 	return file + ".go"
 }
 
+// GetMakeQueueFile 获取make文件
+func (b *BaseCommand) GetMakeQueueFile(name, _type string, isDelay bool) map[string]string {
+	if isDelay {
+		name = name + "_delay"
+	}
+	consumerFile := filepath.Join("app/queue/"+_type+"/consumer/", name) + ".go"
+	producerFile := filepath.Join("app/queue/"+_type+"/producer/", name) + ".go"
+
+	return map[string]string{
+		"consumer": consumerFile,
+		"producer": producerFile,
+	}
+}
+
 // GetTemplate 获取模版文件
 func (b *BaseCommand) GetTemplate(_make string) string {
 	var (
@@ -184,6 +200,14 @@ func (b *BaseCommand) GetTemplate(_make string) string {
 	}
 
 	return templateFile
+}
+
+// GetQueueTemplates 获取队列模版文件
+func (b *BaseCommand) GetQueueTemplates() map[string]string {
+	return map[string]string{
+		"consumer": filepath.Join(utils.GetRootPath(), "common", "template", "consumer.tpl"),
+		"producer": filepath.Join(utils.GetRootPath(), "common", "template", "producer.tpl"),
+	}
 }
 
 // CheckDirAndFile 检查目录和文件

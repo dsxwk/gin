@@ -2,6 +2,8 @@ package utils
 
 import (
 	"fmt"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"math/rand"
 	"strings"
 	"time"
@@ -26,6 +28,16 @@ func LcFirst(s string) string {
 	runes := []rune(s)
 	runes[0] = unicode.ToLower(runes[0])
 	return string(runes)
+}
+
+// ToUpperCamel 将下划线命名转换为大驼峰命名
+func ToUpperCamel(s string) string {
+	c := cases.Title(language.Und)
+	parts := strings.Split(s, "_")
+	for i := range parts {
+		parts[i] = c.String(parts[i])
+	}
+	return strings.Join(parts, "")
 }
 
 // SnakeToCamel 将下划线命名转换为驼峰命名
