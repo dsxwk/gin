@@ -1750,7 +1750,7 @@ func Test()  {
 
 ## Template Translation
 > Template translation is supported in the translation file, such as `{{. name}}`, using `map[string]interface{}` to pass parameters.
-ms
+```json
 [
   {
     "id": "login.success",

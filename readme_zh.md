@@ -1751,7 +1751,7 @@ func Test()  {
 
 ## 模版翻译
 > 翻译文件中支持模版翻译, 如 `{{.name}}`, 使用 `map[string]interface{}` 传递参数。
-ms
+```json
 [
   {
     "id": "login.success",
