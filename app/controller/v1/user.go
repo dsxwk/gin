@@ -29,11 +29,18 @@ type UserController struct {
 // @Router /api/v1/user [get]
 func (s *UserController) List(c *gin.Context) {
 	var (
-		srv service.UserService
+		svc service.UserService
 		req request.User
+		_s  request.Search
 	)
 
-	err := c.ShouldBind(&req)
+	err := c.ShouldBind(&_s)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		return
+	}
+
+	err = c.ShouldBind(&req)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
 		return
@@ -46,7 +53,7 @@ func (s *UserController) List(c *gin.Context) {
 		return
 	}
 
-	res, err := srv.List(req)
+	res, err := svc.List(req, _s.Search)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
 		return
@@ -67,7 +74,7 @@ func (s *UserController) List(c *gin.Context) {
 // @Router /api/v1/user [post]
 func (s *UserController) Create(c *gin.Context) {
 	var (
-		srv service.UserService
+		svc service.UserService
 		req request.User
 		m   model.User
 	)
@@ -91,7 +98,7 @@ func (s *UserController) Create(c *gin.Context) {
 		return
 	}
 
-	m, err = srv.Create(m)
+	m, err = svc.Create(m)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
 		return
@@ -113,7 +120,7 @@ func (s *UserController) Create(c *gin.Context) {
 // @Router /api/v1/user/{id} [put]
 func (s *UserController) Update(c *gin.Context) {
 	var (
-		srv service.UserService
+		svc service.UserService
 		req request.User
 		m   model.User
 		id  int64
@@ -145,7 +152,7 @@ func (s *UserController) Update(c *gin.Context) {
 		return
 	}
 
-	m, err = srv.Update(m)
+	m, err = svc.Update(m)
 
 	s.Success(c, errcode.Success().WithData(m))
 }
@@ -162,7 +169,7 @@ func (s *UserController) Update(c *gin.Context) {
 // @Router /api/v1/user/{id} [get]
 func (s *UserController) Detail(c *gin.Context) {
 	var (
-		srv service.UserService
+		svc service.UserService
 		req request.User
 		id  int64
 	)
@@ -181,7 +188,7 @@ func (s *UserController) Detail(c *gin.Context) {
 		return
 	}
 
-	m, err := srv.Detail(req.ID)
+	m, err := svc.Detail(req.ID)
 
 	s.Success(c, errcode.Success().WithData(m))
 }
@@ -198,7 +205,7 @@ func (s *UserController) Detail(c *gin.Context) {
 // @Router /api/v1/user/{id} [delete]
 func (s *UserController) Delete(c *gin.Context) {
 	var (
-		srv service.UserService
+		svc service.UserService
 		req request.User
 		id  int64
 	)
@@ -217,7 +224,7 @@ func (s *UserController) Delete(c *gin.Context) {
 		return
 	}
 
-	m, err := srv.Delete(req.ID)
+	m, err := svc.Delete(req.ID)
 
 	s.Success(c, errcode.Success().WithData(m))
 }

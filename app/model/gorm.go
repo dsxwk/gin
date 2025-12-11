@@ -61,6 +61,46 @@ func (d DeletedAt) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf(`"%s"`, d.Time.Format("2006-01-02 15:04:05"))), nil
 }
 
+type JsonValue struct {
+	Data any
+}
+
+// Scan 读取json
+func (j *JsonValue) Scan(value interface{}) error {
+	if value == nil {
+		j.Data = nil
+		return nil
+	}
+
+	var bytes []byte
+	switch v := value.(type) {
+	case string:
+		bytes = []byte(v)
+	case []byte:
+		bytes = v
+	default:
+		return fmt.Errorf("cannot scan %T into JSONValue", value)
+	}
+
+	if len(bytes) == 0 {
+		j.Data = nil
+		return nil
+	}
+
+	return json.Unmarshal(bytes, &j.Data)
+}
+
+// Value 写入json
+func (j JsonValue) Value() (driver.Value, error) {
+	return json.Marshal(j.Data)
+}
+
+// MarshalJSON 输出Data内容
+func (j JsonValue) MarshalJSON() ([]byte, error) {
+	// 不输出{ "Data": ... },直接输出内容
+	return json.Marshal(j.Data)
+}
+
 type ArrayString []string
 
 func (j ArrayString) Value() (driver.Value, error) {

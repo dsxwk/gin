@@ -113,6 +113,11 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.4.0
+> - Model validator command line creation optimization
+> - Add Gorm dynamic query
+> - Release Package v1.4.0
+
 ## v1.3.0
 > Improve Kafka and RabbitMQ message queue command line shortcut to create consumers and producers
 > Improve the command line to create a message queue document
@@ -760,7 +765,7 @@ type User struct {
 // @Router /api/v1/user [get]
 func (s *UserController) List(c *gin.Context) {
 	var (
-		srv service.UserService
+		svc service.UserService
 		req request.User
 	)
 
@@ -777,7 +782,7 @@ func (s *UserController) List(c *gin.Context) {
 		return
 	}
 
-	res, err := srv.List(req)
+	res, err := svc.List(req)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
 		return
@@ -1418,7 +1423,7 @@ type LoginResponse struct {
 // @Router /api/v1/login [post]
 func (s *LoginController) Login(c *gin.Context) {
 	var (
-		srv service.LoginService
+		svc service.LoginService
 		req request.Login
 		jwt middleware.Jwt
 	)
@@ -1436,7 +1441,7 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	userModel, err := srv.Login(req.Username, req.Password)
+	userModel, err := svc.Login(req.Username, req.Password)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
 		return

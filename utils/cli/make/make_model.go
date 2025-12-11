@@ -104,9 +104,9 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		"int":       func(detailType gorm.ColumnType) (dataType string) { return "int64" },
 		"json": func(detailType gorm.ColumnType) (dataType string) {
 			if pkg != "model" {
-				return "*model.ArrayString"
+				return "*model.JsonValue"
 			} else {
-				return "*ArrayString"
+				return "*JsonValue"
 			}
 		},
 		"datetime": func(detailType gorm.ColumnType) (dataType string) {

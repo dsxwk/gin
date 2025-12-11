@@ -16,8 +16,8 @@ type Meta struct {
 	Roles       []int64 `json:"roles" validate:"required" label:"菜单角色"`        // 权限标识，取角色管理
 }
 
-// Menu 菜单请求验证
-type Menu struct {
+// MenuRequest 菜单请求验证
+type MenuRequest struct {
 	ID       int64  `json:"id" validate:"required" label:"ID"`
 	PID      int64  `json:"pid" validate:"required" label:"父级ID"`
 	Name     string `json:"name" validate:"required" label:"路由名称"`
@@ -33,7 +33,7 @@ type MenuSearch struct {
 }
 
 // GetValidate 请求验证
-func (s Menu) GetValidate(data Menu, scene string) error {
+func (s MenuRequest) GetValidate(data MenuRequest, scene string) error {
 	v := validate.Struct(data, scene)
 	if !v.Validate(scene) {
 		return errors.New(v.Errors.One())
@@ -45,7 +45,7 @@ func (s Menu) GetValidate(data Menu, scene string) error {
 // ConfigValidation 配置验证
 // - 定义验证场景
 // - 也可以添加验证设置
-func (s Menu) ConfigValidation(v *validate.Validation) {
+func (s MenuRequest) ConfigValidation(v *validate.Validation) {
 	v.WithScenes(validate.SValues{
 		"list":   []string{},
 		"create": []string{"Name", "Path", "Meta.Title", "Meta.Roles"},
@@ -55,7 +55,7 @@ func (s Menu) ConfigValidation(v *validate.Validation) {
 }
 
 // Messages 验证器错误消息
-func (s Menu) Messages() map[string]string {
+func (s MenuRequest) Messages() map[string]string {
 	return validate.MS{
 		"required": "字段 {field} 必填",
 		"int":      "字段 {field} 必须为整数",
@@ -63,7 +63,7 @@ func (s Menu) Messages() map[string]string {
 }
 
 // Translates 字段翻译
-func (s Menu) Translates() map[string]string {
+func (s MenuRequest) Translates() map[string]string {
 	return validate.MS{
 		"ID":         "ID",
 		"PID":        "父级ID",

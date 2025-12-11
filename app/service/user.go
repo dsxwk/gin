@@ -7,6 +7,7 @@ import (
 	"gin/common/base"
 	"gin/common/global"
 	"gin/utils"
+	"gin/utils/gorm/search"
 )
 
 type UserService struct {
@@ -14,14 +15,24 @@ type UserService struct {
 }
 
 // List 列表
-func (s *UserService) List(req request.User) (pageData request.PageData, err error) {
+func (s *UserService) List(req request.User, _search map[string]interface{}) (pageData request.PageData, err error) {
 	var (
 		m []model.User
 	)
 
 	offset, limit := request.Pagination(req.Page, req.PageSize)
 
-	db := global.DB.Model(&m)
+	db := global.DB.Model(&model.User{}).
+		Preload("UserRoles")
+
+	if _search != nil {
+		whereSql, args := search.BuildCondition(_search, db, model.User{})
+
+		if whereSql != "" {
+			db = db.Where(whereSql, args...)
+		}
+	}
+
 	err = db.Count(&pageData.Total).Error
 	if err != nil {
 		return pageData, err

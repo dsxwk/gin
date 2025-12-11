@@ -78,6 +78,85 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/menu": {
+            "get": {
+                "description": "菜单列表",
+                "tags": [
+                    "菜单管理"
+                ],
+                "summary": "列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "认证Token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "分页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/errcode.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/request.PageData"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/model.Menu"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/errcode.ArgsErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "系统错误",
+                        "schema": {
+                            "$ref": "#/definitions/errcode.SystemErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/refresh-token": {
             "post": {
                 "description": "刷新token",
@@ -490,6 +569,69 @@ const docTemplate = `{
                 }
             }
         },
+        "model.JsonValue": {
+            "type": "object",
+            "properties": {
+                "data": {}
+            }
+        },
+        "model.Menu": {
+            "type": "object",
+            "properties": {
+                "component": {
+                    "description": "组件路径",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID",
+                    "type": "integer"
+                },
+                "isLink": {
+                    "description": "是否外链 1=是 2=否 默认=2",
+                    "type": "integer"
+                },
+                "meta": {
+                    "description": "meta",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.JsonValue"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "路由名称",
+                    "type": "string"
+                },
+                "path": {
+                    "description": "路由路径",
+                    "type": "string"
+                },
+                "pid": {
+                    "description": "父级id",
+                    "type": "integer"
+                },
+                "redirect": {
+                    "description": "重定向",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态 1=启用 2=停用",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
         "model.User": {
             "type": "object",
             "properties": {
@@ -537,9 +679,45 @@ const docTemplate = `{
                     "description": "更新时间",
                     "type": "string"
                 },
+                "userRoles": {
+                    "description": "用户角色",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.UserRoles"
+                    }
+                },
                 "username": {
                     "description": "用户名",
                     "type": "string"
+                }
+            }
+        },
+        "model.UserRoles": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "角色名称",
+                    "type": "string"
+                },
+                "roleId": {
+                    "description": "角色id",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "用户id",
+                    "type": "integer"
                 }
             }
         },

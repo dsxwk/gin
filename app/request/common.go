@@ -1,9 +1,14 @@
 package request
 
+type Search struct {
+	Search map[string]interface{} `form:"__search" json:"__search"`
+	Sort   map[string]interface{} `form:"__sort" json:"__sort"`
+}
+
 type PageListValidate struct {
 	Page     int  `form:"page" validate:"required|int|gt:0" label:"页码"`
 	PageSize int  `form:"pageSize" validate:"required|int|gt:0" label:"每页数量"`
-	NotPage  bool `form:"notPage" validate:"required|bool" label:"不分页"`
+	NotPage  bool `form:"notPage" validate:"bool" label:"不分页"`
 }
 
 // PageData 公共分页数据

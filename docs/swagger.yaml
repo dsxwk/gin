@@ -29,6 +29,50 @@ definitions:
         example: Internal server error
         type: string
     type: object
+  model.JsonValue:
+    properties:
+      data: {}
+    type: object
+  model.Menu:
+    properties:
+      component:
+        description: 组件路径
+        type: string
+      createdAt:
+        description: 创建时间
+        type: string
+      id:
+        description: ID
+        type: integer
+      isLink:
+        description: 是否外链 1=是 2=否 默认=2
+        type: integer
+      meta:
+        allOf:
+        - $ref: '#/definitions/model.JsonValue'
+        description: meta
+      name:
+        description: 路由名称
+        type: string
+      path:
+        description: 路由路径
+        type: string
+      pid:
+        description: 父级id
+        type: integer
+      redirect:
+        description: 重定向
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      status:
+        description: 状态 1=启用 2=停用
+        type: integer
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
   model.User:
     properties:
       age:
@@ -64,9 +108,35 @@ definitions:
       updatedAt:
         description: 更新时间
         type: string
+      userRoles:
+        description: 用户角色
+        items:
+          $ref: '#/definitions/model.UserRoles'
+        type: array
       username:
         description: 用户名
         type: string
+    type: object
+  model.UserRoles:
+    properties:
+      createdAt:
+        description: 创建时间
+        type: string
+      id:
+        description: ID
+        type: integer
+      name:
+        description: 角色名称
+        type: string
+      roleId:
+        description: 角色id
+        type: integer
+      updatedAt:
+        description: 更新时间
+        type: string
+      userId:
+        description: 用户id
+        type: integer
     type: object
   request.PageData:
     properties:
@@ -202,6 +272,53 @@ paths:
       summary: 登录
       tags:
       - 登录相关
+  /api/v1/menu:
+    get:
+      description: 菜单列表
+      parameters:
+      - description: 认证Token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        required: true
+        type: string
+      - description: 分页大小
+        in: query
+        name: pageSize
+        required: true
+        type: string
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/errcode.SuccessResponse'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/request.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Menu'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/errcode.ArgsErrorResponse'
+        "500":
+          description: 系统错误
+          schema:
+            $ref: '#/definitions/errcode.SystemErrorResponse'
+      summary: 列表
+      tags:
+      - 菜单管理
   /api/v1/refresh-token:
     post:
       consumes:

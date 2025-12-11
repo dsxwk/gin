@@ -1,0 +1,31 @@
+package router
+
+import (
+	v1 "gin/app/controller/v1"
+	"github.com/gin-gonic/gin"
+)
+
+// MenuRouter 菜单路由
+type MenuRouter struct{}
+
+func init() {
+	Register(&MenuRouter{})
+}
+
+// RegisterRoutes 注册路由
+func (r *MenuRouter) RegisterRoutes(routerGroup *gin.RouterGroup) {
+	var (
+		menu v1.MenuController
+	)
+
+	router := routerGroup.Group("api/v1")
+	{
+		// 列表
+		router.GET("/menu", menu.List)
+	}
+}
+
+// IsAuth 是否需要鉴权
+func (r *MenuRouter) IsAuth() bool {
+	return true
+}

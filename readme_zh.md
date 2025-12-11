@@ -113,6 +113,11 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.4.0
+> - 模型验证器命令行创建优化
+> - 新增gorm动态查询
+> - 发布包v1.4.0
+
 ## v1.3.0 
 > 完善kafka和rabbitmq消息队列命令行快捷创建消费者和生产者
 > 完善命令行创建消息队列文档
@@ -761,7 +766,7 @@ type User struct {
 // @Router /api/v1/user [get]
 func (s *UserController) List(c *gin.Context) {
 	var (
-		srv service.UserService
+		svc service.UserService
 		req request.User
 	)
 
@@ -778,7 +783,7 @@ func (s *UserController) List(c *gin.Context) {
 		return
 	}
 
-	res, err := srv.List(req)
+	res, err := svc.List(req)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
 		return
@@ -1419,7 +1424,7 @@ type LoginResponse struct {
 // @Router /api/v1/login [post]
 func (s *LoginController) Login(c *gin.Context) {
 	var (
-		srv service.LoginService
+		svc service.LoginService
 		req request.Login
 		jwt middleware.Jwt
 	)
@@ -1437,7 +1442,7 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	userModel, err := srv.Login(req.Username, req.Password)
+	userModel, err := svc.Login(req.Username, req.Password)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
 		return
