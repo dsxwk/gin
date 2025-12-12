@@ -113,6 +113,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.4.1
+> - Command line data migration, adjustment, and optimization
+
 ## v1.4.0
 > - Model validator command line creation optimization
 > - Add Gorm dynamic query
