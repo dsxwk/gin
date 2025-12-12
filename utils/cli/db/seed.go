@@ -3,7 +3,7 @@ package db
 import (
 	"gin/common/base"
 	"gin/common/global"
-	"gin/database"
+	"gin/database/migrations"
 	"gin/utils/cli"
 	"github.com/fatih/color"
 )
@@ -17,32 +17,36 @@ func (s *Seed) Name() string {
 }
 
 func (s *Seed) Description() string {
-	return "数据初始化"
+	return "数据填充"
 }
 
 func (s *Seed) Help() []base.CommandOption {
 	return []base.CommandOption{
 		{
-			base.Flag{
-				Short:   "f",
-				Long:    "file",
-				Default: "database/seeds/init_user1_data.sql",
-			},
-			"seed 文件, 如: database/seeds/init_user1_data.sql",
-			true,
+			base.Flag{Short: "i", Long: "id"},
+			"执行指定Seed ID, 如: 20251212_user_seed",
+			false,
 		},
 	}
 }
 
 func (s *Seed) Execute(args []string) {
 	values := s.ParseFlags(s.Name(), args, s.Help())
-	color.Cyan("开始执行数据库 Seed...")
-	manager := database.NewMigrationManager(global.DB)
+	color.Green("执行命令: %s %s", s.Name(), s.FormatArgs(values))
+	color.Cyan("开始执行数据填充...")
 
-	// 执行seed
-	if err := manager.Seed(values["file"]); err != nil {
-		color.Red("❌ %v", err)
-		return
+	db := global.DB
+	id := values["id"]
+	for _, seed := range migrations.AllSeeds() {
+		if id != "" && seed.ID() != id {
+			continue
+		}
+
+		if err := seed.Run(db); err != nil {
+			color.Red("Seed %s 执行失败: %v", seed.ID(), err)
+			return
+		}
+		color.Green("Seed %s 执行成功", seed.ID())
 	}
 }
 
