@@ -252,7 +252,10 @@ func buildFieldSQL(db *gorm.DB, s *schema.Schema, field string, value interface{
 	if f == nil {
 		f = s.LookUpField(toPascalCase(field))
 	}
-
+	if f == nil {
+		// 字段不存在,直接忽略
+		return "", nil
+	}
 	col := s.Table + "." + f.DBName
 	op = strings.ToLower(op)
 

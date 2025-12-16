@@ -30,6 +30,11 @@
   - [模型](#模型)
     - [模型创建帮助](#模型创建帮助)
     - [模型创建](#模型创建)
+    - [GORM动态筛选](#GORM动态筛选)
+    - [OR条件查询](#OR条件查询)
+    - [AND条件查询](#AND条件查询)
+    - [json字段查询](#json字段查询)
+    - [复杂查询](#复杂查询)
   - [表单验证](#表单验证)
     - [验证创建帮助](#验证创建帮助)
     - [验证创建](#验证创建)
@@ -113,6 +118,10 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.5.0
+> - gorm动态查询优化以及readme文档完善
+> - 发布包v1.5.0
+
 ## v1.4.1
 > - 命令行数据迁移调整优化
 
@@ -521,6 +530,40 @@ type User struct {
 func (*User) TableName() string {
 	return TableNameUser
 }
+```
+
+## GORM动态筛选
+> 通过`post`或者`get`传递`query`|`body`参数`__search`根据列表字段动态指定查询条件,`__search`类型为`map[string]interface{}` 如: __search={"and":[{"username":"test"},{"age":18}]}, __search={"or":[{"username":"test"},{"age":18}]}. 支持or、and、in、not in、between、not between、like、left like、right like、is not null、is null、gt、gte、lt、lte、exist、not exist、json_contains、json_extract等条件,不区分大小写.参数支持两种模式{"username":"admin"}或者{"username":["like", "admin"]},字段名为mysql where条件的关键字时自动根据条件构建sql语句.
+### OR条件查询
+```http
+GET /api/v1/user?__search={"or":[{"username":"test"},{"age":18}]} // {"or":[{"username":["=", "test"]},{"age":["=", 18]}]}
+```
+```sql
+SELECT * FROM `user` WHERE (username = 'test' OR age = 18)
+```
+
+### AND条件查询 
+```http
+GET /api/v1/user?__search={"and":[{"username":"test"},{"age":18}]} // {"and":[{"username":["=", "test"]},{"age":["=", 18]}]}
+```
+```sql
+SELECT * FROM `user` WHERE (username = 'test' AND age = 18)
+```
+
+### json字段查询
+```http
+GET /api/v1/menu?__search={"or":[{"and":[{"createdAt":[">","2025-01-01"]},{"createdAt":["<","2026-01-01"]},{"name":""},{"$.meta.icon":["=","ele-Collection"]}]}]}
+```
+```sql
+ SELECT * FROM `menu` WHERE ((((menu.created_at > '2025-01-01') AND (menu.created_at < '2026-01-01') AND (menu.name = '') AND (JSON_EXTRACT(meta, '$.icon') = 'ele-Collection'))))
+```
+
+### 复杂查询
+```http
+GET /api/v1/user?__search={"or":[{"and":[{"createdAt":[">","2025-01-01"]},{"createdAt":["<","2026-01-01"]},{"not exist":{"userRoles.name":"admin"}}]},{"username":"admin"}]}
+```
+```sql
+ SELECT * FROM `user` WHERE ((((user.created_at > '2025-01-01') AND (user.created_at < '2026-01-01') AND (NOT EXISTS (SELECT 1 FROM user_roles WHERE user_roles.user_id = user.id AND user_roles.name = 'admin'))) OR (user.username = 'admin')))
 ```
 
 ## 表单验证

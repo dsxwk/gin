@@ -30,6 +30,11 @@
   - [Model](#Model)
     - [Model Creation Help](#Model-Creation-Help)
     - [Model Creation](#Model-Creation)
+    - [GORM Dynamic Filtering](#GORM-Dynamic-Filtering)
+    - [OR Condition Query](#OR-Condition-Query)
+    - [AND Condition Query](#AND-Condition-Query)
+    - [JSON Field Query](#JSON-Field-Query)
+    - [Complex Condition Query](#Complex-Condition-Query)
   - [Form Validation](#Form-Validation)
     - [Validator Creation Help](#Validator-Creation-Help)
     - [Validator Creation](#Validator-Creation)
@@ -113,6 +118,10 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.5.0
+> - Gorm dynamic query optimization and readme document improvement
+> - Release Package v1.5.0
+
 ## v1.4.1
 > - Command line data migration, adjustment, and optimization
 
@@ -520,6 +529,40 @@ type User struct {
 func (*User) TableName() string {
 	return TableNameUser
 }
+```
+
+## GORM Dynamic Filtering
+> By passing the `query` | `body` parameter `__search` through `post` or `get`, dynamically specify the query criteria based on the list fields. The `__search` type is `map[string]interface{}`, for example:__ search={"and":[{"username":"test"},{"age":18}]}, __search={"or":[{"username":"test"},{"age":18}]}.  support or、and、in、not in、between、not between、like、left like、right like、is not null、is null、gt、gte、lt、lte、exist、not exist、json_contains、json_extract Wait for conditions, case insensitive The parameter supports two modes: `{'username': 'admin'}` or `{'username': ['like', 'admin']}`. When the field name is a keyword of the 'mysql where' condition, SQL statements will be automatically constructed based on the condition
+### OR Condition Query
+```http
+GET /api/v1/user?__search={"or":[{"username":"test"},{"age":18}]} // {"or":[{"username":["=", "test"]},{"age":["=", 18]}]}
+```
+```sql
+SELECT * FROM `user` WHERE (username = 'test' OR age = 18)
+```
+
+### AND Condition Query
+```http
+GET /api/v1/user?__search={"and":[{"username":"test"},{"age":18}]} // {"and":[{"username":["=", "test"]},{"age":["=", 18]}]}
+```
+```sql
+SELECT * FROM `user` WHERE (username = 'test' AND age = 18)
+```
+
+### JSON Field Query
+```http
+GET /api/v1/menu?__search={"or":[{"and":[{"createdAt":[">","2025-01-01"]},{"createdAt":["<","2026-01-01"]},{"name":""},{"$.meta.icon":["=","ele-Collection"]}]}]}
+```
+```sql
+ SELECT * FROM `menu` WHERE ((((menu.created_at > '2025-01-01') AND (menu.created_at < '2026-01-01') AND (menu.name = '') AND (JSON_EXTRACT(meta, '$.icon') = 'ele-Collection'))))
+```
+
+### Complex Condition Query
+```http
+GET /api/v1/user?__search={"or":[{"and":[{"createdAt":[">","2025-01-01"]},{"createdAt":["<","2026-01-01"]},{"not exist":{"userRoles.name":"admin"}}]},{"username":"admin"}]}
+```
+```sql
+ SELECT * FROM `user` WHERE ((((user.created_at > '2025-01-01') AND (user.created_at < '2026-01-01') AND (NOT EXISTS (SELECT 1 FROM user_roles WHERE user_roles.user_id = user.id AND user_roles.name = 'admin'))) OR (user.username = 'admin')))
 ```
 
 ## Form Validation
