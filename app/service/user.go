@@ -26,7 +26,10 @@ func (s *UserService) List(req request.User, _search map[string]interface{}) (pa
 		Preload("UserRoles")
 
 	if _search != nil {
-		whereSql, args := search.BuildCondition(_search, db, model.User{})
+		whereSql, args, _err := search.BuildCondition(_search, db, model.User{})
+		if _err != nil {
+			return pageData, err
+		}
 
 		if whereSql != "" {
 			db = db.Where(whereSql, args...)

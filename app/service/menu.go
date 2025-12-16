@@ -23,7 +23,10 @@ func (s *MenuService) List(req request.Menu, _search map[string]interface{}) (pa
 	db := global.DB.Model(&model.Menu{})
 
 	if _search != nil {
-		whereSql, args := search.BuildCondition(_search, db, model.Menu{})
+		whereSql, args, _err := search.BuildCondition(_search, db, model.Menu{})
+		if _err != nil {
+			return pageData, err
+		}
 
 		if whereSql != "" {
 			db = db.Where(whereSql, args...)
