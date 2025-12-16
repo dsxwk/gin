@@ -87,7 +87,7 @@ func (m *MakeEvent) generateFile(_make, file, name, desc string) {
 		Description string
 	}{
 		Package:     packageName,
-		Struct:      utils.SnakeToCamel(utils.UcFirst(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file))))),
+		Struct:      utils.ToUpperCamel(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
 		Name:        name,
 		Description: desc,
 	}

@@ -89,7 +89,7 @@ func (m *MakeCommand) generateFile(_make, file, name, desc string) {
 		Description string // 如果为空,使用默认值
 	}{
 		Package:     packageName,
-		Name:        utils.UcFirst(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
+		Name:        utils.ToUpperCamel(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
 		Command:     name,
 		Description: desc,
 	}

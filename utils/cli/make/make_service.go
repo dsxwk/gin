@@ -90,8 +90,8 @@ func (m *MakeService) generateFile(_make, file, function, desc string) {
 		Description string // 如果为空,使用默认值
 	}{
 		Package:     packageName,
-		Name:        utils.UcFirst(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
-		Function:    utils.UcFirst(function),
+		Name:        utils.ToUpperCamel(strings.TrimSuffix(filepath.Base(file), filepath.Ext(filepath.Base(file)))),
+		Function:    utils.ToUpperCamel(function),
 		Description: desc,
 	}
 
