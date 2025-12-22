@@ -348,7 +348,7 @@ running...
 🌐 Address:    http://0.0.0.0:8080
 👉 Swagger:    http://127.0.0.1:8080/swagger/index.html
 👉 Test API:   http://127.0.0.1:8080/ping
-✅  Success:   Gin server started successfully!
+Gin server started successfully!
 ```
 
 ## 配置文件
