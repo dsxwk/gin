@@ -118,6 +118,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.5.1
+> - Add command line shortcut to create data migration and data filling
+
 ## v1.5.0
 > - Gorm dynamic query optimization and readme document improvement
 > - Release Package v1.5.0
