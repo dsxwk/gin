@@ -98,5 +98,5 @@ func (m *MakeEvent) generateFile(_make, file, name, desc string) {
 		os.Exit(1)
 	}
 
-	color.Green("✅  事件文件: %s 生成成功!", file)
+	color.Green(utils.Success+"  事件文件: %s 生成成功!", file)
 }

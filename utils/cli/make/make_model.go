@@ -65,7 +65,7 @@ func (m *MakeModel) Execute(args []string) {
 	tables := strings.Split(values["table"], ",")
 	for i := range tables {
 		tables[i] = strings.TrimSpace(tables[i])
-		color.Green("✅  创建模型: %s (表名: %s 是否使用驼峰: %v)\n", p+"/"+tables[i]+".gen.go", tables[i], values["camel"])
+		color.Green(utils.Success+"  创建模型: %s (表名: %s 是否使用驼峰: %v)\n", p+"/"+tables[i]+".gen.go", tables[i], values["camel"])
 	}
 
 	m.generateFiles(p, tables, m.StringToBool(values["camel"]))
@@ -173,12 +173,12 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		})
 
 		if err = os.WriteFile(filePath, []byte(text), 0644); err != nil {
-			color.Red(fmt.Sprintf("❌  为文件 %s 添加 swaggerignore 失败", file.Name()))
+			color.Red(fmt.Sprintf(utils.Error+"  为文件 %s 添加 swaggerignore 失败", file.Name()))
 			os.Exit(1)
 		}
 	}
 
-	color.Green(fmt.Sprintf("✅  模型生成成功! 输出目录: %s", path))
+	color.Green(fmt.Sprintf(utils.Success+"  模型生成成功! 输出目录: %s", path))
 
 	_ = os.RemoveAll(outPath)
 }

@@ -26,7 +26,7 @@ import (
 
 //go:generate go env -w GO111MODULE=on
 //go:generate go env -w GOPROXY=https://goproxy.cn,direct
-//go:generate go get -u
+//go:generate go get # -u
 //go:generate go mod tidy
 //go:generate go mod download
 //go:generate go mod vendor
@@ -77,11 +77,11 @@ func main() {
 
 	var port = utils.IntToString(config.Conf.App.Port)
 	run := map[string]interface{}{
-		"🌐 Address:":  "http://0.0.0.0:" + port,
-		"👉 Swagger:":  "http://127.0.0.1:" + port + "/swagger/index.html",
-		"👉 Test API:": "http://127.0.0.1:" + port + "/ping",
+		utils.Network + " Address:":  "http://0.0.0.0:" + port,
+		utils.Pointer + " Swagger:":  "http://127.0.0.1:" + port + "/swagger/index.html",
+		utils.Pointer + " Test API:": "http://127.0.0.1:" + port + "/ping",
 	}
-	PrintAligned(run, []string{"🌐 Address:", "👉 Swagger:", "👉 Test API:"})
+	PrintAligned(run, []string{utils.Network + " Address:", utils.Pointer + " Swagger:", utils.Pointer + " Test API:"})
 	fmt.Println("Gin server started successfully!")
 
 	srv := &http.Server{
@@ -108,7 +108,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		color.Red("❌ 服务关闭异常: %v", err)
+		color.Red(utils.Error+" 服务关闭异常: %v", err)
 	}
 
 	select {}

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"gin/utils"
 	"gin/utils/debugger"
 	"gin/utils/message"
 	"github.com/fatih/color"
@@ -38,7 +39,7 @@ func init() {
 		),
 	})
 	if err != nil {
-		color.Red("❌  数据库连接失败: %v", err)
+		color.Red(utils.Error+"  数据库连接失败: %v", err)
 		os.Exit(1)
 	}
 

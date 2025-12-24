@@ -100,5 +100,5 @@ func (m *MakeCommand) generateFile(_make, file, name, desc string) {
 		os.Exit(1)
 	}
 
-	color.Green("✅  命令行文件: " + file + " 生成成功!")
+	color.Green(utils.Success + "  命令行文件: " + file + " 生成成功!")
 }

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"gin/utils"
 	"gin/utils/ctx"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
@@ -31,7 +32,7 @@ func init() {
 	// 确保日志目录存在
 	logDir := "storage/logs"
 	if err := os.MkdirAll(logDir, os.ModePerm); err != nil {
-		color.Red("❌  创建日志目录失败:", err)
+		color.Red(utils.Error+"  创建日志目录失败:", err)
 		os.Exit(1)
 	}
 

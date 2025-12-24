@@ -58,7 +58,7 @@ func (b *BaseCommand) ParseFlags(name string, args []string, opts []CommandOptio
 	// 解析命令参数
 	err := fs.Parse(args)
 	if err != nil {
-		color.Red("❌  argument error, %s is not defined.", err.Error())
+		color.Red(utils.Error+"  argument error, %s is not defined.", err.Error())
 		color.Cyan("Usage: cli %s [args]", name)
 		fmt.Println()
 		color.Yellow("Available args:")
@@ -152,7 +152,7 @@ func (b *BaseCommand) StringToBool(s string) bool {
 }
 
 func (b *BaseCommand) ExitError(msg string) {
-	color.Red("❌  %s", msg)
+	color.Red(utils.Error+"  %s", msg)
 	os.Exit(1)
 }
 
@@ -215,13 +215,13 @@ func (b *BaseCommand) CheckDirAndFile(file string) *os.File {
 	// 如果目录不存在则创建
 	dir := filepath.Dir(file)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		color.Red("❌ Failed to create directory:", err)
+		color.Red(utils.Error+" Failed to create directory:", err)
 		return nil
 	}
 
 	if _, err := os.Stat(file); !os.IsNotExist(err) {
 		fmt.Printf("%s 文件 %s 已存在,是否覆盖?(%s/%s): ",
-			color.YellowString("⚠️"),
+			color.YellowString(utils.Warning),
 			color.CyanString(file),
 			color.GreenString("Y"),
 			color.RedString("N"),
@@ -237,10 +237,10 @@ func (b *BaseCommand) CheckDirAndFile(file string) *os.File {
 		}
 	}
 
-	color.Green("📄 创建文件: %s\n", color.CyanString(file))
+	color.Green(utils.File+" 创建文件: %s\n", color.CyanString(file))
 	f, err := os.Create(file)
 	if err != nil {
-		color.Red("❌ Failed to create file:", err.Error())
+		color.Red(utils.Error+" Failed to create file:", err.Error())
 		return nil
 	}
 	return f

@@ -90,5 +90,5 @@ func (m *MakeRequest) generateFile(_make, file, desc string) {
 		os.Exit(1)
 	}
 
-	color.Green("✅  验证请求文件: " + file + " 生成成功!")
+	color.Green(utils.Success + "  验证请求文件: " + file + " 生成成功!")
 }

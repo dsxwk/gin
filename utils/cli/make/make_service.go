@@ -101,5 +101,5 @@ func (m *MakeService) generateFile(_make, file, function, desc string) {
 		os.Exit(1)
 	}
 
-	color.Green("✅ 服务文件: " + file + " 生成成功!")
+	color.Green(utils.Success + " 服务文件: " + file + " 生成成功!")
 }

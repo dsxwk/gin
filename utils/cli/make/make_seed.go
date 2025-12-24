@@ -92,7 +92,7 @@ func (s *%s) Run(db *gorm.DB) error {
 		return
 	}
 
-	color.Green("✅  seed文件生成成功: %s", filePath)
+	color.Green(utils.Success+"  seed文件生成成功: %s", filePath)
 }
 
 func init() {

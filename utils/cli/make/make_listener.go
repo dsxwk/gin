@@ -88,5 +88,5 @@ func (m *MakeListener) generateFile(_make, file, eventName string) {
 		os.Exit(1)
 	}
 
-	color.Green("✅ 监听文件: %s 生成成功!", file)
+	color.Green(utils.Success+" 监听文件: %s 生成成功!", file)
 }

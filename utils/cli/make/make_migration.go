@@ -86,7 +86,7 @@ func (m *%s) Rollback(db *gorm.DB) error {
 		return
 	}
 
-	color.Green("✅  迁移文件生成成功: %s", filePath)
+	color.Green(utils.Success+"  迁移文件生成成功: %s", filePath)
 }
 
 func init() {

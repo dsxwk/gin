@@ -90,5 +90,5 @@ func (m *MakeRouter) generateFile(_make, file, desc string) {
 		os.Exit(1)
 	}
 
-	color.Green("✅  路由文件: " + file + " 生成成功!")
+	color.Green(utils.Success + "  路由文件: " + file + " 生成成功!")
 }
