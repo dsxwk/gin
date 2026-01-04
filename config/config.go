@@ -22,14 +22,50 @@ type App struct {
 	Env      string `mapstructure:"env" yaml:"env"`
 }
 
+// Databases 数据库
+type Databases struct {
+	DbConnection      string        `mapstructure:"db-connection" yaml:"db-connection"`             // 默认数据库
+	SlowQueryDuration time.Duration `mapstructure:"slow-query-duration" yaml:"slow-query-duration"` // 慢查询的时间(ms) 超过这个时间会记录到日志中
+}
+
 // Mysql 数据库
 type Mysql struct {
+	Driver            string        `mapstructure:"driver" yaml:"driver"`
 	Host              string        `mapstructure:"host" yaml:"host"`
 	Port              string        `mapstructure:"port" yaml:"port"`
 	Database          string        `mapstructure:"database" yaml:"database"`
 	Username          string        `mapstructure:"username" yaml:"username"`
 	Password          string        `mapstructure:"password" yaml:"password"`
-	SlowQueryDuration time.Duration `mapstructure:"slow-query-duration" yaml:"slow-query-duration"`
+	SlowQueryDuration time.Duration `mapstructure:"slow-query-duration" yaml:"slow-query-duration"` // 慢查询的时间(ms) 超过这个时间会记录到日志中
+}
+
+// Sqlite 数据库
+type Sqlite struct {
+	Driver            string        `mapstructure:"driver" yaml:"driver"`
+	Path              string        `mapstructure:"path" yaml:"path"`
+	SlowQueryDuration time.Duration `mapstructure:"slow-query-duration" yaml:"slow-query-duration"` // 慢查询的时间(ms) 超过这个时间会记录到日志中
+}
+
+// Pgsql 数据库
+type Pgsql struct {
+	Driver            string        `mapstructure:"driver" yaml:"driver"`
+	Host              string        `mapstructure:"host" yaml:"host"`
+	Port              string        `mapstructure:"port" yaml:"port"`
+	Database          string        `mapstructure:"database" yaml:"database"`
+	Username          string        `mapstructure:"username" yaml:"username"`
+	Password          string        `mapstructure:"password" yaml:"password"`
+	SlowQueryDuration time.Duration `mapstructure:"slow-query-duration" yaml:"slow-query-duration"` // 慢查询的时间(ms) 超过这个时间会记录到日志中
+}
+
+// Sqlsrv 数据库
+type Sqlsrv struct {
+	Driver            string        `mapstructure:"driver" yaml:"driver"`
+	Host              string        `mapstructure:"host" yaml:"host"`
+	Port              string        `mapstructure:"port" yaml:"port"`
+	Database          string        `mapstructure:"database" yaml:"database"`
+	Username          string        `mapstructure:"username" yaml:"username"`
+	Password          string        `mapstructure:"password" yaml:"password"`
+	SlowQueryDuration time.Duration `mapstructure:"slow-query-duration" yaml:"slow-query-duration"` // 慢查询的时间(ms) 超过这个时间会记录到日志中
 }
 
 // Cache 缓存
@@ -102,16 +138,20 @@ type Rabbitmq struct {
 
 // Config 配置
 type Config struct {
-	App      App      `mapstructure:"app" yaml:"app"`
-	Mysql    Mysql    `mapstructure:"mysql" yaml:"mysql"`
-	Redis    Redis    `mapstructure:"redis" yaml:"redis"`
-	Cors     Cors     `mapstructure:"cors" yaml:"cors"`
-	Jwt      Jwt      `mapstructure:"jwt" yaml:"jwt"`
-	Log      Log      `mapstructure:"log" yaml:"log"`
-	Cache    Cache    `mapstructure:"cache" yaml:"cache"`
-	I18n     I18n     `mapstructure:"i18n" yaml:"i18n"`
-	Kafka    Kafka    `mapstructure:"kafka" yaml:"kafka"`
-	Rabbitmq Rabbitmq `mapstructure:"rabbitmq" yaml:"rabbitmq"`
+	App       App       `mapstructure:"app" yaml:"app"`
+	Databases Databases `mapstructure:"databases" yaml:"databases"`
+	Mysql     Mysql     `mapstructure:"mysql" yaml:"mysql"`
+	Sqlite    Sqlite    `mapstructure:"sqlite" yaml:"sqlite"`
+	Pgsql     Pgsql     `mapstructure:"pgsql" yaml:"pgsql"`
+	Sqlsrv    Sqlsrv    `mapstructure:"sqlsrv" yaml:"sqlsrv"`
+	Redis     Redis     `mapstructure:"redis" yaml:"redis"`
+	Cors      Cors      `mapstructure:"cors" yaml:"cors"`
+	Jwt       Jwt       `mapstructure:"jwt" yaml:"jwt"`
+	Log       Log       `mapstructure:"log" yaml:"log"`
+	Cache     Cache     `mapstructure:"cache" yaml:"cache"`
+	I18n      I18n      `mapstructure:"i18n" yaml:"i18n"`
+	Kafka     Kafka     `mapstructure:"kafka" yaml:"kafka"`
+	Rabbitmq  Rabbitmq  `mapstructure:"rabbitmq" yaml:"rabbitmq"`
 }
 
 var (

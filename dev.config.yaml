@@ -25,6 +25,35 @@ mysql:
   # 慢查询的时间(ms) 超过这个时间会记录到日志中
   slow-query-duration: 3000ms # 3秒(time.Duration)
 
+# Postgresql数据库
+pgsql:
+  driver: pgsql
+  host: 127.0.0.1
+  port: 5432
+  username: root
+  password: root
+  database: gin
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+
+# sqlite数据库
+sqlite:
+  driver: sqlite
+  path: storage/data/gin.db
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+
+# sqlsrv数据库
+sqlsrv:
+  driver: sqlsrv
+  host: 127.0.0.1
+  port: 1433
+  username: root
+  password: root
+  database: gin
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+
 # 缓存
 cache:
   driver: "memory"  # memory|disk|redis # 为空默认内存缓存
