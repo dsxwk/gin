@@ -100,3 +100,15 @@ func RandString(len int) string {
 	}
 	return string(bytes)
 }
+
+// Sprintf 格式化字符串
+func Sprintf(format string, args ...any) string {
+	var b strings.Builder
+
+	// 预估容量(可选)
+	b.Grow(len(format) + 64)
+
+	_, _ = fmt.Fprintf(&b, format, args...)
+
+	return b.String()
+}

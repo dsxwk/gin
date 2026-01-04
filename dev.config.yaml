@@ -6,8 +6,16 @@ app:
   timezone: Asia/Shanghai
   proxies: 127.0.0.1/8080 # 代理地址多个地址用逗号分隔
   env: dev # dev|testing|production dev=本地环境 testing=测试环境 production=生产环境
+
+# 数据库
+databases:
+  db-connection: mysql # 默认数据库
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+
 # Mysql数据库
 mysql:
+  driver: mysql
   # host: "username:password@tcp(127.0.0.1:3306)/databaseName?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai"
   host: 127.0.0.1
   port: 3306
@@ -15,7 +23,8 @@ mysql:
   password: root
   database: gin
   # 慢查询的时间(ms) 超过这个时间会记录到日志中
-  slow-query-seconds: 3000ms # 3秒(time.Duration)
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+
 # 缓存
 cache:
   driver: "memory"  # memory|disk|redis # 为空默认内存缓存
@@ -31,6 +40,7 @@ cache:
   # 磁盘缓存
   disk:
     path: "storage/cache" # 缓存文件存放路径
+
 # 跨域
 cors:
   enabled: true # 是否开启跨域
@@ -39,11 +49,13 @@ cors:
   expose-headers: "*" # 允许返回的响应头列表
   allow-methods: GET, POST, PUT, DELETE, OPTIONS # 允许的请求方法列表
   allow-credentials: "true" # 是否允许发送cookie
+
 # Jwt
 jwt:
   key: 123456789!@# # 加解密秘钥key
   exp: 7200 # 过期时间(单位秒) 2*60*60
   refresh-exp: 172800  # 刷新过期时间(单位秒) 2*24*60*60
+
 # 日志配置
 log:
   access: true # 是否记录访问日志

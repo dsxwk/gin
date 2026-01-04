@@ -24,12 +24,12 @@ type App struct {
 
 // Mysql 数据库
 type Mysql struct {
-	Host             string        `mapstructure:"host" yaml:"host"`
-	Port             string        `mapstructure:"port" yaml:"port"`
-	Database         string        `mapstructure:"database" yaml:"database"`
-	Username         string        `mapstructure:"username" yaml:"username"`
-	Password         string        `mapstructure:"password" yaml:"password"`
-	SlowQuerySeconds time.Duration `mapstructure:"slow-query-seconds" yaml:"slow-query-seconds"`
+	Host              string        `mapstructure:"host" yaml:"host"`
+	Port              string        `mapstructure:"port" yaml:"port"`
+	Database          string        `mapstructure:"database" yaml:"database"`
+	Username          string        `mapstructure:"username" yaml:"username"`
+	Password          string        `mapstructure:"password" yaml:"password"`
+	SlowQueryDuration time.Duration `mapstructure:"slow-query-duration" yaml:"slow-query-duration"`
 }
 
 // Cache 缓存

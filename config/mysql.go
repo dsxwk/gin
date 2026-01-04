@@ -31,7 +31,7 @@ func init() {
 		Logger: logger.New(
 			log.New(os.Stdout, "\r\n", log.LstdFlags), // 输出到控制台
 			logger.Config{
-				SlowThreshold: Conf.Mysql.SlowQuerySeconds * time.Second, // 慢sql阈值转Duration
+				SlowThreshold: Conf.Mysql.SlowQueryDuration * time.Second, // 慢sql阈值转Duration
 				LogLevel:      logger.Info,
 				Colorful:      true, // 彩色日志
 				// IgnoreRecordNotFoundError: true, // 如果需要忽略 record not found
@@ -51,25 +51,10 @@ func init() {
 
 // getDsn 获取数据库dns
 func getDsn() string {
-	var (
-		b strings.Builder
+	return utils.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Asia%%2FShanghai",
+		Conf.Mysql.Username, Conf.Mysql.Password, Conf.Mysql.Host, Conf.Mysql.Port, Conf.Mysql.Database,
 	)
-
-	// 预分配容量
-	b.Grow(128)
-
-	b.WriteString(Conf.Mysql.Username)
-	b.WriteString(":")
-	b.WriteString(Conf.Mysql.Password)
-	b.WriteString("@tcp(")
-	b.WriteString(Conf.Mysql.Host)
-	b.WriteString(":")
-	b.WriteString(Conf.Mysql.Port)
-	b.WriteString(")/")
-	b.WriteString(Conf.Mysql.Database)
-	b.WriteString("?charset=utf8mb4&parseTime=True&loc=Local")
-
-	return b.String()
 }
 
 // SqlCallback sql回调
@@ -107,7 +92,7 @@ func after(db *gorm.DB) {
 	sql := db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
 
 	// 慢查询警告
-	if cost > Conf.Mysql.SlowQuerySeconds {
+	if cost > Conf.Mysql.SlowQueryDuration {
 		ZapLogger.Warn(
 			"Slow Sql",
 			zap.Float64("costMs", costMs),
