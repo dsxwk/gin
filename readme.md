@@ -118,6 +118,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.5.2
+> - New database configuration supports MySQL, SQLite, pgSQL, and SQLSRV
+
 ## v1.5.1
 > - Add command line shortcut to create data migration and data filling
 
