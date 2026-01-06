@@ -16,8 +16,12 @@ type UserCreate struct {
 
 // UserUpdate 用户更新验证
 type UserUpdate struct {
-	UserDetail
-	UserCreate
+	ID       int64  `json:"id" validate:"required|int|gt:0" label:"ID"`
+	Username string `json:"username" validate:"required" label:"用户名"`
+	FullName string `json:"fullName" validate:"required" label:"姓名"`
+	Nickname string `json:"nickname" validate:"required" label:"昵称"`
+	Gender   int    `json:"gender" validate:"required|int" label:"性别"`
+	Password string `json:"password" validate:"required" label:"密码"`
 }
 
 // UserDetail 用户详情验证
@@ -35,8 +39,12 @@ type UserSearch struct {
 
 // User 用户请求验证
 type User struct {
-	UserDetail
-	UserCreate
+	ID       int64  `json:"id" validate:"required|int|gt:0" label:"ID"`
+	Username string `json:"username" validate:"required" label:"用户名"`
+	FullName string `json:"fullName" validate:"required" label:"姓名"`
+	Nickname string `json:"nickname" validate:"required" label:"昵称"`
+	Gender   int    `json:"gender" validate:"required|int" label:"性别"`
+	Password string `json:"password" validate:"required" label:"密码"`
 	PageListValidate
 }
 
@@ -62,27 +70,27 @@ func (s User) ConfigValidation(v *validate.Validation) {
 		},
 		// 创建
 		"Create": []string{
-			"UserCreate.Username",
-			"UserCreate.FullName",
-			"UserCreate.Nickname",
-			"UserCreate.Gender",
-			"UserCreate.Password",
+			"Username",
+			"FullName",
+			"Nickname",
+			"Gender",
+			"Password",
 		},
 		// 更新
 		"Update": []string{
-			"UserUpdate.UserDetail.ID",
-			"UserCreate.Username",
-			"UserCreate.FullName",
-			"UserCreate.Nickname",
-			"UserCreate.Gender",
+			"ID",
+			"Username",
+			"FullName",
+			"Nickname",
+			"Gender",
 		},
 		// 详情
 		"Detail": []string{
-			"UserDetail.ID",
+			"ID",
 		},
 		// 删除
 		"Delete": []string{
-			"UserDetail.ID",
+			"ID",
 		},
 	})
 }
@@ -100,13 +108,13 @@ func (s User) Messages() map[string]string {
 // Translates 字段翻译
 func (s User) Translates() map[string]string {
 	return validate.MS{
-		"Page":                "页码",
-		"PageSize":            "每页数量",
-		"ID":                  "ID",
-		"UserCreate.Username": "用户名",
-		"UserCreate.FullName": "姓名",
-		"UserCreate.Nickname": "昵称",
-		"UserCreate.Gender":   "性别",
-		"UserCreate.Password": "密码",
+		"Page":     "页码",
+		"PageSize": "每页数量",
+		"ID":       "ID",
+		"Username": "用户名",
+		"FullName": "姓名",
+		"Nickname": "昵称",
+		"Gender":   "性别",
+		"Password": "密码",
 	}
 }

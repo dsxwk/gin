@@ -657,8 +657,12 @@ type UserCreate struct {
 
 // UserUpdate User-Update-Validation
 type UserUpdate struct {
-	UserDetail
-	UserCreate
+    ID int64 `json:"id" validate:"required|int|gt:0" label:"ID"`
+    Username string `json:"username" validate:"required" label:"username"`
+    FullName string `json:"fullName" validate:"required" label:"fullname"`
+    Nickname string `json:"nickname" validate:"required" label:"nickname"`
+    Gender   int    `json:"gender" validate:"required|int" label:"gender"`
+    Password string `json:"password" validate:"required" label:"password"`
 }
 
 // UserDetail User-Detail-Validation
@@ -668,8 +672,12 @@ type UserDetail struct {
 
 // User User-Request-Validation
 type User struct {
-	UserDetail
-	UserCreate
+    ID int64 `json:"id" validate:"required|int|gt:0" label:"ID"`
+    Username string `json:"username" validate:"required" label:"username"`
+    FullName string `json:"fullName" validate:"required" label:"fullname"`
+    Nickname string `json:"nickname" validate:"required" label:"nickname"`
+    Gender   int    `json:"gender" validate:"required|int" label:"gender"`
+    Password string `json:"password" validate:"required" label:"password"`
 	PageListValidate
 }
 ```
@@ -688,27 +696,27 @@ func (s User) ConfigValidation(v *validate.Validation) {
 		},
 		// Create
 		"Create": []string{
-			"UserCreate.Username",
-			"UserCreate.FullName",
-			"UserCreate.Nickname",
-			"UserCreate.Gender",
-			"UserCreate.Password",
+			"Username",
+			"FullName",
+			"Nickname",
+			"Gender",
+			"Password",
 		},
 		// Update
 		"Update": []string{
-			"UserUpdate.UserDetail.ID",
-			"UserCreate.Username",
-			"UserCreate.FullName",
-			"UserCreate.Nickname",
-			"UserCreate.Gender",
+			"ID",
+			"Username",
+			"FullName",
+			"Nickname",
+			"Gender",
 		},
 		// Detail
 		"Detail": []string{
-			"UserDetail.ID",
+			"ID",
 		},
 		// Delete
 		"Delete": []string{
-			"UserDetail.ID",
+			"ID",
 		},
 	})
 }
@@ -732,14 +740,14 @@ func (s User) Messages() map[string]string {
 // Translates Field-Translation
 func (s User) Translates() map[string]string {
 	return validate.MS{
-		"Page":                "Page",
-		"PageSize":            "Page Size",
-		"ID":                  "ID",
-		"UserCreate.Username": "Username",
-		"UserCreate.FullName": "Fullname",
-		"UserCreate.Nickname": "Nickname",
-		"UserCreate.Gender":   "Gender",
-		"UserCreate.Password": "Password",
+		"Page":     "Page",
+		"PageSize": "Page Size",
+		"ID":       "ID",
+		"Username": "Username",
+		"FullName": "Fullname",
+		"Nickname": "Nickname",
+		"Gender":   "Gender",
+		"Password": "Password",
 	}
 }
 ```
