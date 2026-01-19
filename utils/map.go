@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/goccy/go-json"
+	"gorm.io/gorm"
 	"strings"
 )
 
@@ -127,4 +128,20 @@ func StructToMap[T any](v T) any {
 // ArrayToString 将数组格式化为字符串
 func ArrayToString(array []interface{}) string {
 	return strings.Replace(strings.Trim(fmt.Sprint(array), "[]"), " ", ",", -1)
+}
+
+// FilterModelFields 过滤非模型字段
+func FilterModelFields(db *gorm.DB, model any, raw map[string]interface{}) map[string]interface{} {
+	stmt := &gorm.Statement{DB: db}
+	_ = stmt.Parse(model)
+
+	filtered := make(map[string]interface{})
+
+	for k, v := range raw {
+		if _, ok := stmt.Schema.FieldsByDBName[CamelToSnake(k)]; ok {
+			filtered[k] = v
+		}
+	}
+
+	return filtered
 }
