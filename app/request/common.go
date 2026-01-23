@@ -1,5 +1,7 @@
 package request
 
+import "github.com/goccy/go-json"
+
 type Search struct {
 	Search map[string]interface{} `form:"__search" json:"__search"`
 	Sort   map[string]interface{} `form:"__sort" json:"__sort"`
@@ -36,4 +38,30 @@ func Pagination(page, pageSize int) (int, int) {
 	offset := (page - 1) * pageSize
 
 	return offset, pageSize
+}
+
+// FilterMapByKeys 过滤请求map/struct只保留白名单keys
+func FilterMapByKeys(req any, fillAble []string) map[string]interface{} {
+	if req == nil || len(fillAble) == 0 {
+		return nil
+	}
+
+	// req->map[string]interface{}
+	var src map[string]interface{}
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil
+	}
+	if err = json.Unmarshal(data, &src); err != nil {
+		return nil
+	}
+
+	result := make(map[string]interface{}, len(fillAble))
+	for _, k := range fillAble {
+		if v, ok := src[k]; ok {
+			result[k] = v
+		}
+	}
+
+	return result
 }
