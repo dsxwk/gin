@@ -188,6 +188,8 @@ definitions:
     type: object
   request.UserUpdate:
     properties:
+      age:
+        type: integer
       fullName:
         type: string
       gender:
@@ -196,14 +198,11 @@ definitions:
         type: integer
       nickname:
         type: string
-      password:
-        type: string
       username:
         type: string
     required:
     - fullName
     - nickname
-    - password
     - username
     type: object
   v1.LoginResponse:

@@ -794,10 +794,12 @@ const docTemplate = `{
             "required": [
                 "fullName",
                 "nickname",
-                "password",
                 "username"
             ],
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
                 "fullName": {
                     "type": "string"
                 },
@@ -808,9 +810,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "nickname": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 },
                 "username": {
