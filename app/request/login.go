@@ -24,9 +24,8 @@ type Register struct {
 
 // Login Validator
 type Login struct {
-	Username string `json:"username" validate:"required" example:"admin" label:"用户名"`
-	Password string `json:"password" validate:"required" example:"123456" label:"密码"`
-	Token    string `json:"token" validate:"required" label:"刷新令牌"`
+	UserLogin
+	RefreshToken RefreshToken
 }
 
 // GetValidate 请求验证
