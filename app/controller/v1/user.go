@@ -152,7 +152,11 @@ func (s *UserController) Update(c *gin.Context) {
 		return
 	}
 
-	m, err = svc.Update(m)
+	err = svc.Update(m.ID, m)
+	if err != nil {
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		return
+	}
 
 	s.Success(c, errcode.Success().WithData(m))
 }
@@ -189,6 +193,10 @@ func (s *UserController) Detail(c *gin.Context) {
 	}
 
 	m, err := svc.Detail(req.ID)
+	if err != nil {
+		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		return
+	}
 
 	s.Success(c, errcode.Success().WithData(m))
 }
@@ -225,6 +233,10 @@ func (s *UserController) Delete(c *gin.Context) {
 	}
 
 	m, err := svc.Delete(req.ID)
+	if err != nil {
+		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		return
+	}
 
 	s.Success(c, errcode.Success().WithData(m))
 }

@@ -8,6 +8,7 @@ import (
 	"gin/common/global"
 	"gin/utils"
 	"gin/utils/gorm/search"
+	"time"
 )
 
 type UserService struct {
@@ -76,7 +77,7 @@ func (s *UserService) Create(m model.User) (model.User, error) {
 }
 
 // Update 更新
-func (s *UserService) Update(m model.User) (model.User, error) {
+func (s *UserService) Update(id int64, m model.User) error {
 	var (
 		count int64
 	)
@@ -84,18 +85,20 @@ func (s *UserService) Update(m model.User) (model.User, error) {
 	// 校验用户名是否重复
 	err := global.DB.Model(&model.User{}).Where("username = ? AND id <> ?", m.Username, m.ID).Count(&count).Error
 	if err != nil {
-		return m, err
+		return err
 	}
 	if count > 0 {
-		return m, errors.New("用户名已存在")
+		return errors.New("用户名已存在")
 	}
+	data := request.FilterMapByKeys(m, request.UserUpdateKeys)
+	data["updated_at"] = time.DateTime
 
-	err = global.DB.Updates(&m).Error
+	err = global.DB.Model(&model.User{}).Where("id = ?", id).Updates(data).Error
 	if err != nil {
-		return m, err
+		return err
 	}
 
-	return m, nil
+	return nil
 }
 
 // Detail 详情

@@ -21,7 +21,7 @@ type UserUpdate struct {
 	FullName string `json:"fullName" validate:"required" label:"姓名"`
 	Nickname string `json:"nickname" validate:"required" label:"昵称"`
 	Gender   int    `json:"gender" validate:"required|int" label:"性别"`
-	Password string `json:"password" validate:"required" label:"密码"`
+	Age      int    `json:"age" validate:"int" label:"年龄"`
 }
 
 // UserDetail 用户详情验证
@@ -45,7 +45,17 @@ type User struct {
 	Nickname string `json:"nickname" validate:"required" label:"昵称"`
 	Gender   int    `json:"gender" validate:"required|int" label:"性别"`
 	Password string `json:"password" validate:"required" label:"密码"`
+	Age      int    `json:"age" validate:"int" label:"年龄"`
 	PageListValidate
+}
+
+// UserUpdateKeys 允许更新的键
+var UserUpdateKeys = []string{
+	"username",
+	"full_name",
+	"nickname",
+	"gender",
+	"age",
 }
 
 // GetValidate 请求验证
