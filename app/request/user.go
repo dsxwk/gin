@@ -29,6 +29,11 @@ type UserDetail struct {
 	ID int64 `json:"id" validate:"required|int|gt:0" label:"ID"`
 }
 
+// UserDelete 用户删除验证
+type UserDelete struct {
+	ID int64 `json:"id" validate:"required|int|gt:0" label:"ID"`
+}
+
 // UserSearch 用户搜索
 type UserSearch struct {
 	Username string `form:"username" validate:"required" label:"用户名"`
@@ -52,7 +57,7 @@ type User struct {
 // UserUpdateKeys 允许更新的键
 var UserUpdateKeys = []string{
 	"username",
-	"full_name",
+	"fullName",
 	"nickname",
 	"gender",
 	"age",

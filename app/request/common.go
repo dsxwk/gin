@@ -1,6 +1,9 @@
 package request
 
-import "github.com/goccy/go-json"
+import (
+	"gin/utils"
+	"github.com/goccy/go-json"
+)
 
 type Search struct {
 	Search map[string]interface{} `form:"__search" json:"__search"`
@@ -59,7 +62,7 @@ func FilterMapByKeys(req any, fillAble []string) map[string]interface{} {
 	result := make(map[string]interface{}, len(fillAble))
 	for _, k := range fillAble {
 		if v, ok := src[k]; ok {
-			result[k] = v
+			result[utils.CamelToSnake(k)] = v
 		}
 	}
 

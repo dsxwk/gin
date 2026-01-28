@@ -194,7 +194,7 @@ func (s *UserController) Detail(c *gin.Context) {
 
 	m, err := svc.Detail(req.ID)
 	if err != nil {
-		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
 		return
 	}
 
@@ -234,7 +234,7 @@ func (s *UserController) Delete(c *gin.Context) {
 
 	m, err := svc.Delete(req.ID)
 	if err != nil {
-		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
+		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
 		return
 	}
 
