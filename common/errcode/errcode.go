@@ -14,6 +14,13 @@ func (e ErrorCode) Error() string {
 	return fmt.Sprintf("%s", e.Msg)
 }
 
+func NewError(code int64, msg string) ErrorCode {
+	return ErrorCode{
+		Code: code,
+		Msg:  msg,
+	}
+}
+
 func (e ErrorCode) WithCode(code int64) ErrorCode {
 	e.Code = code
 	return e
@@ -58,6 +65,13 @@ func NotFound() ErrorCode {
 	return ErrorCode{
 		Code: 404,
 		Msg:  "Resource not found",
+	}
+}
+
+func RateLimitError() ErrorCode {
+	return ErrorCode{
+		Code: 429,
+		Msg:  "Rate limit exceeded",
 	}
 }
 

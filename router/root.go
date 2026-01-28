@@ -2,6 +2,8 @@ package router
 
 import (
 	"gin/app/middleware"
+	"gin/common/errcode"
+	"gin/common/response"
 	_ "gin/docs"
 	"gin/utils"
 	"github.com/gin-gonic/gin"
@@ -18,13 +20,10 @@ var (
 
 // LoadRouters 加载路由
 func LoadRouters(router *gin.Engine) {
-	// 健康检查
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"code": 0,
-			"msg":  "pong",
-			"data": []string{},
-		})
+	// 健康检查 # middleware.NewRateLimit(1, 1).Handle() middleware.IpRateLimit(1, 1) middleware.UserRateLimit(1, 1)
+	router.GET("/ping", loggerMiddleware, corsMiddleware, middleware.IpRateLimit(1, 1), func(c *gin.Context) {
+		err := errcode.NewError(0, "pong")
+		response.Success(c, &err)
 	})
 
 	// 静态文件

@@ -118,6 +118,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.5.3
+> - New flow limiting middleware, default flow limiting, user flow limiting, IP flow limiting
+
 ## v1.5.2
 > - New database configuration supports MySQL, SQLite, pgSQL, and SQLSRV
 
