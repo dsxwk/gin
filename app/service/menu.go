@@ -15,15 +15,16 @@ type MenuService struct {
 // List 列表
 func (s *MenuService) List(req request.Menu, _search map[string]interface{}) (pageData request.PageData, err error) {
 	var (
-		m []model.Menu
+		m    []model.Menu
+		menu model.Menu
 	)
 
 	offset, limit := request.Pagination(req.Page, req.PageSize)
 
-	db := global.DB.Model(&model.Menu{})
+	db := global.DB.Model(&menu)
 
 	if _search != nil {
-		whereSql, args, _err := search.BuildCondition(_search, db, model.Menu{})
+		whereSql, args, _err := search.BuildCondition(_search, db, menu)
 		if _err != nil {
 			return pageData, err
 		}
@@ -38,11 +39,19 @@ func (s *MenuService) List(req request.Menu, _search map[string]interface{}) (pa
 		return pageData, err
 	}
 
-	err = db.Offset(offset).Limit(limit).Order("id DESC").Find(&m).Error
-	if err != nil {
-		return pageData, err
+	if req.NotPage {
+		err = db.Order("id DESC").Find(&m).Error
+		if err != nil {
+			return pageData, err
+		}
+		pageData.List = menu.GetTree(m)
+	} else {
+		err = db.Offset(offset).Limit(limit).Order("id DESC").Find(&m).Error
+		if err != nil {
+			return pageData, err
+		}
+		pageData.List = m
 	}
-	pageData.List = m
 
 	return pageData, nil
 }

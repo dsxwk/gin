@@ -2,23 +2,23 @@ package utils
 
 // TreeNode 树节点接口,必须提供id、Pid、children
 type TreeNode interface {
-	GetId() int
-	GetPid() int
+	GetId() int64
+	GetPid() int64
 	GetChildren() *[]TreeNode
 }
 
 // BuildTree 构建树形结构
 //
 //	type Menu struct {
-//	    Id       int        `json:"id"`
-//		   Pid      int        `json:"pid"`
+//	    Id       int64        `json:"id"`
+//		   Pid      int64        `json:"pid"`
 //		   Title    string     `json:"title"`
 //		   Children []TreeNode `json:"children"`
 //	}
 //
 // // 实现TreeNode接口
-// func (m *Menu) GetId() int { return m.Id }
-// func (m *Menu) GetPid() int { return m.Pid }
+// func (m *Menu) GetId() int64 { return m.ID }
+// func (m *Menu) GetPid() int64 { return m.Pid }
 //
 //	func (m *Menu) GetChildren() *[]TreeNode {
 //		   return (*[]TreeNode)(&m.Children)
@@ -34,7 +34,7 @@ type TreeNode interface {
 // tree := BuildTree(menus)
 func BuildTree[T TreeNode](items []T) []TreeNode {
 	// 保存Id => Node的映射
-	nodeMap := make(map[int]TreeNode)
+	nodeMap := make(map[int64]TreeNode)
 
 	// 所有节点先放入nodeMap,并初始化children
 	for i := range items {

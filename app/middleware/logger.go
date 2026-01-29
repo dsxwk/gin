@@ -68,7 +68,9 @@ func (s Logger) Handle() gin.HandlerFunc {
 		reqCtx = context.WithValue(reqCtx, ctx.KeyTraceId, traceId)
 		c.Request = c.Request.WithContext(reqCtx)
 		ctx.InitDebugger(traceId)
+
 		c.Next()
+
 		cost := float64(time.Since(start).Nanoseconds()) / 1e6
 		c.Set(ctx.KeyMs, cost)
 

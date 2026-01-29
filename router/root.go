@@ -21,7 +21,7 @@ var (
 // LoadRouters 加载路由
 func LoadRouters(router *gin.Engine) {
 	// 健康检查 # middleware.NewRateLimit(1, 1).Handle() middleware.IpRateLimit(1, 1) middleware.UserRateLimit(1, 1)
-	router.GET("/ping", loggerMiddleware, corsMiddleware, middleware.IpRateLimit(1, 1), func(c *gin.Context) {
+	router.GET("/ping" /*loggerMiddleware, corsMiddleware, middleware.IpRateLimit(1, 1),*/, func(c *gin.Context) {
 		err := errcode.NewError(0, "pong")
 		response.Success(c, &err)
 	})
