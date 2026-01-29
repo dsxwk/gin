@@ -126,30 +126,6 @@ func (l *Logger) WithDebugger() *zap.Logger {
 	)
 }
 
-func (l *Logger) Debug(msg string, fields ...zap.Field) {
-	l.WithDebugger().Debug(msg, fields...)
-}
-
-func (l *Logger) Info(msg string, fields ...zap.Field) {
-	l.WithDebugger().Info(msg, fields...)
-}
-
-func (l *Logger) Warn(msg string, fields ...zap.Field) {
-	l.WithDebugger().Warn(msg, fields...)
-}
-
-func (l *Logger) Error(msg string, fields ...zap.Field) {
-	l.WithDebugger().Error(msg, fields...)
-}
-
-func (l *Logger) Panic(msg string, fields ...zap.Field) {
-	l.WithDebugger().Panic(msg, fields...)
-}
-
-func (l *Logger) Fatal(msg string, fields ...zap.Field) {
-	l.WithDebugger().Fatal(msg, fields...)
-}
-
 type StackTrace struct{}
 
 func (s StackTrace) MarshalLogObject(enc zapcore.ObjectEncoder) error {

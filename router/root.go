@@ -20,12 +20,6 @@ var (
 
 // LoadRouters 加载路由
 func LoadRouters(router *gin.Engine) {
-	// 健康检查 # middleware.NewRateLimit(1, 1).Handle() middleware.IpRateLimit(1, 1) middleware.UserRateLimit(1, 1)
-	router.GET("/ping" /*loggerMiddleware, corsMiddleware, middleware.IpRateLimit(1, 1),*/, func(c *gin.Context) {
-		err := errcode.NewError(0, "pong")
-		response.Success(c, &err)
-	})
-
 	// 静态文件
 	router.StaticFS("/public", http.Dir(utils.GetRootPath()+"/public"))
 
@@ -35,6 +29,12 @@ func LoadRouters(router *gin.Engine) {
 	// 路由分组
 	public := router.Group("", loggerMiddleware, corsMiddleware) // 无需权限
 	auth := public.Group("", jwtMiddleware)                      // 需要权限
+
+	// 健康检查 # middleware.NewRateLimit(1, 1).Handle() middleware.IpRateLimit(1, 1) middleware.UserRateLimit(1, 1)
+	public.GET("/ping", middleware.IpRateLimit(1, 1), func(c *gin.Context) {
+		err := errcode.NewError(0, "pong")
+		response.Success(c, &err)
+	})
 
 	// 自动注册
 	AutoLoads(public, auth)

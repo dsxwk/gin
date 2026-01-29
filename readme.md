@@ -118,6 +118,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.5.4
+> - Optimize logging stack SQL information, HTTP requests redis、kafka、rabbitmq、 Waiting is optional.
+
 ## v1.5.3
 > - New flow limiting middleware, default flow limiting, user flow limiting, IP flow limiting
 
@@ -1761,7 +1764,24 @@ func (s *TestController) Test(c *gin.Context) {
 ```
 
 ## Error Debug
-> When the return error code is not 0, it automatically records log TraceId, stack, SQL, HTTP, Redis and other call information. Directly calling log recording will also automatically record debugging information. Debugging can be done based on debug debugging information and trace stack information. The log file storage path is `storage/logs`.
+> When using public return errors and calling the Withdebugger() method, it will automatically record log TraceId, stack, SQL, HTTP, Redis, and other call information. Debugging can be done based on debug and trace stack information. The log file storage path is' storage/logs'.
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/global"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+  global.Log.WithDebugger().Error("System Error")
+}
+```
 ```json
 {
   "level": "error",

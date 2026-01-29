@@ -118,6 +118,9 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.5.4
+> - 优化日志记录堆栈sql信息、http请求、redis、kafka、rabbitmq、等为可选。
+
 ## v1.5.3
 > - 新增限流中间件、默认限流、用户限流、ip限流
 
@@ -1762,7 +1765,24 @@ func (s *TestController) Test(c *gin.Context) {
 ```
 
 ## 错误调试
-> 返回错误码不为0时自动记录日志TraceId、堆栈、sql、http、redis等调用信息, 直接调用日志记录也会自动记录调试信息, 可根据debug调试信息和trace堆栈信息调试, 日志文件存放路径为 `storage/logs`。
+> 使用公共返回错误以及调用WithDebugger()方法时会自动记录日志TraceId、堆栈、sql、http、redis等调用信息, 可根据debug调试信息和trace堆栈信息调试, 日志文件存放路径为 `storage/logs`。
+```go
+package v1
+
+import (
+    "gin/common/base"
+    "gin/common/global"
+    "github.com/gin-gonic/gin"
+)
+
+type TestController struct {
+    base.BaseController
+}
+
+func (s *TestController) Test(c *gin.Context) {
+  global.Log.WithDebugger().Error("System Error")
+}
+```
 ```json
 {
   "level": "error",

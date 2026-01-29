@@ -76,7 +76,7 @@ func (s Logger) Handle() gin.HandlerFunc {
 
 		// 记录请求日志
 		if global.Config.Log.Access {
-			global.Log.Info("Access Log")
+			global.Log.WithDebugger().Info("Access Log")
 		}
 		ctx.ClearContext(ctx.KeyTraceId)
 		ctx.ClearContext(traceId)
