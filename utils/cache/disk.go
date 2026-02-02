@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"gin/utils/message"
@@ -11,7 +12,8 @@ import (
 
 // DiskCache 磁盘缓存
 type DiskCache struct {
-	db *badger.DB
+	db  *badger.DB
+	ctx context.Context
 }
 
 func NewDisk(dir string, bus *message.EventBus) *CacheProxy {
@@ -23,6 +25,13 @@ func NewDisk(dir string, bus *message.EventBus) *CacheProxy {
 	}
 	disk := &DiskCache{db: db}
 	return NewCacheProxy("disk", disk, bus)
+}
+
+func (d *DiskCache) WithContext(ctx context.Context) *DiskCache {
+	return &DiskCache{
+		db:  d.db,
+		ctx: ctx,
+	}
 }
 
 func (d *DiskCache) Set(key string, value interface{}, expire time.Duration) error {

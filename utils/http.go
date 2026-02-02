@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"context"
 	"fmt"
+	"gin/common/ctxkey"
 	"gin/utils/debugger"
 	"gin/utils/message"
 	"github.com/goccy/go-json"
@@ -37,7 +39,7 @@ func buildUrl(baseURL string, query map[string]string) string {
 }
 
 // HttpRequest 发送http请求
-func HttpRequest(method, uri string, opt *HttpOption) (string, error) {
+func HttpRequest(ctx context.Context, method, uri string, opt *HttpOption) (string, error) {
 	start := time.Now()
 	req := fasthttp.AcquireRequest()
 	resp := fasthttp.AcquireResponse()
@@ -95,6 +97,7 @@ func HttpRequest(method, uri string, opt *HttpOption) (string, error) {
 		costMs := float64(cost.Nanoseconds()) / 1e6
 
 		message.MsgEventBus.Publish(debugger.TopicHttp, debugger.HttpEvent{
+			TraceId:  ctx.Value(ctxkey.TraceIdKey).(string),
 			Url:      uri,
 			Method:   method,
 			Header:   opt.Headers,
@@ -125,8 +128,8 @@ func HttpRequest(method, uri string, opt *HttpOption) (string, error) {
 }
 
 // HttpRequestJson 发送请求并解析json响应
-func HttpRequestJson[T any](method, url string, opt *HttpOption) (*T, error) {
-	resp, err := HttpRequest(method, url, opt)
+func HttpRequestJson[T any](ctx context.Context, method, url string, opt *HttpOption) (*T, error) {
+	resp, err := HttpRequest(ctx, method, url, opt)
 	if err != nil {
 		return nil, err
 	}

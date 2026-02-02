@@ -1,8 +1,12 @@
 package eventbus
 
 import (
+	"context"
 	"fmt"
 	"gin/common/base"
+	"gin/common/ctxkey"
+	"gin/utils/debugger"
+	"gin/utils/message"
 	"github.com/fatih/color"
 	"sync"
 )
@@ -24,14 +28,14 @@ func Register[T base.Event](listener base.Listener[T], event T) {
 	desc := event.Description()
 
 	// 获取当前已注册监听
-	var lsn []base.Listener[T]
+	var listen []base.Listener[T]
 	if v, ok := listenerMap.Load(name); ok {
-		lsn = v.([]base.Listener[T])
+		listen = v.([]base.Listener[T])
 	}
 
 	// 添加新的监听
-	lsn = append(lsn, listener)
-	listenerMap.Store(name, lsn)
+	listen = append(listen, listener)
+	listenerMap.Store(name, listen)
 
 	// 更新事件信息
 	info := EventInfo{
@@ -50,7 +54,14 @@ func Register[T base.Event](listener base.Listener[T], event T) {
 }
 
 // Publish 发布事件
-func Publish[T base.Event](e T) {
+func Publish[T base.Event](ctx context.Context, e T) {
+	message.MsgEventBus.Publish(debugger.TopicListener, debugger.ListenerEvent{
+		TraceId:     ctx.Value(ctxkey.TraceIdKey).(string),
+		Name:        e.Name(),
+		Description: e.Description(),
+		Data:        e,
+	})
+
 	if v, ok := listenerMap.Load(e.Name()); ok {
 		for _, listener := range v.([]base.Listener[T]) {
 			go listener.Handle(e)

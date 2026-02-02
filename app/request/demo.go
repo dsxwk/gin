@@ -26,6 +26,7 @@ type MenuRequest struct {
 	IsLink   bool   `json:"isLink" validate:"required" label:"是否外链"`
 	Sort     int64  `json:"sort" validate:"required" label:"排序"`
 	Meta     Meta   `json:"meta" validate:"required" label:"元数据"`
+	Context
 }
 
 type MenuSearch struct {

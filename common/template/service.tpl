@@ -2,6 +2,7 @@ package {{.Package}}
 
 import (
     "gin/common/base"
+    "context"
 )
 
 type {{.Name}}Service struct {
@@ -9,6 +10,6 @@ type {{.Name}}Service struct {
 }
 
 // {{.Function}} {{.Description}}
-func (s *{{.Name}}Service) {{.Function}}() {
+func (s *{{.Name}}Service) {{.Function}}(ctx context.Context) {
     // Define your function here
 }

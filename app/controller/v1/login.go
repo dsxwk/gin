@@ -47,7 +47,10 @@ func (s *LoginController) Login(c *gin.Context) {
 		svc service.LoginService
 		req request.Login
 		jwt middleware.Jwt
+		ctx = c.Request.Context()
 	)
+
+	svc.Context.Set(ctx)
 
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -56,15 +59,15 @@ func (s *LoginController) Login(c *gin.Context) {
 	}
 
 	// 验证
-	err = request.Login{}.GetValidate(c, req, "Login")
+	err = request.Login{}.GetValidate(req, "Login")
 	if err != nil {
 		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
 	}
 
-	userModel, err := svc.Login(req.Username, req.Password)
+	userModel, err := svc.Login(ctx, req.Username, req.Password)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
 	}
 
@@ -75,14 +78,14 @@ func (s *LoginController) Login(c *gin.Context) {
 	}
 
 	// 发布事件
-	eventbus.Publish(event.UserLoginEvent{
+	eventbus.Publish(ctx, event.UserLoginEvent{
 		UserId:   userModel.ID,
 		Username: userModel.Username,
 	})
 
 	s.Success(
 		c, errcode.Success().WithMsg(
-			lang.T("login.success", map[string]interface{}{
+			lang.T(ctx, "login.success", map[string]interface{}{
 				"name": userModel.Username,
 			}),
 		).WithData(LoginResponse{
@@ -110,28 +113,25 @@ func (s *LoginController) Login(c *gin.Context) {
 // @Router /api/v1/refresh-token [post]
 func (s *LoginController) RefreshToken(c *gin.Context) {
 	var (
+		svc service.LoginService
 		req request.Login
+		ctx = c.Request.Context()
 	)
+
+	svc.Context.Set(ctx)
+
 	token := c.Request.Header.Get("token")
 	req.RefreshToken.Token = token
 	// 验证
-	err := request.Login{}.GetValidate(c, req, "RefreshToken")
+	err := request.Login{}.GetValidate(req, "RefreshToken")
 	if err != nil {
 		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
 	}
 
-	j := middleware.Jwt{}
-	claims, err := j.Decode(token)
-	if err != nil || claims["typ"] != "refresh" {
-		s.Error(c, errcode.Unauthorized().WithMsg(lang.T("login.invalidToken", nil)))
-		return
-	}
-
-	uid := int64(claims["id"].(float64))
-	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := j.WithRefresh(uid, global.Config.Jwt.Exp, global.Config.Jwt.RefreshExp)
+	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := svc.RefreshToken(ctx, token)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
 	}
 

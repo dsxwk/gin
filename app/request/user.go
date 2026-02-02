@@ -52,6 +52,7 @@ type User struct {
 	Password string `json:"password" validate:"required" label:"密码"`
 	Age      int    `json:"age" validate:"int" label:"年龄"`
 	PageListValidate
+	Context
 }
 
 // UserUpdateKeys 允许更新的键

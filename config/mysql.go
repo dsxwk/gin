@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"gin/common/ctxkey"
 	"gin/utils"
 	"gin/utils/debugger"
 	"gin/utils/message"
@@ -69,6 +70,8 @@ func before(db *gorm.DB) {
 }
 
 func after(db *gorm.DB) {
+	ctx := db.Statement.Context
+	fmt.Printf("ctx: %v\n", ctx)
 	start, ok := db.InstanceGet(startTimeKey)
 	if !ok {
 		return
@@ -89,9 +92,10 @@ func after(db *gorm.DB) {
 	}
 
 	message.MsgEventBus.Publish(debugger.TopicSql, debugger.SqlEvent{
-		Sql:  sql,
-		Rows: db.Statement.RowsAffected,
-		Ms:   costMs,
+		TraceId: ctx.Value(ctxkey.TraceIdKey).(string),
+		Sql:     sql,
+		Rows:    db.Statement.RowsAffected,
+		Ms:      costMs,
 	})
 }
 

@@ -54,12 +54,13 @@ func Success(c *gin.Context, e *errcode.ErrorCode) {
 func Error(c *gin.Context, e *errcode.ErrorCode) {
 	var (
 		resp Response
+		ctx  = c.Request.Context()
 	)
 
 	if e != nil {
-		global.Log.WithDebugger().Error(e.Msg)
+		global.Log.WithDebugger(ctx).Error(e.Msg)
 	} else {
-		global.Log.WithDebugger().Error(errcode.SystemError().Msg)
+		global.Log.WithDebugger(ctx).Error(errcode.SystemError().Msg)
 	}
 
 	switch e {

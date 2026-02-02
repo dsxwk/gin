@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"context"
 	"gin/common/base"
+	"gin/common/ctxkey"
 	"gin/common/global"
-	"gin/utils/ctx"
+	"gin/common/trace"
+	"gin/config"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
-	"github.com/gookit/goutil/strutil"
 	"io"
 	"net/http"
 	"strings"
@@ -23,62 +24,106 @@ type Logger struct {
 // Handle 日志中间件
 func (s Logger) Handle() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var (
-			body   []byte
-			params any
-			m      map[string]any
-		)
-		if c.Request.Body != nil {
-			body, _ = io.ReadAll(c.Request.Body)
-			c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
-		}
-
-		if c.Request.Method == http.MethodGet || c.Request.Method == http.MethodDelete {
-			params = c.Request.URL.Query()
-		} else if len(body) > 0 {
-			if err := json.Unmarshal(body, &m); err != nil {
-				params = string(body)
-			} else {
-				params = m
-			}
-		} else {
-			params = map[string]any{}
-		}
-
-		lang := strings.ToLower(c.GetHeader("Accept-Language"))
-		if strutil.StartsWith(lang, "en") {
-			lang = "en"
-		} else {
-			lang = "zh"
-		}
-
-		traceId := uuid.New().String()
-		c.Set(ctx.KeyTraceId, traceId)
-		c.Header("Trace-Id", traceId)
-		c.Set(ctx.KeyIp, c.ClientIP())
-		c.Set(ctx.KeyPath, c.Request.URL.Path)
-		c.Set(ctx.KeyMethod, c.Request.Method)
-		c.Set(ctx.KeyParams, params)
-		c.Set(ctx.KeyLang, lang)
 		start := time.Now()
-		c.Set(ctx.KeyStartTime, start) // 保存开始时间
-		ctx.SetContext(ctx.KeyTraceId, c)
-		ctx.SetContext(traceId, c)
-		reqCtx := c.Request.Context()
-		reqCtx = context.WithValue(reqCtx, ctx.KeyTraceId, traceId)
-		c.Request = c.Request.WithContext(reqCtx)
-		ctx.InitDebugger(traceId)
+		traceId := uuid.New().String()
+		lang := s.GetLang(c)
+
+		ctx := c.Request.Context()
+		ctx = context.WithValue(ctx, ctxkey.TraceIdKey, traceId)
+		ctx = context.WithValue(ctx, ctxkey.IpKey, c.ClientIP())
+		ctx = context.WithValue(ctx, ctxkey.PathKey, c.Request.URL.Path)
+		ctx = context.WithValue(ctx, ctxkey.MethodKey, c.Request.Method)
+		ctx = context.WithValue(ctx, ctxkey.ParamsKey, s.getParams(c))
+		ctx = context.WithValue(ctx, ctxkey.LangKey, lang)
+		ctx = context.WithValue(ctx, ctxkey.StartTimeKey, start)
+
+		c.Request = c.Request.WithContext(ctx)
+		c.Header("Trace-Id", traceId)
+
+		s.WithContext(ctx)
 
 		c.Next()
 
-		cost := float64(time.Since(start).Nanoseconds()) / 1e6
-		c.Set(ctx.KeyMs, cost)
+		cost := float64(time.Since(start).Milliseconds())
+		ctx = context.WithValue(ctx, ctxkey.MsKey, cost)
+		c.Request = c.Request.WithContext(ctx)
 
-		// 记录请求日志
 		if global.Config.Log.Access {
-			global.Log.WithDebugger().Info("Access Log")
+			global.Log.WithDebugger(ctx).Info("Access Log")
 		}
-		ctx.ClearContext(ctx.KeyTraceId)
-		ctx.ClearContext(traceId)
+
+		// 清理trace
+		trace.Store.Delete(traceId)
 	}
+}
+
+// 获取参数
+func (s Logger) getParams(c *gin.Context) any {
+	// GET/DELETE/query 参数
+	if c.Request.Method == http.MethodGet || c.Request.Method == http.MethodDelete {
+		return c.Request.URL.Query()
+	}
+
+	// 其他方法尝试读取body
+	if c.Request.Body == nil {
+		return map[string]any{}
+	}
+
+	body, _err := io.ReadAll(c.Request.Body)
+	if _err != nil || len(body) == 0 {
+		return map[string]any{}
+	}
+
+	// 读完要塞回去,避免后续handler读不到
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+
+	// 尝试解析json
+	var m map[string]any
+	if _e := json.Unmarshal(body, &m); _e == nil {
+		return m
+	}
+
+	// 非json原样记录
+	return string(body)
+}
+
+// GetLang 获取语言
+func (s *Logger) GetLang(c *gin.Context) string {
+	// 配置支持的语言如["zh", "en"]
+	supported := strings.Split(config.Conf.I18n.Lang, ",")
+
+	if q := strings.ToLower(strings.TrimSpace(c.Query("lang"))); q != "" {
+		if lang := s.matchLang(q, supported); lang != "" {
+			return lang
+		}
+	}
+
+	if h := strings.ToLower(c.GetHeader("Accept-Language")); h != "" {
+		if lang := s.matchLang(h, supported); lang != "" {
+			return lang
+		}
+	}
+
+	return "zh"
+}
+
+// matchLang 匹配语言
+func (s *Logger) matchLang(input string, supported []string) string {
+	for _, lang := range supported {
+		lang = strings.ToLower(strings.TrimSpace(lang))
+		// 支持en/en-US/en_US/zh/zh-CN/zh_CN
+		if strings.HasPrefix(input, lang) {
+			return lang
+		}
+	}
+	return ""
+}
+
+func (s *Logger) WithContext(ctx context.Context) {
+	config.DB = config.DB.WithContext(ctx)
+	global.DB = global.DB.WithContext(ctx)
+	global.Cache = global.Cache.WithContext(ctx)
+	global.RedisCache = global.RedisCache.WithContext(ctx)
+	global.MemoryCache = global.MemoryCache.WithContext(ctx)
+	global.DiskCache = global.DiskCache.WithContext(ctx)
 }

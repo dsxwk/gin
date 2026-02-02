@@ -29,7 +29,10 @@ func (s *MenuController) List(c *gin.Context) {
 		svc service.MenuService
 		req request.Menu
 		_s  request.Search
+		ctx = c.Request.Context()
 	)
+
+	svc.Context.Set(ctx)
 
 	err := c.ShouldBind(&_s)
 	if err != nil {
@@ -52,7 +55,7 @@ func (s *MenuController) List(c *gin.Context) {
 
 	res, err := svc.List(req, _s.Search)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
 	}
 

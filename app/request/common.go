@@ -1,9 +1,14 @@
 package request
 
 import (
+	"gin/common/base"
 	"gin/utils"
 	"github.com/goccy/go-json"
 )
+
+type Context struct {
+	base.BaseRequest
+}
 
 type Search struct {
 	Search map[string]interface{} `form:"__search" json:"__search"`

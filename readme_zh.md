@@ -118,6 +118,9 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.6.0
+> - 优化上下文链路日志记录(sql、http、listener、redis、kafka、rabbitmq等)
+
 ## v1.5.4
 > - 优化日志记录堆栈sql信息、http请求、redis、kafka、rabbitmq、等为可选。
 
@@ -269,7 +272,6 @@ $ ./cli demo-command --args=11
 ├── utils                               # 工具包
 │   ├──├── cache                        # 缓存
 │   ├──├── cli                          # 命令行
-│   ├──├── ctx                          # 上下文
 │   ├──├── eventbus                     # 事件
 │   ├──├── lang                         # 多语言
 ├── vendor                              # 依赖包
@@ -834,8 +836,11 @@ func (s *UserController) List(c *gin.Context) {
 	var (
 		svc service.UserService
 		req request.User
+        ctx = c.Request.Context()
 	)
 
+    svc.Context.Set(ctx)
+	
 	err := c.ShouldBind(&req)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
@@ -849,7 +854,7 @@ func (s *UserController) List(c *gin.Context) {
 		return
 	}
 
-	res, err := svc.List(req)
+	res, err := svc.List(ctx, req)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
 		return
@@ -1493,8 +1498,11 @@ func (s *LoginController) Login(c *gin.Context) {
 		svc service.LoginService
 		req request.Login
 		jwt middleware.Jwt
+        ctx = c.Request.Context()
 	)
 
+    svc.Context.Set(ctx)
+	
 	err := c.ShouldBind(&req)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(err.Error()))
@@ -1508,9 +1516,9 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	userModel, err := svc.Login(req.Username, req.Password)
+	userModel, err := svc.Login(ctx, req.Username, req.Password)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
 	}
 
@@ -1521,14 +1529,14 @@ func (s *LoginController) Login(c *gin.Context) {
 	}
 
 	// 发布事件
-	eventbus.Publish(event.UserLoginEvent{
+	eventbus.Publish(ctx, event.UserLoginEvent{
 		UserId:   userModel.ID,
 		Username: userModel.Username,
 	})
 
 	s.Success(
 		c, errcode.Success().WithMsg(
-			lang.T("login.success", map[string]interface{}{
+			lang.T(ctx, "login.success", map[string]interface{}{
 				"name": userModel.Username,
 			}),
 		).WithData(LoginResponse{
@@ -1740,7 +1748,8 @@ func (s *TestController) Test(c *gin.Context) {
     ],
     "Cache": null,
     "Http": null,
-    "Mq": null
+    "Mq": null,
+    "ListenerEvent": null
   }
 }
 ```
@@ -1780,7 +1789,9 @@ type TestController struct {
 }
 
 func (s *TestController) Test(c *gin.Context) {
-  global.Log.WithDebugger().Error("System Error")
+  ctx := c.Request.Context()
+	
+  global.Log.WithDebugger(ctx).Error("System Error")
 }
 ```
 ```json
@@ -1808,7 +1819,8 @@ func (s *TestController) Test(c *gin.Context) {
     ],
     "Cache": null,
     "Http": null,
-    "Mq": null
+    "Mq": null,
+    "ListenerEvent": null
   },
   "stackTrace": "gin/common/response.Error\n\tE:/www/dsx/www-go/gin/common/response/response.go:60\ngin/common/base.(*BaseController).Error\n\tE:/www/dsx/www-go/gin/common/base/base_controller.go:25\ngin/app/controller/v1.(*LoginController).Login\n\tE:/www/dsx/www-go/gin/app/controller/v1/login.go:67\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Cors.Handle.func2\n\tE:/www/dsx/www-go/gin/app/middleware/cors.go:30\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngin/router.init.Logger.Handle.func1\n\tE:/www/dsx/www-go/gin/app/middleware/logger.go:76\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.CustomRecoveryWithWriter.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/recovery.go:92\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.LoggerWithConfig.func1\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/logger.go:249\ngithub.com/gin-gonic/gin.(*Context).Next\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/context.go:192\ngithub.com/gin-gonic/gin.(*Engine).handleHTTPRequest\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:689\ngithub.com/gin-gonic/gin.(*Engine).ServeHTTP\n\tE:/www/dsx/www-go/gin/vendor/github.com/gin-gonic/gin/gin.go:643\nnet/http.serverHandler.ServeHTTP\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:3340\nnet/http.(*conn).serve\n\tE:/go-sdk/go1.25.2/src/net/http/server.go:2109"
 }
@@ -1829,10 +1841,12 @@ i18n:
 ```go
 import (
     "gin/utils/lang"
+    "github.com/gin-gonic/gin"
 )
 
-func Test()  {
-    trans := lang.T("login.username", nil)
+func Test(c *gin.Context)  {
+	ctx := c.Request.Context()
+    trans := lang.T(ctx, "login.username", nil)
 	fmt.Println(trans) // 输出: 用户名, 英文输出: Username
 }
 ```
@@ -1850,10 +1864,12 @@ func Test()  {
 ```go
 import (
     "gin/utils/lang"
+    "github.com/gin-gonic/gin"
 )
 
-func Test()  {
-    trans := lang.T("login.success", map[string]interface{}{
+func Test(c *gin.Context)  {
+    ctx := c.Request.Context()
+    trans := lang.T(ctx, "login.success", map[string]interface{}{
         "name": "admin",
     }),
 	fmt.Println(trans) // 输出: admin,登录成功 英文输出: admin,Login Success

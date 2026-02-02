@@ -32,7 +32,10 @@ func (s *UserController) List(c *gin.Context) {
 		svc service.UserService
 		req request.User
 		_s  request.Search
+		ctx = c.Request.Context()
 	)
+
+	svc.Context.Set(ctx)
 
 	err := c.ShouldBind(&_s)
 	if err != nil {
@@ -55,7 +58,7 @@ func (s *UserController) List(c *gin.Context) {
 
 	res, err := svc.List(req, _s.Search)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
 	}
 
@@ -77,7 +80,10 @@ func (s *UserController) Create(c *gin.Context) {
 		svc service.UserService
 		req request.User
 		m   model.User
+		ctx = c.Request.Context()
 	)
+
+	svc.Context.Set(ctx)
 
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -94,13 +100,13 @@ func (s *UserController) Create(c *gin.Context) {
 
 	err = copier.Copy(&m, &req)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
 	}
 
 	m, err = svc.Create(m)
 	if err != nil {
-		s.Error(c, errcode.SystemError().WithMsg(lang.T(err.Error(), nil)))
+		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
 	}
 
@@ -124,7 +130,10 @@ func (s *UserController) Update(c *gin.Context) {
 		req request.User
 		m   model.User
 		id  int64
+		ctx = c.Request.Context()
 	)
+
+	svc.Context.Set(ctx)
 
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -176,7 +185,10 @@ func (s *UserController) Detail(c *gin.Context) {
 		svc service.UserService
 		req request.User
 		id  int64
+		ctx = c.Request.Context()
 	)
+
+	svc.Context.Set(ctx)
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -216,7 +228,10 @@ func (s *UserController) Delete(c *gin.Context) {
 		svc service.UserService
 		req request.User
 		id  int64
+		ctx = c.Request.Context()
 	)
+
+	svc.Context.Set(ctx)
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {

@@ -1,8 +1,9 @@
 package base
 
 import (
+	"context"
+	"gin/common/ctxkey"
 	"gin/config"
-	"gin/utils/ctx"
 	"gin/utils/debugger"
 	"gin/utils/message"
 	"github.com/streadway/amqp"
@@ -93,7 +94,7 @@ func (p *RabbitmqProducer) initQueue() error {
 	return p.Mq.Channel.QueueBind(p.Queue, p.Routing, p.Exchange, false, nil)
 }
 
-func (p *RabbitmqProducer) Publish(msg []byte) error {
+func (p *RabbitmqProducer) Publish(ctx context.Context, msg []byte) error {
 	start := time.Now()
 	if err := p.initQueue(); err != nil {
 		return err
@@ -116,7 +117,7 @@ func (p *RabbitmqProducer) Publish(msg []byte) error {
 	err := p.Mq.Channel.Publish(p.Exchange, p.Routing, false, false, pub)
 
 	message.MsgEventBus.Publish(debugger.TopicMq, debugger.MqEvent{
-		TraceId: ctx.TraceId(),
+		TraceId: ctx.Value(ctxkey.TraceIdKey).(string),
 		Driver:  "rabbitmq",
 		Topic:   p.Exchange + ":" + p.Routing,
 		Message: string(msg),

@@ -1,6 +1,8 @@
 package cache
 
 import (
+	"context"
+	"gin/common/ctxkey"
 	"gin/utils/debugger"
 	"gin/utils/message"
 	"time"
@@ -18,6 +20,7 @@ type CacheProxy struct {
 	driver string
 	c      Cache
 	bus    *message.EventBus
+	ctx    context.Context
 }
 
 func NewCacheProxy(driver string, c Cache, bus *message.EventBus) *CacheProxy {
@@ -25,6 +28,15 @@ func NewCacheProxy(driver string, c Cache, bus *message.EventBus) *CacheProxy {
 		driver: driver,
 		c:      c,
 		bus:    bus,
+	}
+}
+
+func (p *CacheProxy) WithContext(ctx context.Context) *CacheProxy {
+	return &CacheProxy{
+		driver: p.driver,
+		c:      p.c,
+		bus:    p.bus,
+		ctx:    ctx,
 	}
 }
 
@@ -59,11 +71,17 @@ func (p *CacheProxy) Expire(key string) (interface{}, time.Time, bool, error) {
 func (p *CacheProxy) publish(method, key string, val interface{}, cost time.Duration) {
 	if p.bus != nil {
 		p.bus.Publish(debugger.TopicCache, debugger.CacheEvent{
-			Driver: p.driver,
-			Name:   method,
-			Cmd:    key,
-			Args:   val,
-			Ms:     float64(cost.Nanoseconds()) / 1e6,
+			TraceId: p.ctx.Value(ctxkey.TraceIdKey).(string),
+			Driver:  p.driver,
+			Name:    method,
+			Cmd:     key,
+			Args:    val,
+			Ms:      float64(cost.Nanoseconds()) / 1e6,
 		})
 	}
+}
+
+func (p *CacheProxy) Redis() *RedisCache {
+	// 强制类型断言
+	return p.c.(*RedisCache)
 }

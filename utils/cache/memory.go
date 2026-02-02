@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"errors"
 	"gin/utils/message"
 	"github.com/patrickmn/go-cache"
@@ -10,13 +11,21 @@ import (
 // MemoryCache 内存缓存
 type MemoryCache struct {
 	cache *cache.Cache
+	ctx   context.Context
 }
 
 func NewMemory(defaultExpiration, cleanupInterval time.Duration) *CacheProxy {
-	mem := &MemoryCache{
+	m := &MemoryCache{
 		cache: cache.New(defaultExpiration, cleanupInterval),
 	}
-	return NewCacheProxy("memory", mem, message.MsgEventBus)
+	return NewCacheProxy("memory", m, message.MsgEventBus)
+}
+
+func (m *MemoryCache) WithContext(ctx context.Context) *MemoryCache {
+	return &MemoryCache{
+		cache: m.cache,
+		ctx:   ctx,
+	}
 }
 
 func (m *MemoryCache) Set(key string, value interface{}, expire time.Duration) error {

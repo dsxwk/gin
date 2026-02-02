@@ -1,9 +1,10 @@
 package lang
 
 import (
+	"context"
 	"fmt"
+	"gin/common/ctxkey"
 	"gin/config"
-	"gin/utils/ctx"
 	"github.com/goccy/go-json"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
@@ -82,11 +83,14 @@ func loadLangDir(lang, dir string) {
 }
 
 // T 翻译
-func T(messageID string, data map[string]interface{}) string {
-	context := ctx.GetContext(ctx.TraceId())
-	langCode := context.GetString(ctx.KeyLang)
-	if langCode == "" {
-		langCode = "zh"
+func T(ctx context.Context, messageID string, data map[string]interface{}) string {
+	langCode := "zh" // 默认语言
+	if ctx != nil {
+		if v := ctx.Value(ctxkey.LangKey); v != nil {
+			if s, ok := v.(string); ok && s != "" {
+				langCode = s
+			}
+		}
 	}
 
 	localizer, ok := Localizers[langCode]

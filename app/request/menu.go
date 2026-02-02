@@ -8,6 +8,7 @@ import (
 // Menu Validator
 type Menu struct {
 	PageListValidate
+	Context
 }
 
 // GetValidate 请求验证

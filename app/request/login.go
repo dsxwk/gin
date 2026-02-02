@@ -1,7 +1,6 @@
 package request
 
 import (
-	"context"
 	"errors"
 	"gin/utils/lang"
 	"github.com/gookit/validate"
@@ -26,10 +25,11 @@ type Register struct {
 type Login struct {
 	UserLogin
 	RefreshToken RefreshToken
+	Context
 }
 
 // GetValidate 请求验证
-func (s Login) GetValidate(ctx context.Context, data Login, scene string) error {
+func (s Login) GetValidate(data Login, scene string) error {
 	v := validate.Struct(data, scene)
 
 	// v.AddMessages(s.Messages())
@@ -55,15 +55,15 @@ func (s Login) ConfigValidation(v *validate.Validation) {
 // Messages 验证器错误消息
 func (s Login) Messages() map[string]string {
 	return validate.MS{
-		"required": lang.T("validator.common.field", nil) + " {field} " + lang.T("validator.common.required", nil),
+		"required": lang.T(s.Context.Get(), "validator.common.field", nil) + " {field} " + lang.T(s.Context.Get(), "validator.common.required", nil),
 	}
 }
 
 // Translates 字段翻译
 func (s Login) Translates() map[string]string {
 	return validate.MS{
-		"UserLogin.Username": lang.T("validator.login.username", nil),
-		"UserLogin.Password": lang.T("validator.login.password", nil),
-		"RefreshToken.Token": lang.T("validator.login.refreshToken", nil),
+		"UserLogin.Username": lang.T(s.Context.Get(), "validator.login.username", nil),
+		"UserLogin.Password": lang.T(s.Context.Get(), "validator.login.password", nil),
+		"RefreshToken.Token": lang.T(s.Context.Get(), "validator.login.refreshToken", nil),
 	}
 }

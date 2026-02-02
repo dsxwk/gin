@@ -69,12 +69,12 @@ func (h *RedisHook) AfterProcessPipeline(ctx context.Context, cmds []redis.Cmder
 // RedisCache Redis缓存
 type RedisCache struct {
 	client  *redis.Client
-	ctx     context.Context
 	pubsubs map[string]*redis.PubSub
+	ctx     context.Context
 }
 
 // NewRedis redis实例
-func NewRedis(address, password string, db int, bus *message.EventBus) *RedisCache {
+func NewRedis(address, password string, db int, bus *message.EventBus) *CacheProxy {
 	client := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: password,
@@ -84,10 +84,20 @@ func NewRedis(address, password string, db int, bus *message.EventBus) *RedisCac
 	// 添加Hook
 	client.AddHook(&RedisHook{bus: bus})
 
-	return &RedisCache{
+	r := &RedisCache{
 		client:  client,
 		ctx:     context.Background(),
 		pubsubs: make(map[string]*redis.PubSub),
+	}
+
+	return NewCacheProxy("redis", r, message.MsgEventBus)
+}
+
+func (r *RedisCache) WithContext(ctx context.Context) *RedisCache {
+	return &RedisCache{
+		client:  r.client,
+		pubsubs: r.pubsubs,
+		ctx:     ctx,
 	}
 }
 

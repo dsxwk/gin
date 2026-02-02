@@ -5,6 +5,6 @@ import (
 	"gin/utils/message"
 )
 
-func RedisInstance() *cache.RedisCache {
+func RedisInstance() *cache.CacheProxy {
 	return cache.NewRedis(Conf.Redis.Address, Conf.Redis.Password, Conf.Redis.DB, message.MsgEventBus)
 }

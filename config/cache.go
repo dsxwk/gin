@@ -4,10 +4,8 @@ import (
 	"gin/utils/cache"
 )
 
-func CacheInstance() cache.Cache {
-	var (
-		instance cache.Cache
-	)
+func CacheInstance() *cache.CacheProxy {
+	var instance *cache.CacheProxy
 
 	switch Conf.Cache.Driver {
 	case "redis":

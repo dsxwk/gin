@@ -3,7 +3,7 @@ package base
 import (
 	"context"
 	"encoding/json"
-	"gin/utils/ctx"
+	"gin/common/ctxkey"
 	"gin/utils/debugger"
 	"gin/utils/message"
 	"time"
@@ -29,7 +29,7 @@ func NewWriter(brokers []string, topic string) *kafka.Writer {
 }
 
 // Publish 发送消息
-func (p *KafkaProducer) Publish(msg []byte) error {
+func (p *KafkaProducer) Publish(ctx context.Context, msg []byte) error {
 	start := time.Now()
 
 	// 延迟队列模拟
@@ -52,7 +52,7 @@ func (p *KafkaProducer) Publish(msg []byte) error {
 	err := p.Writer.WriteMessages(context.Background(), kmsg)
 
 	message.MsgEventBus.Publish(debugger.TopicMq, debugger.MqEvent{
-		TraceId: ctx.TraceId(),
+		TraceId: ctx.Value(ctxkey.TraceIdKey).(string),
 		Driver:  "kafka",
 		Topic:   p.Topic,
 		Message: string(msg),

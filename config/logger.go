@@ -1,8 +1,10 @@
 package config
 
 import (
+	"context"
+	"gin/common/ctxkey"
+	"gin/common/trace"
 	"gin/utils"
-	"gin/utils/ctx"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -95,34 +97,25 @@ func init() {
 	ZapLogger = NewLogger(zapLogger)
 }
 
-func (l *Logger) WithDebugger() *zap.Logger {
-	traceId := ctx.TraceId()
-	c := ctx.GetContext(traceId)
-	// 动态计算ms
+func (l *Logger) WithDebugger(c context.Context) *zap.Logger {
 	var ms float64
-	if startTimeVal, ok := c.Get(ctx.KeyStartTime); ok {
-		if startTime, _ok := startTimeVal.(time.Time); _ok {
-			ms = float64(time.Since(startTime).Milliseconds())
-		}
+	if start, ok := c.Value(ctxkey.StartTimeKey).(time.Time); ok {
+		ms = float64(time.Since(start).Milliseconds())
 	}
-	if ms == 0 {
-		if msVal, ok := c.Get(ctx.KeyMs); ok {
-			if m, _ok := msVal.(float64); _ok {
-				ms = m
-			}
-		}
+	if v, ok := c.Value(ctxkey.MsKey).(float64); ok {
+		ms = v
 	}
 
-	params, _ := c.Get(ctx.KeyParams)
+	traceId := c.Value(ctxkey.TraceIdKey).(string)
 
 	return l.Logger.With(
 		zap.String("traceId", traceId),
-		zap.String("ip", c.GetString(ctx.KeyIp)),
-		zap.String("path", c.GetString(ctx.KeyPath)),
-		zap.String("method", c.GetString(ctx.KeyMethod)),
-		zap.Any("params", params),
-		zap.Any("ms", ms),
-		zap.Any("debugger", ctx.GetDebugger(traceId)),
+		zap.String("ip", c.Value(ctxkey.IpKey).(string)),
+		zap.String("path", c.Value(ctxkey.PathKey).(string)),
+		zap.String("method", c.Value(ctxkey.MethodKey).(string)),
+		zap.Any("params", c.Value(ctxkey.ParamsKey)),
+		zap.Float64("ms", ms),
+		zap.Any("debugger", trace.Store.Get(traceId)),
 	)
 }
 

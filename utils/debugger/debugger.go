@@ -1,7 +1,7 @@
 package debugger
 
 import (
-	"gin/utils/ctx"
+	"gin/common/trace"
 	"gin/utils/message"
 )
 
@@ -20,7 +20,7 @@ func NewDebugger(bus *message.EventBus) *Debugger {
 func (d *Debugger) Start() {
 	d.subIds[TopicSql] = d.Bus.Subscribe(TopicSql, func(ev any) {
 		if e, ok := ev.(SqlEvent); ok {
-			ctx.AddSql(ctx.TraceId(), map[string]any{
+			trace.AddSql(e.TraceId, map[string]any{
 				"sql":  e.Sql,
 				"rows": e.Rows,
 				"ms":   e.Ms,
@@ -29,7 +29,7 @@ func (d *Debugger) Start() {
 	})
 	d.subIds[TopicCache] = d.Bus.Subscribe(TopicCache, func(ev any) {
 		if e, ok := ev.(CacheEvent); ok {
-			ctx.AddCache(ctx.TraceId(), map[string]any{
+			trace.AddCache(e.TraceId, map[string]any{
 				"driver": e.Driver,
 				"name":   e.Name,
 				"cmd":    e.Cmd,
@@ -40,7 +40,7 @@ func (d *Debugger) Start() {
 	})
 	d.subIds[TopicHttp] = d.Bus.Subscribe(TopicHttp, func(ev any) {
 		if e, ok := ev.(HttpEvent); ok {
-			ctx.AddHttp(ctx.TraceId(), map[string]any{
+			trace.AddHttp(e.TraceId, map[string]any{
 				"url":      e.Url,
 				"method":   e.Method,
 				"header":   e.Header,
@@ -53,7 +53,7 @@ func (d *Debugger) Start() {
 	})
 	d.subIds[TopicMq] = d.Bus.Subscribe(TopicMq, func(ev any) {
 		if e, ok := ev.(MqEvent); ok {
-			ctx.AddMq(e.TraceId, map[string]any{
+			trace.AddMq(e.TraceId, map[string]any{
 				"driver":  e.Driver,
 				"topic":   e.Topic,
 				"message": e.Message,
@@ -61,6 +61,15 @@ func (d *Debugger) Start() {
 				"group":   e.Group,
 				"ms":      e.Ms,
 				"extra":   e.Extra,
+			})
+		}
+	})
+	d.subIds[TopicListener] = d.Bus.Subscribe(TopicListener, func(ev any) {
+		if e, ok := ev.(ListenerEvent); ok {
+			trace.AddListener(e.TraceId, map[string]any{
+				"name":  e.Name,
+				"topic": e.Description,
+				"data":  e.Data,
 			})
 		}
 	})
