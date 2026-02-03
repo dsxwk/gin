@@ -209,9 +209,9 @@ $ go generate ./...
 ```bash
 $ go env -w GO111MODULE=on
 $ go env -w GOPROXY=https://goproxy.cn,direct
-$ go get -u
+# $ go get -u
 $ go mod tidy
-$ go mod download
+# $ go mod download
 $ go mod vendor
 ```
 ## 启动
@@ -242,7 +242,6 @@ $ ./cli demo-command --args=11
 # 目录结构
 ```
 ├── app                                 # 应用程序
-├── bootstrap                           # 启动文件 
 │   ├── command                         # 命令
 │   ├── controller                      # 控制器
 │   ├── event                           # 事件
@@ -258,6 +257,7 @@ $ ./cli demo-command --args=11
 │   ├──├──├── producer                  # 生产者
 │   ├── request                         # 验证器
 │   ├── service                         # 服务
+├── bootstrap                           # 启动文件 
 ├── common                              # 公共模块
 │   ├── base                            # 基类
 │   ├── errcode                         # 错误码

@@ -209,9 +209,9 @@ $ go generate ./...
 ```bash
 $ go env -w GO111MODULE=on
 $ go env -w GOPROXY=https://goproxy.cn,direct
-$ go get -u
+# $ go get -u
 $ go mod tidy
-$ go mod download
+# $ go mod download
 $ go mod vendor
 ```
 ## Start
@@ -242,7 +242,6 @@ Excute Command: demo-command, Argument: 11
 # Directory Structure
 ```
 ├── app                                 # Application
-├── bootstrap                           # Bootstrap 
 │   ├── command                         # Command
 │   ├── controller                      # Controller
 │   ├── event                           # Event
@@ -258,6 +257,7 @@ Excute Command: demo-command, Argument: 11
 │   ├──├──├── producer                  # Producer
 │   ├── request                         # Validator
 │   ├── service                         # Service
+├── bootstrap                           # Bootstrap 
 ├── common                              # Common Module
 │   ├── base                            # Base
 │   ├── errcode                         # Errcode
