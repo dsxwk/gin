@@ -3,6 +3,7 @@ package make
 import (
 	"fmt"
 	"gin/common/base"
+	"gin/pkg"
 	"gin/pkg/cli"
 	"github.com/fatih/color"
 	"html/template"

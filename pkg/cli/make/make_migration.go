@@ -2,13 +2,13 @@ package make
 
 import (
 	"fmt"
+	"gin/common/base"
+	"gin/pkg"
+	"gin/pkg/cli"
+	"github.com/fatih/color"
 	"os"
 	"path/filepath"
 	"time"
-
-	"gin/common/base"
-	"gin/pkg/cli"
-	"github.com/fatih/color"
 )
 
 type MakeMigration struct {

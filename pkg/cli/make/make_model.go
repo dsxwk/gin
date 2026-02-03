@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gin/common/base"
 	"gin/config"
+	"gin/pkg"
 	"gin/pkg/cli"
 	"github.com/fatih/color"
 	"gorm.io/gen"
@@ -78,7 +79,7 @@ func init() {
 func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 	var (
 		root    = pkg.GetRootPath()
-		pkg     = filepath.Base(path)
+		p       = filepath.Base(path)
 		outPath = filepath.Join(root + "/app/temp")
 	)
 
@@ -102,7 +103,7 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		"bigint":    func(detailType gorm.ColumnType) (dataType string) { return "int64" },
 		"int":       func(detailType gorm.ColumnType) (dataType string) { return "int64" },
 		"json": func(detailType gorm.ColumnType) (dataType string) {
-			if pkg != "model" {
+			if p != "model" {
 				return "*model.JsonValue"
 			} else {
 				return "*JsonValue"
@@ -111,14 +112,14 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		"datetime": func(detailType gorm.ColumnType) (dataType string) {
 			// 针对 deleted_at 字段特殊处理
 			if detailType.Name() == "deleted_at" {
-				if pkg != "model" {
+				if p != "model" {
 					return "*model.DeletedAt"
 				} else {
 					return "*DeletedAt"
 				}
 			}
 
-			if pkg != "model" {
+			if p != "model" {
 				return "*model.DateTime"
 			} else {
 				return "*DateTime"

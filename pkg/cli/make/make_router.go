@@ -2,6 +2,7 @@ package make
 
 import (
 	"gin/common/base"
+	"gin/pkg"
 	"gin/pkg/cli"
 	"github.com/fatih/color"
 	"html/template"
