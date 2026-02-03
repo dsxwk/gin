@@ -1,13 +1,15 @@
+//go:build cli
+
 package main
 
 import (
 	_ "gin/app/command"
 	_ "gin/app/listener"
-	"gin/utils/cli"
-	_ "gin/utils/cli/db"
-	_ "gin/utils/cli/event"
-	_ "gin/utils/cli/make"
-	_ "gin/utils/cli/route"
+	"gin/pkg/cli"
+	_ "gin/pkg/cli/db"
+	_ "gin/pkg/cli/event"
+	_ "gin/pkg/cli/make"
+	_ "gin/pkg/cli/route"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"gin/common/ctxkey"
 	"gin/common/trace"
-	"gin/utils"
+	"gin/pkg"
 	"github.com/fatih/color"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -34,7 +34,7 @@ func init() {
 	// 确保日志目录存在
 	logDir := "storage/logs"
 	if err := os.MkdirAll(logDir, os.ModePerm); err != nil {
-		color.Red(utils.Error+"  创建日志目录失败:", err)
+		color.Red(pkg.Error+"  创建日志目录失败:", err)
 		os.Exit(1)
 	}
 

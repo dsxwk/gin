@@ -578,6 +578,10 @@ const docTemplate = `{
         "model.Menu": {
             "type": "object",
             "properties": {
+                "children": {
+                    "type": "array",
+                    "items": {}
+                },
                 "component": {
                     "description": "组件路径",
                     "type": "string"

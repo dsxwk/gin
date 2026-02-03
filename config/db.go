@@ -1,7 +1,7 @@
 package config
 
 import (
-	"gin/utils"
+	"gin/pkg"
 	"github.com/fatih/color"
 	"gorm.io/gorm"
 	"os"
@@ -28,12 +28,12 @@ func init() {
 	case "sqlsrv":
 		db, err = openSqlsrv()
 	default:
-		color.Red(utils.Error+"  不支持的数据库类型: %s", Conf.Databases.DbConnection)
+		color.Red(pkg.Error+"  不支持的数据库类型: %s", Conf.Databases.DbConnection)
 		os.Exit(1)
 	}
 
 	if err != nil {
-		color.Red(utils.Error+"  %s数据库连接失败: %v", Conf.Databases.DbConnection, err)
+		color.Red(pkg.Error+"  %s数据库连接失败: %v", Conf.Databases.DbConnection, err)
 		os.Exit(1)
 	}
 

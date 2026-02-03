@@ -5,7 +5,7 @@ import (
 	"gin/common/errcode"
 	"gin/common/response"
 	_ "gin/docs"
-	"gin/utils"
+	"gin/pkg"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -21,7 +21,7 @@ var (
 // LoadRouters 加载路由
 func LoadRouters(router *gin.Engine) {
 	// 静态文件
-	router.StaticFS("/public", http.Dir(utils.GetRootPath()+"/public"))
+	router.StaticFS("/public", http.Dir(pkg.GetRootPath()+"/public"))
 
 	// Swagger 文档
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

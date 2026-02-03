@@ -3,9 +3,9 @@ package config
 import (
 	"fmt"
 	"gin/common/ctxkey"
-	"gin/utils"
-	"gin/utils/debugger"
-	"gin/utils/message"
+	"gin/pkg"
+	"gin/pkg/debugger"
+	"gin/pkg/message"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -40,7 +40,7 @@ func openMysql() (*gorm.DB, error) {
 
 // getMysqlDsn 获取数据库dns
 func getMysqlDsn() string {
-	return utils.Sprintf(
+	return pkg.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Asia%%2FShanghai",
 		Conf.Mysql.Username, Conf.Mysql.Password, Conf.Mysql.Host, Conf.Mysql.Port, Conf.Mysql.Database,
 	)
@@ -71,7 +71,6 @@ func before(db *gorm.DB) {
 
 func after(db *gorm.DB) {
 	ctx := db.Statement.Context
-	fmt.Printf("ctx: %v\n", ctx)
 	start, ok := db.InstanceGet(startTimeKey)
 	if !ok {
 		return

@@ -4,7 +4,7 @@ import (
     "github.com/goccy/go-json"
 	"fmt"
 	"gin/app/event"
-	"gin/utils/eventbus"
+	"gin/pkg/eventbus"
 	"time"
 )
 

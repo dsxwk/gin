@@ -3,7 +3,7 @@ package base
 import (
 	"context"
 	"gin/config"
-	"gin/utils/queue"
+	"gin/pkg/queue"
 	"github.com/goccy/go-json"
 	"time"
 

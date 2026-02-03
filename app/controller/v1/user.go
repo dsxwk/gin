@@ -6,7 +6,7 @@ import (
 	"gin/app/service"
 	"gin/common/base"
 	"gin/common/errcode"
-	"gin/utils/lang"
+	"gin/pkg/lang"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"strconv"

@@ -118,6 +118,9 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.6.1
+> - 更新utils包名为pkg,新增bootstrap目录为启动目录,代码优化以及文档完善。
+
 ## v1.6.0
 > - 优化上下文链路日志记录(sql、http、listener、redis、kafka、rabbitmq等)
 
@@ -236,6 +239,7 @@ $ ./cli demo-command --args=11
 # 目录结构
 ```
 ├── app                                 # 应用程序
+├── bootstrap                           # 启动文件 
 │   ├── command                         # 命令
 │   ├── controller                      # 控制器
 │   ├── event                           # 事件
@@ -260,6 +264,11 @@ $ ./cli demo-command --args=11
 ├── config                              # 配置文件
 ├── database                            # 数据库测试文件
 ├── docs                                # 文档
+├── pkg                                 # 工具包
+│   ├──├── cache                        # 缓存
+│   ├──├── cli                          # 命令行
+│   ├──├── eventbus                     # 事件
+│   ├──├── lang                         # 多语言
 ├── public                              # 静态资源
 ├── router                              # 路由
 ├── storage                             # 存储
@@ -269,11 +278,6 @@ $ ./cli demo-command --args=11
 │   ├──├── en                           # 英文翻译
 │   ├──├── zh                           # 中文翻译
 ├── tests                               # 测试用例
-├── utils                               # 工具包
-│   ├──├── cache                        # 缓存
-│   ├──├── cli                          # 命令行
-│   ├──├── eventbus                     # 事件
-│   ├──├── lang                         # 多语言
 ├── vendor                              # 依赖包
 ├── .air.linux.toml                     # air配置文件
 ├── .air.toml                           # air配置文件
@@ -325,12 +329,12 @@ watching router
 !exclude storage
 watching tests
 !exclude tmp
-watching utils
-watching utils\cli
-watching utils\cli\db
-watching utils\cli\make
-watching utils\cli\route
-watching utils\ctx
+watching pkg
+watching pkg\cli
+watching pkg\cli\db
+watching pkg\cli\make
+watching pkg\cli\route
+watching pkg\ctx
 !exclude vendor
 building...
 running...
@@ -993,7 +997,7 @@ package cronjob
 
 import (
 	"gin/common/base"
-	"gin/utils/cli"
+	"gin/pkg/cli"
 	"github.com/fatih/color"
 )
 
@@ -1041,10 +1045,10 @@ package main
 import (
 	_ "gin/app/command"
 	_ "gin/app/command/cronjob"
-	"gin/utils/cli"
-	_ "gin/utils/cli/db"
-	_ "gin/utils/cli/make"
-	_ "gin/utils/cli/route"
+	"gin/pkg/cli"
+	_ "gin/pkg/cli/db"
+	_ "gin/pkg/cli/make"
+	_ "gin/pkg/cli/route"
 )
 
 func main() {
@@ -1330,7 +1334,7 @@ import (
 	"github.com/goccy/go-json"
 	"fmt"
 	"gin/app/event"
-	"gin/utils/eventbus"
+	"gin/pkg/eventbus"
 	"time"
 )
 
@@ -1460,8 +1464,8 @@ import (
 	"gin/common/base"
 	"gin/common/errcode"
 	"gin/common/global"
-	"gin/utils/eventbus"
-	"gin/utils/lang"
+	"gin/pkg/eventbus"
+	"gin/pkg/lang"
 	"github.com/gin-gonic/gin"
 )
 
@@ -1516,7 +1520,7 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	userModel, err := svc.Login(ctx, req.Username, req.Password)
+	userModel, err := svc.Login(req.Username, req.Password)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
@@ -1840,7 +1844,7 @@ i18n:
 ## 常规翻译
 ```go
 import (
-    "gin/utils/lang"
+    "gin/pkg/lang"
     "github.com/gin-gonic/gin"
 )
 
@@ -1863,7 +1867,7 @@ func Test(c *gin.Context)  {
 ```
 ```go
 import (
-    "gin/utils/lang"
+    "gin/pkg/lang"
     "github.com/gin-gonic/gin"
 )
 

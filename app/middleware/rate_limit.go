@@ -28,8 +28,8 @@ func (s RateLimit) Handle() gin.HandlerFunc {
 }
 
 // NewRateLimit 创建限流中间件
-// @param r rate.Limit 每秒产生多少token
-// @param burst int 桶容量
+// r 每秒产生多少token
+// burst 桶容量
 func NewRateLimit(r rate.Limit, burst int) *RateLimit {
 	return &RateLimit{
 		limiter: rate.NewLimiter(r, burst),
@@ -44,8 +44,8 @@ var userLimiters = struct {
 }
 
 // UserRateLimit 用户限流
-// @param r rate.Limit 每秒产生多少token
-// @param burst int 桶容量
+// r 每秒产生多少token
+// burst 桶容量
 func UserRateLimit(r rate.Limit, burst int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID := c.GetString("user.id")
@@ -79,8 +79,8 @@ var ipLimiters = struct {
 }
 
 // IpRateLimit ip限流
-// @param r rate.Limit 每秒产生多少token
-// @param burst int 桶容量
+// r 每秒产生多少token
+// burst 桶容量
 func IpRateLimit(r rate.Limit, burst int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ip := c.ClientIP()

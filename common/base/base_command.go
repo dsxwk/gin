@@ -3,7 +3,7 @@ package base
 import (
 	"bufio"
 	"fmt"
-	"gin/utils"
+	"gin/pkg"
 	"github.com/fatih/color"
 	"github.com/mattn/go-runewidth"
 	"github.com/spf13/pflag"
@@ -58,7 +58,7 @@ func (b *BaseCommand) ParseFlags(name string, args []string, opts []CommandOptio
 	// 解析命令参数
 	err := fs.Parse(args)
 	if err != nil {
-		color.Red(utils.Error+"  argument error, %s is not defined.", err.Error())
+		color.Red(pkg.Error+"  argument error, %s is not defined.", err.Error())
 		color.Cyan("Usage: cli %s [args]", name)
 		fmt.Println()
 		color.Yellow("Available args:")
@@ -119,9 +119,9 @@ func PrintArgs(opts []CommandOption) {
 		// 输出：带颜色的 flag + 空格 + 描述 + 空格 + required
 		fmt.Printf("  %s%s%s%s%s\n",
 			colFlag,
-			utils.Spaces(flagPad),
+			pkg.Spaces(flagPad),
 			colDesc,
-			utils.Spaces(descPad),
+			pkg.Spaces(descPad),
 			required,
 		)
 	}
@@ -152,7 +152,7 @@ func (b *BaseCommand) StringToBool(s string) bool {
 }
 
 func (b *BaseCommand) ExitError(msg string) {
-	color.Red(utils.Error+"  %s", msg)
+	color.Red(pkg.Error+"  %s", msg)
 	os.Exit(1)
 }
 
@@ -194,7 +194,7 @@ func (b *BaseCommand) GetTemplate(_make string) string {
 	switch _make {
 	case "model":
 	case "command", "controller", "service", "request", "middleware", "router", "event", "listener":
-		templateFile = filepath.Join(utils.GetRootPath(), "common", "template", _make+".tpl")
+		templateFile = filepath.Join(pkg.GetRootPath(), "common", "template", _make+".tpl")
 	default:
 		b.ExitError("未找到 " + _make + " 模版文件")
 	}
@@ -205,8 +205,8 @@ func (b *BaseCommand) GetTemplate(_make string) string {
 // GetQueueTemplates 获取队列模版文件
 func (b *BaseCommand) GetQueueTemplates() map[string]string {
 	return map[string]string{
-		"consumer": filepath.Join(utils.GetRootPath(), "common", "template", "consumer.tpl"),
-		"producer": filepath.Join(utils.GetRootPath(), "common", "template", "producer.tpl"),
+		"consumer": filepath.Join(pkg.GetRootPath(), "common", "template", "consumer.tpl"),
+		"producer": filepath.Join(pkg.GetRootPath(), "common", "template", "producer.tpl"),
 	}
 }
 
@@ -215,13 +215,13 @@ func (b *BaseCommand) CheckDirAndFile(file string) *os.File {
 	// 如果目录不存在则创建
 	dir := filepath.Dir(file)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		color.Red(utils.Error+" Failed to create directory:", err)
+		color.Red(pkg.Error+" Failed to create directory:", err)
 		return nil
 	}
 
 	if _, err := os.Stat(file); !os.IsNotExist(err) {
 		fmt.Printf("%s 文件 %s 已存在,是否覆盖?(%s/%s): ",
-			color.YellowString(utils.Warning),
+			color.YellowString(pkg.Warning),
 			color.CyanString(file),
 			color.GreenString("Y"),
 			color.RedString("N"),
@@ -237,10 +237,10 @@ func (b *BaseCommand) CheckDirAndFile(file string) *os.File {
 		}
 	}
 
-	color.Green(utils.File+" 创建文件: %s\n", color.CyanString(file))
+	color.Green(pkg.File+" 创建文件: %s\n", color.CyanString(file))
 	f, err := os.Create(file)
 	if err != nil {
-		color.Red(utils.Error+" Failed to create file:", err.Error())
+		color.Red(pkg.Error+" Failed to create file:", err.Error())
 		return nil
 	}
 	return f

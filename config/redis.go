@@ -1,8 +1,8 @@
 package config
 
 import (
-	"gin/utils/cache"
-	"gin/utils/message"
+	"gin/pkg/cache"
+	"gin/pkg/message"
 )
 
 func RedisInstance() *cache.CacheProxy {

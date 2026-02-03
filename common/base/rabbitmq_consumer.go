@@ -2,7 +2,7 @@ package base
 
 import (
 	"gin/config"
-	"gin/utils/queue"
+	"gin/pkg/queue"
 	"github.com/streadway/amqp"
 	"time"
 )

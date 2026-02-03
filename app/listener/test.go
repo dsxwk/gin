@@ -3,7 +3,7 @@ package listener
 import (
 	"fmt"
 	"gin/app/event"
-	"gin/utils/eventbus"
+	"gin/pkg/eventbus"
 	"github.com/goccy/go-json"
 	"time"
 )

@@ -6,8 +6,8 @@ import (
 	"gin/app/request"
 	"gin/common/base"
 	"gin/common/global"
-	"gin/utils"
-	"gin/utils/gorm/search"
+	"gin/pkg"
+	"gin/pkg/gorm/search"
 	"time"
 )
 
@@ -67,7 +67,7 @@ func (s *UserService) Create(m model.User) (model.User, error) {
 	}
 
 	// 处理密码
-	m.Password = utils.BcryptHash(m.Password)
+	m.Password = pkg.BcryptHash(m.Password)
 	err = global.DB.Create(&m).Error
 	if err != nil {
 		return m, err

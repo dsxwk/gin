@@ -2,8 +2,8 @@ package global
 
 import (
 	"gin/config"
-	"gin/utils/cache"
-	"gin/utils/message"
+	"gin/pkg/cache"
+	"gin/pkg/message"
 	"gorm.io/gorm"
 )
 

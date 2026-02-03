@@ -9,8 +9,8 @@ import (
 	"gin/common/base"
 	"gin/common/errcode"
 	"gin/common/global"
-	"gin/utils/eventbus"
-	"gin/utils/lang"
+	"gin/pkg/eventbus"
+	"gin/pkg/lang"
 	"github.com/gin-gonic/gin"
 )
 
@@ -65,7 +65,7 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	userModel, err := svc.Login(ctx, req.Username, req.Password)
+	userModel, err := svc.Login(req.Username, req.Password)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
@@ -129,7 +129,7 @@ func (s *LoginController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := svc.RefreshToken(ctx, token)
+	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := svc.RefreshToken(token)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return

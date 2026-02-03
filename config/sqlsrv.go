@@ -1,7 +1,7 @@
 package config
 
 import (
-	"gin/utils"
+	"gin/pkg"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -35,7 +35,7 @@ func getSqlsrvDsn() string {
 	   - SQLServer 默认端口 1433
 	*/
 
-	return utils.Sprintf(
+	return pkg.Sprintf(
 		"sqlserver://%s:%s@%s:%s?database=%s",
 		Conf.Sqlsrv.Username,
 		Conf.Sqlsrv.Password,

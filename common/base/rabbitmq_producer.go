@@ -4,8 +4,8 @@ import (
 	"context"
 	"gin/common/ctxkey"
 	"gin/config"
-	"gin/utils/debugger"
-	"gin/utils/message"
+	"gin/pkg/debugger"
+	"gin/pkg/message"
 	"github.com/streadway/amqp"
 	"time"
 )

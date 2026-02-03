@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"gin/utils"
+	"gin/pkg"
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -163,7 +163,7 @@ func init() {
 	v := viper.New()
 
 	// 默认配置文件目录为根目录
-	configDir := utils.GetRootPath()
+	configDir := pkg.GetRootPath()
 	v.AddConfigPath(configDir)
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")
@@ -174,7 +174,7 @@ func init() {
 
 	// 读取主配置文件 config.yaml
 	if err := v.ReadInConfig(); err != nil {
-		color.Red(utils.Error+"  读取配置文件失败: %v", err)
+		color.Red(pkg.Error+"  读取配置文件失败: %v", err)
 	}
 
 	// 获取环境类型
@@ -188,18 +188,18 @@ func init() {
 	if _, err := os.Stat(configFile); err == nil {
 		v.SetConfigFile(configFile)
 		if err = v.MergeInConfig(); err != nil {
-			color.Red(utils.Error+"  合并环境配置失败: %v", err)
+			color.Red(pkg.Error+"  合并环境配置失败: %v", err)
 			os.Exit(1)
 		}
-		color.Green(utils.Success+"  已加载环境配置文件: %s\n", configFile)
+		color.Green(pkg.Success+"  已加载环境配置文件: %s\n", configFile)
 	} else {
-		color.Yellow(utils.Warning+"  未找到环境配置文件: %s，使用默认配置\n", configFile)
+		color.Yellow(pkg.Warning+"  未找到环境配置文件: %s，使用默认配置\n", configFile)
 	}
 
 	// 自动映射到结构体
 	cfg := &Config{}
 	if err := v.Unmarshal(cfg); err != nil {
-		color.Red(utils.Error+"  解析配置文件失败: %v", err)
+		color.Red(pkg.Error+"  解析配置文件失败: %v", err)
 		os.Exit(1)
 	}
 
@@ -219,9 +219,9 @@ func init() {
 		}
 		lastEventTime = now
 
-		color.Green(utils.Loading+"  配置文件修改: %s\n", e.Name)
+		color.Green(pkg.Loading+"  配置文件修改: %s\n", e.Name)
 		if err := v.Unmarshal(cfg); err != nil {
-			color.Red(utils.Warning+"  配置热更新失败: %v", err)
+			color.Red(pkg.Warning+"  配置热更新失败: %v", err)
 			os.Exit(1)
 		}
 	})

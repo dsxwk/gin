@@ -6,7 +6,7 @@ import (
 	"gin/common/errcode"
 	"gin/common/response"
 	"gin/config"
-	"gin/utils/lang"
+	"gin/pkg/lang"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"time"

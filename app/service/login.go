@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"gin/app/middleware"
@@ -10,7 +9,7 @@ import (
 	p "gin/app/queue/rabbitmq/producer"
 	"gin/common/base"
 	"gin/common/global"
-	"gin/utils"
+	"gin/pkg"
 	"gorm.io/gorm"
 	"time"
 )
@@ -20,7 +19,7 @@ type LoginService struct {
 }
 
 // Login 登录
-func (s *LoginService) Login(ctx context.Context, username, password string) (m model.User, err error) {
+func (s *LoginService) Login(username, password string) (m model.User, err error) {
 	if err = global.DB.
 		Where("username = ?", username).
 		First(&m).Error; err != nil {
@@ -29,7 +28,7 @@ func (s *LoginService) Login(ctx context.Context, username, password string) (m 
 		}
 	}
 
-	check := utils.BcryptCheck(password, m.Password)
+	check := pkg.BcryptCheck(password, m.Password)
 	if !check {
 		return m, errors.New("login.pwdErr")
 	}
@@ -46,8 +45,8 @@ func (s *LoginService) Login(ctx context.Context, username, password string) (m 
 	_ = global.DiskCache.Set("disk_test1", 1, 100*time.Second)
 	_ = global.MemoryCache.Set("memory_test", 1, 100*time.Second)
 	_ = global.MemoryCache.Set("memory_test1", 1, 100*time.Second)
-	_, _ = utils.HttpRequestJson[map[string]interface{}](s.Context.Get(), "GET", "http://127.0.0.1:8080/ping", nil)
-	_, _ = utils.HttpRequestJson[map[string]interface{}](s.Context.Get(), "GET", "http://127.0.0.1:8080/ping", nil)
+	_, _ = pkg.HttpRequestJson[map[string]interface{}](s.Context.Get(), "GET", "http://127.0.0.1:8080/ping", nil)
+	_, _ = pkg.HttpRequestJson[map[string]interface{}](s.Context.Get(), "GET", "http://127.0.0.1:8080/ping", nil)
 	_ = global.RedisCache.Redis().Subscribe("testRedisChan", func(channel, payload string) {
 		fmt.Println(channel, payload)
 	})
@@ -113,7 +112,7 @@ func (s *LoginService) Login(ctx context.Context, username, password string) (m 
 }
 
 // RefreshToken 刷新token
-func (s *LoginService) RefreshToken(ctx context.Context, token string) (accessToken, refreshToken string, tExp, rExp int64, err error) {
+func (s *LoginService) RefreshToken(token string) (accessToken, refreshToken string, tExp, rExp int64, err error) {
 	j := middleware.Jwt{}
 	claims, err := j.Decode(token)
 	if err != nil || claims["typ"] != "refresh" {

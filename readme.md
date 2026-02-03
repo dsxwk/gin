@@ -118,6 +118,10 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.6.1
+> - Update the package name of `utils` to pkg, add the bootstrap directory as the boot directory, optimize the code, and improve the documentation.
+
+## v1.6.0
 > - Optimize context link logging (SQL, HTTP, listener, Redis, Kafka, RabbitMQ...)
 
 ## v1.5.4
@@ -235,6 +239,7 @@ Excute Command: demo-command, Argument: 11
 # Directory Structure
 ```
 ├── app                                 # Application
+├── bootstrap                           # Bootstrap 
 │   ├── command                         # Command
 │   ├── controller                      # Controller
 │   ├── event                           # Event
@@ -259,6 +264,11 @@ Excute Command: demo-command, Argument: 11
 ├── config                              # Config File
 ├── database                            # Database Test File 
 ├── docs                                # Swagger Doc
+├── pkg                                 # Pakage
+│   ├──├── cache                        # Cache
+│   ├──├── cli                          # Command
+│   ├──├── eventbus                     # Event Bus
+│   ├──├── lang                         # Language
 ├── public                              # Static Resources
 ├── router                              # Router
 ├── storage                             # Storage
@@ -268,11 +278,6 @@ Excute Command: demo-command, Argument: 11
 │   ├──├── en                           # English Translation
 │   ├──├── zh                           # Chinese Translation
 ├── tests                               # Test Case
-├── utils                               # Utils
-│   ├──├── cache                        # Cache
-│   ├──├── cli                          # Command
-│   ├──├── eventbus                     # Event Bus
-│   ├──├── lang                         # Language
 ├── vendor                              # Vendor
 ├── .air.linux.toml                     # Air Configuration File
 ├── .air.toml                           # Air Configuration File
@@ -324,12 +329,12 @@ watching router
 !exclude storage
 watching tests
 !exclude tmp
-watching utils
-watching utils\cli
-watching utils\cli\db
-watching utils\cli\make
-watching utils\cli\route
-watching utils\ctx
+watching pkg
+watching pkg\cli
+watching pkg\cli\db
+watching pkg\cli\make
+watching pkg\cli\route
+watching pkg\ctx
 !exclude vendor
 building...
 running...
@@ -991,7 +996,7 @@ package cronjob
 
 import (
 	"gin/common/base"
-	"gin/utils/cli"
+	"gin/pkg/cli"
 	"github.com/fatih/color"
 )
 
@@ -1039,10 +1044,10 @@ package main
 import (
 	_ "gin/app/command"
 	_ "gin/app/command/cronjob"
-	"gin/utils/cli"
-	_ "gin/utils/cli/db"
-	_ "gin/utils/cli/make"
-	_ "gin/utils/cli/route"
+	"gin/pkg/cli"
+	_ "gin/pkg/cli/db"
+	_ "gin/pkg/cli/make"
+	_ "gin/pkg/cli/route"
 )
 
 func main() {
@@ -1328,7 +1333,7 @@ import (
 	"github.com/goccy/go-json"
 	"fmt"
 	"gin/app/event"
-	"gin/utils/eventbus"
+	"gin/pkg/eventbus"
 	"time"
 )
 
@@ -1458,8 +1463,8 @@ import (
 	"gin/common/base"
 	"gin/common/errcode"
 	"gin/common/global"
-	"gin/utils/eventbus"
-	"gin/utils/lang"
+	"gin/pkg/eventbus"
+	"gin/pkg/lang"
 	"github.com/gin-gonic/gin"
 )
 
@@ -1514,7 +1519,7 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	userModel, err := svc.Login(ctx, req.Username, req.Password)
+	userModel, err := svc.Login(req.Username, req.Password)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
@@ -1838,7 +1843,7 @@ i18n:
 ## Ordinary Translation
 ```go
 import (
-    "gin/utils/lang"
+    "gin/pkg/lang"
     "github.com/gin-gonic/gin"
 )
 
@@ -1861,7 +1866,7 @@ func Test(c *gin.Context)  {
 ```
 ```go
 import (
-    "gin/utils/lang"
+    "gin/pkg/lang"
     "github.com/gin-gonic/gin"
 )
 

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"gin/utils/cache"
+	"gin/pkg/cache"
 )
 
 func CacheInstance() *cache.CacheProxy {

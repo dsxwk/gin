@@ -5,7 +5,7 @@ import (
 	"gin/app/request"
 	"gin/common/base"
 	"gin/common/global"
-	"gin/utils/gorm/search"
+	"gin/pkg/gorm/search"
 )
 
 type MenuService struct {

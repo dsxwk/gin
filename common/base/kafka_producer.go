@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"gin/common/ctxkey"
-	"gin/utils/debugger"
-	"gin/utils/message"
+	"gin/pkg/debugger"
+	"gin/pkg/message"
 	"time"
 
 	"github.com/segmentio/kafka-go"

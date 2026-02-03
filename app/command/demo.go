@@ -2,7 +2,7 @@ package command
 
 import (
 	"gin/common/base"
-	"gin/utils/cli"
+	"gin/pkg/cli"
 	"github.com/fatih/color"
 )
 

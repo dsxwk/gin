@@ -35,6 +35,9 @@ definitions:
     type: object
   model.Menu:
     properties:
+      children:
+        items: {}
+        type: array
       component:
         description: 组件路径
         type: string
