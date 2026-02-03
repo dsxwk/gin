@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	loggerMiddleware = middleware.Logger{}.Handle()
-	corsMiddleware   = middleware.Cors{}.Handle()
-	jwtMiddleware    = middleware.Jwt{}.Handle()
+	loggerMiddleware  = middleware.Logger{}.Handle()
+	corsMiddleware    = middleware.Cors{}.Handle()
+	jwtMiddleware     = middleware.Jwt{}.Handle()
+	recoverMiddleware = middleware.Recover{}.Handle()
 )
 
 // LoadRouters 加载路由
@@ -27,8 +28,8 @@ func LoadRouters(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 路由分组
-	public := router.Group("", loggerMiddleware, corsMiddleware) // 无需权限
-	auth := public.Group("", jwtMiddleware)                      // 需要权限
+	public := router.Group("", loggerMiddleware, corsMiddleware, recoverMiddleware) // 无需权限
+	auth := public.Group("", jwtMiddleware)                                         // 需要权限
 
 	// 健康检查 # middleware.NewRateLimit(1, 1).Handle() middleware.IpRateLimit(1, 1) middleware.UserRateLimit(1, 1)
 	public.GET("/ping", middleware.IpRateLimit(1, 1), func(c *gin.Context) {

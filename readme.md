@@ -118,6 +118,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.7.1
+> - Add global exception capture middleware.
+
 ## v1.7.0
 > - Update the package name of `utils` to pkg, add the bootstrap directory as the boot directory, optimize the code, and improve the documentation.
 
