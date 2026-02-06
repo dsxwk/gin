@@ -39,21 +39,21 @@ func (s Logger) Handle() gin.HandlerFunc {
 
 		c.Request = c.Request.WithContext(ctx)
 		c.Header("Trace-Id", traceId)
-
 		s.WithContext(ctx)
 
-		c.Next()
+		defer func() {
+			// 清理trace
+			trace.Store.Delete(traceId)
+			cost := float64(time.Since(start).Milliseconds())
+			ctx = context.WithValue(ctx, ctxkey.MsKey, cost)
+			c.Request = c.Request.WithContext(ctx)
+		}()
 
-		cost := float64(time.Since(start).Milliseconds())
-		ctx = context.WithValue(ctx, ctxkey.MsKey, cost)
-		c.Request = c.Request.WithContext(ctx)
+		c.Next()
 
 		if global.Config.Log.Access {
 			global.Log.WithDebugger(ctx).Info("Access Log")
 		}
-
-		// 清理trace
-		trace.Store.Delete(traceId)
 	}
 }
 

@@ -27,7 +27,7 @@ func (s *LoginService) Login(username, password string) (m model.User, err error
 			return m, errors.New("login.accountErr")
 		}
 	}
-	panic("测试错误")
+
 	check := pkg.BcryptCheck(password, m.Password)
 	if !check {
 		return m, errors.New("login.pwdErr")

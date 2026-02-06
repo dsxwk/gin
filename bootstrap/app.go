@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strings"
 	"syscall"
 	"time"
@@ -53,6 +54,8 @@ func NewApp() *App {
 }
 
 func (a *App) Run() {
+	// 设置50：更积极回收
+	debug.SetGCPercent(50)
 	// 加载翻译
 	lang.LoadLang()
 	// debugger订阅
@@ -127,6 +130,7 @@ func PrintAligned(data map[string]interface{}, order []string) {
 	}
 }
 
+// 格式化符合对齐
 func ensureEmojiSpace(s string) string {
 	r := []rune(s)
 	if len(r) > 0 && (r[0] > 0x1F000 && r[0] < 0x1FAFF) {
