@@ -118,6 +118,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.7.2
+> - Optimize flow limiting middleware, add user flow limiting and IP flow limiting maps for automatic cleaning
+
 ## v1.7.1
 > - Add global exception capture middleware.
 

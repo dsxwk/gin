@@ -6,7 +6,14 @@ import (
 	"gin/common/response"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
-	"sync"
+	"time"
+)
+
+var (
+	err = errcode.RateLimitError()
+	// 限流存储5分钟不访问删除
+	userStore = newLimiterStore(5 * time.Minute)
+	ipStore   = newLimiterStore(5 * time.Minute)
 )
 
 type RateLimit struct {
@@ -14,7 +21,14 @@ type RateLimit struct {
 	limiter *rate.Limiter
 }
 
-var err = errcode.RateLimitError()
+// NewRateLimit 创建限流中间件
+// r 每秒产生多少token
+// burst 桶容量
+func NewRateLimit(r rate.Limit, burst int) *RateLimit {
+	return &RateLimit{
+		limiter: rate.NewLimiter(r, burst),
+	}
+}
 
 // Handle 限流中间件
 func (s RateLimit) Handle() gin.HandlerFunc {
@@ -27,22 +41,6 @@ func (s RateLimit) Handle() gin.HandlerFunc {
 	}
 }
 
-// NewRateLimit 创建限流中间件
-// r 每秒产生多少token
-// burst 桶容量
-func NewRateLimit(r rate.Limit, burst int) *RateLimit {
-	return &RateLimit{
-		limiter: rate.NewLimiter(r, burst),
-	}
-}
-
-var userLimiters = struct {
-	sync.Mutex
-	m map[string]*rate.Limiter
-}{
-	m: make(map[string]*rate.Limiter),
-}
-
 // UserRateLimit 用户限流
 // r 每秒产生多少token
 // burst 桶容量
@@ -53,14 +51,7 @@ func UserRateLimit(r rate.Limit, burst int) gin.HandlerFunc {
 			c.Next()
 			return
 		}
-
-		userLimiters.Lock()
-		limiter, ok := userLimiters.m[userID]
-		if !ok {
-			limiter = rate.NewLimiter(r, burst)
-			userLimiters.m[userID] = limiter
-		}
-		userLimiters.Unlock()
+		limiter := userStore.get(userID, r, burst)
 
 		if !limiter.Allow() {
 			response.Error(c, &err)
@@ -71,27 +62,13 @@ func UserRateLimit(r rate.Limit, burst int) gin.HandlerFunc {
 	}
 }
 
-var ipLimiters = struct {
-	sync.Mutex
-	m map[string]*rate.Limiter
-}{
-	m: make(map[string]*rate.Limiter),
-}
-
 // IpRateLimit ip限流
 // r 每秒产生多少token
 // burst 桶容量
 func IpRateLimit(r rate.Limit, burst int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ip := c.ClientIP()
-
-		ipLimiters.Lock()
-		limiter, ok := ipLimiters.m[ip]
-		if !ok {
-			limiter = rate.NewLimiter(r, burst)
-			ipLimiters.m[ip] = limiter
-		}
-		ipLimiters.Unlock()
+		limiter := ipStore.get(ip, r, burst)
 
 		if !limiter.Allow() {
 			response.Error(c, &err)
