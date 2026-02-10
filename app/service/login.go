@@ -53,32 +53,6 @@ func (s *LoginService) Login(username, password string) (m model.User, err error
 	_ = global.RedisCache.Redis().Publish("testRedisChan", map[string]interface{}{
 		"test": "test",
 	})
-	kPub := producer.NewKafkaDemoProducer()
-	defer func(kPub *producer.KafkaDemoProducer) {
-		err = kPub.Close()
-		if err != nil {
-			fmt.Println("kafka close error:", err)
-		}
-	}(kPub)
-	err = kPub.Publish(s.Context.Get(), []byte(`{"orderId":111}`))
-	if err != nil {
-		fmt.Println("kafka publish error:", err)
-		return m, err
-	}
-
-	kPub1 := producer.NewKafkaDelayDemoProducer()
-	defer func(kPub1 *producer.KafkaDelayDemoProducer) {
-		err = kPub1.Close()
-		if err != nil {
-			fmt.Println("kafka close error:", err)
-			return
-		}
-	}(kPub1)
-	err = kPub1.Publish(s.Context.Get(), []byte(`{"orderId":222}`))
-	if err != nil {
-		fmt.Println("kafka publish error:", err)
-		return m, err
-	}
 
 	rPub1 := p.NewRabbitmqDemoPublisher()
 	defer func(rPub1 *p.RabbitmqDemoPublisher) {
@@ -105,6 +79,33 @@ func (s *LoginService) Login(username, password string) (m model.User, err error
 	err = rPub2.Publish(s.Context.Get(), []byte(`{"orderId":444}`))
 	if err != nil {
 		fmt.Println("rabbitmq publish error:", err)
+		return m, err
+	}
+
+	kPub := producer.NewKafkaDemoProducer()
+	defer func(kPub *producer.KafkaDemoProducer) {
+		err = kPub.Close()
+		if err != nil {
+			fmt.Println("kafka close error:", err)
+		}
+	}(kPub)
+	err = kPub.Publish(s.Context.Get(), []byte(`{"orderId":111}`))
+	if err != nil {
+		fmt.Println("kafka publish error:", err)
+		return m, err
+	}
+
+	kPub1 := producer.NewKafkaDelayDemoProducer()
+	defer func(kPub1 *producer.KafkaDelayDemoProducer) {
+		err = kPub1.Close()
+		if err != nil {
+			fmt.Println("kafka close error:", err)
+			return
+		}
+	}(kPub1)
+	err = kPub1.Publish(s.Context.Get(), []byte(`{"orderId":222}`))
+	if err != nil {
+		fmt.Println("kafka publish error:", err)
 		return m, err
 	}
 

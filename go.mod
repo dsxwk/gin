@@ -11,16 +11,15 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/goccy/go-json v0.10.5
 	github.com/google/uuid v1.6.0
-	github.com/gookit/goutil v0.7.1
 	github.com/gookit/validate v1.5.6
 	github.com/jinzhu/copier v0.4.0
 	github.com/mattn/go-runewidth v0.0.19
 	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
-	github.com/streadway/amqp v1.1.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
@@ -76,6 +75,7 @@ require (
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/google/flatbuffers v25.9.23+incompatible // indirect
 	github.com/gookit/filter v1.2.3 // indirect
+	github.com/gookit/goutil v0.7.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/pgx/v5 v5.5.5 // indirect

@@ -118,6 +118,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.7.3
+> - Adjust RabbitMQ to remove unmaintained packages and use new packages
+
 ## v1.7.2
 > - Optimize flow limiting middleware, add user flow limiting and IP flow limiting maps for automatic cleaning
 

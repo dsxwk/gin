@@ -105,4 +105,4 @@ kafka:
 
 rabbitmq:
   enabled: false # 是否启用rabbitmq
-  url: "amqp://admin:admin@172.17.139.67:5672/"
+  url: "amqp://admin:admin@172.30.117.79:5672/"
