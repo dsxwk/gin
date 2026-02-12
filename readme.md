@@ -97,7 +97,11 @@
     - [Template Translation](#Template-Translation) 
     - [Add Language Support](#Add-Language-Support) 
   - [Container](#Container)
-    - [Container Usage](#Container Usage)
+    - [Container Usage](#Container-Usage)
+  - [Database](#Database)
+    - [Database Configuration](#Database-Configuration)
+    - [Database Connection](#Database-Connection)
+    - [Sql Log Record](#Sql-Log-Record)
   - [Swagger Documents](#Swagger-Documents)
 
 # Project Introduction
@@ -120,6 +124,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.7.5
+> - Add database documents and database connections, which can be switched to MySQL, pgSQL, SQLite, and SQLSRV databases.
+
 ## v1.7.4
 > - Cancel global variables, initialize new containers through bootstrap, bind context through middleware, and obtain container instances wherever there is context. Databases, caches, logs, and configurations can all be obtained through container instances.
 
@@ -1934,6 +1941,105 @@ func Test(c *gin.Context)  {
 	conf := containers.Config;
 	log := containers.Log;
 	// todo ...
+}
+```
+
+# Database
+> The database is initialized through a container and bound to the context through middleware, so that database instances can be obtained wherever there is context. You can also obtain database instances separately. By default, MySQL, pgSQL, SQLite, and SQLSRV are integrated, and the default database can be configured and the database connection can be specified through the Connection method.
+## Database Configuration
+```yaml
+# Database
+databases:
+  db-connection: mysql # Default database connection
+  # Slow query time (ms) exceeding this time will be recorded in the log
+  slow-query-duration: 3000ms # 3 Second(time.Duration)
+
+# Mysql Database
+mysql:
+  driver: mysql
+  # host: "username:password@tcp(127.0.0.1:3306)/databaseName?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai"
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  password: root
+  database: gin
+  # Slow query time (ms) exceeding this time will be recorded in the log
+  slow-query-duration: 3000ms # 3 Second(time.Duration)
+
+# Postgresql Database
+pgsql:
+  driver: pgsql
+  host: 127.0.0.1
+  port: 5432
+  username: testuser
+  password: 123456
+  database: testdb
+  # Slow query time (ms) exceeding this time will be recorded in the log
+  slow-query-duration: 3000ms # 3 Second(time.Duration)
+
+# sqlite Database
+sqlite:
+  driver: sqlite
+  path: storage/data/gin.db
+  # Slow query time (ms) exceeding this time will be recorded in the log
+  slow-query-duration: 3000ms # 3 Second(time.Duration)
+
+# sqlsrv Database
+sqlsrv:
+  driver: sqlsrv
+  host: 127.0.0.1
+  port: 1433
+  username: root
+  password: root
+  database: gin
+  # Slow query time (ms) exceeding this time will be recorded in the log
+  slow-query-duration: 3000ms # 3 Second(time.Duration)
+```
+
+## Database Connection
+```go
+import (
+    "gin/config"
+    "gin/pkg/container"
+    "github.com/gin-gonic/gin"
+)
+
+func Test(c *gin.Context)  {
+    ctx := c.Request.Context()
+    containers := container.Get(ctx)
+    // Use container
+	db := containers.DB;
+	// Use configuration
+	db1 := config.Db{}.GetDB()
+	// Connection pgsql
+	db2 := config.Db{}.Connection("pgsql")
+	// Connection sqlsrv
+	db3 := config.Db{}.Connection("sqlsrv")
+    // todo ...
+}
+```
+
+## Sql Log Record
+> Container connection is enabled by default, and once enabled, it will be recorded in the log. If using configuration connection, context needs to be passed. The use of configuration connection context is not mandatory. If the context is not bound, SQL records will not be recorded in the log.
+```go
+import (
+    "gin/config"
+    "gin/pkg/container"
+    "github.com/gin-gonic/gin"
+)
+
+func Test(c *gin.Context)  {
+    ctx := c.Request.Context()
+    containers := container.Get(ctx)
+    // Use container default records in the log
+	db := containers.DB;
+	// Use configuration
+	db1 := config.Db{}.GetDB().WithContext(ctx)
+	// Connection pgsql
+	db2 := config.Db{}.Connection("pgsql").WithContext(ctx)
+	// Connection sqlsrv
+	db3 := config.Db{}.Connection("sqlsrv").WithContext(ctx)
+    // todo ...
 }
 ```
 

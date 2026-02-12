@@ -12,8 +12,8 @@ import (
 
 const startTimeKey = "gorm_start_time"
 
-func openMysql() (*gorm.DB, error) {
-	db, err := gorm.Open(mysql.Open(getMysqlDsn()), &gorm.Config{
+func openMysql() (db *gorm.DB, err error) {
+	db, err = gorm.Open(mysql.Open(getMysqlDsn()), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true, // 全局关闭表名复数化
 		},

@@ -22,7 +22,11 @@ func (s *Context) Get() context.Context {
 
 // TraceId 获取traceId
 func (s *Context) TraceId() string {
-	return s.ctx.Value(ctxkey.TraceIdKey).(string)
+	traceId, ok := s.ctx.Value(ctxkey.TraceIdKey).(string)
+	if !ok || traceId == "" {
+		traceId = "unknown"
+	}
+	return traceId
 }
 
 // GetLang 获取语言

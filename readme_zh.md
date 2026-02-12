@@ -98,6 +98,10 @@
     - [添加语言](#添加语言)
   - [容器](#容器)
     - [容器使用](#容器使用) 
+  - [数据库](#数据库)
+    - [数据库配置](#数据库配置)
+    - [数据库连接](#数据库连接)
+    - [sql日志记录](#sql日志记录)
   - [swagger文档](#swagger文档)
 
 # 项目简介
@@ -120,6 +124,9 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.7.5
+> - 新增数据库文档以及数据库连接，可通过切换连接到mysql、pgsql、sqlite、sqlsrv数据库。
+
 ## v1.7.4
 > - 取消全局变量,新增容器通过bootstrap初始化,通过中间件绑定context上下文,只要有上下文的地方都可以获取容器实例,数据库、缓存、日志、配置都可通过容器实例获取。
 
@@ -573,7 +580,7 @@ GET /api/v1/user?__search={"or":[{"username":"test"},{"age":18}]} // {"or":[{"us
 SELECT * FROM `user` WHERE (username = 'test' OR age = 18)
 ```
 
-### AND条件查询 
+### AND条件查询
 ```http
 GET /api/v1/user?__search={"and":[{"username":"test"},{"age":18}]} // {"and":[{"username":["=", "test"]},{"age":["=", 18]}]}
 ```
@@ -1934,6 +1941,105 @@ func Test(c *gin.Context)  {
 	diskCache := containers.DiskCache;
 	conf := containers.Config;
 	log := containers.Log;
+    // todo ...
+}
+```
+
+# 数据库
+> 数据库通过容器初始化,通过中间件绑定context上下文,只要有上下文的地方都可以获取数据库实例。也可以单独获取数据库实例。默认集成了mysql、pgsql、sqlite、sqlsrv,可配置默认数据库以及通过Connection方法指定数据库连接。
+## 数据库配置
+```yaml
+# 数据库
+databases:
+  db-connection: mysql # 默认数据库
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+
+# Mysql数据库
+mysql:
+  driver: mysql
+  # host: "username:password@tcp(127.0.0.1:3306)/databaseName?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai"
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  password: root
+  database: gin
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+
+# Postgresql数据库
+pgsql:
+  driver: pgsql
+  host: 127.0.0.1
+  port: 5432
+  username: testuser
+  password: 123456
+  database: testdb
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+
+# sqlite数据库
+sqlite:
+  driver: sqlite
+  path: storage/data/gin.db
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+
+# sqlsrv数据库
+sqlsrv:
+  driver: sqlsrv
+  host: 127.0.0.1
+  port: 1433
+  username: root
+  password: root
+  database: gin
+  # 慢查询的时间(ms) 超过这个时间会记录到日志中
+  slow-query-duration: 3000ms # 3秒(time.Duration)
+```
+
+## 数据库连接
+```go
+import (
+    "gin/config"
+    "gin/pkg/container"
+    "github.com/gin-gonic/gin"
+)
+
+func Test(c *gin.Context)  {
+    ctx := c.Request.Context()
+    containers := container.Get(ctx)
+    // 使用容器
+	db := containers.DB;
+	// 使用配置
+	db1 := config.Db{}.GetDB()
+	// 连接pgsql
+	db2 := config.Db{}.Connection("pgsql")
+	// 连接sqlsrv
+	db3 := config.Db{}.Connection("sqlsrv")
+    // todo ...
+}
+```
+
+## sql日志记录
+> 使用容器连接默认开启，开启后，会记录到日志中，如果使用配置连接需要传递上下文。使用配置连接上下文非必须，如果不绑定上下文则日志不会记录sql记录。
+```go
+import (
+    "gin/config"
+    "gin/pkg/container"
+    "github.com/gin-gonic/gin"
+)
+
+func Test(c *gin.Context)  {
+    ctx := c.Request.Context()
+    containers := container.Get(ctx)
+    // 使用容器默认记录
+	db := containers.DB;
+	// 使用配置
+	db1 := config.Db{}.GetDB().WithContext(ctx)
+	// 连接pgsql
+	db2 := config.Db{}.Connection("pgsql").WithContext(ctx)
+	// 连接sqlsrv
+	db3 := config.Db{}.Connection("sqlsrv").WithContext(ctx)
     // todo ...
 }
 ```

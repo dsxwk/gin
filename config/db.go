@@ -16,30 +16,42 @@ import (
 )
 
 var (
-	db     *gorm.DB
-	dbOnce sync.Once
+	dbInstances = make(map[string]*gorm.DB)
+	dbLocks     sync.Map
 )
 
-// GetDB 初始化数据库(统一入口)
-func GetDB() *gorm.DB {
-	var (
-		err error
-	)
+type Db struct{}
 
-	dbOnce.Do(func() {
-		switch Conf.Databases.DbConnection {
+// GetDB 初始化数据库(统一入口)
+func (Db) GetDB() *gorm.DB {
+	return getConnection(Conf.Databases.DbConnection)
+}
+
+// Connection 连接数据库
+func (Db) Connection(conn string) *gorm.DB {
+	return getConnection(conn)
+}
+
+func getConnection(conn string) *gorm.DB {
+	onceAny, _ := dbLocks.LoadOrStore(conn, &sync.Once{})
+	once := onceAny.(*sync.Once)
+
+	once.Do(func() {
+		var err error
+
+		switch conn {
 
 		case "mysql":
-			db, err = openMysql()
+			dbInstances[conn], err = openMysql()
 
 		case "pgsql":
-			db, err = openPgsql()
+			dbInstances[conn], err = openPgsql()
 
 		case "sqlite":
-			db, err = openSqlite()
+			dbInstances[conn], err = openSqlite()
 
 		case "sqlsrv":
-			db, err = openSqlsrv()
+			dbInstances[conn], err = openSqlsrv()
 
 		default:
 			color.Red(pkg.Error+"  不支持的数据库类型: %s", Conf.Databases.DbConnection)
@@ -50,12 +62,12 @@ func GetDB() *gorm.DB {
 			color.Red(pkg.Error+"  %s数据库连接失败: %v", Conf.Databases.DbConnection, err)
 			os.Exit(1)
 		}
+
+		// 注册gorm sql回调
+		SqlCallback(dbInstances[conn])
 	})
 
-	// 注册gorm sql回调
-	SqlCallback(db)
-
-	return db
+	return dbInstances[conn]
 }
 
 // SqlCallback sql回调
@@ -83,15 +95,30 @@ func before(db *gorm.DB) {
 
 func after(db *gorm.DB) {
 	ctx := db.Statement.Context
+	if ctx == nil {
+		return
+	}
 	start, ok := db.InstanceGet(startTimeKey)
 	if !ok {
 		return
 	}
 
+	// sql builder是否为空
+	if db.Statement.SQL.Len() == 0 || db.Dialector == nil {
+		return
+	}
+
+	var sql string
+	// 安全处理Vars为空
+	if db.Statement.Vars == nil || len(db.Statement.Vars) == 0 {
+		sql = db.Statement.SQL.String()
+	} else {
+		sql = db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
+	}
+
 	// 耗时
 	cost := time.Since(start.(time.Time))
 	costMs := float64(cost.Nanoseconds()) / 1e6 // 精确到小数
-	sql := db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
 
 	// 慢查询警告
 	if cost > Conf.Mysql.SlowQueryDuration {
@@ -102,8 +129,13 @@ func after(db *gorm.DB) {
 		)
 	}
 
+	traceId, ok := ctx.Value(ctxkey.TraceIdKey).(string)
+	if !ok || traceId == "" {
+		traceId = "unknown"
+	}
+
 	message.GetEventBus().Publish(debugger.TopicSql, debugger.SqlEvent{
-		TraceId: ctx.Value(ctxkey.TraceIdKey).(string),
+		TraceId: traceId,
 		Sql:     sql,
 		Rows:    db.Statement.RowsAffected,
 		Ms:      costMs,

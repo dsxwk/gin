@@ -70,8 +70,12 @@ func (p *CacheProxy) Expire(key string) (interface{}, time.Time, bool, error) {
 
 func (p *CacheProxy) publish(method, key string, val interface{}, cost time.Duration) {
 	if p.bus != nil {
+		traceId, ok := p.ctx.Value(ctxkey.TraceIdKey).(string)
+		if !ok || traceId == "" {
+			traceId = "unknown"
+		}
 		p.bus.Publish(debugger.TopicCache, debugger.CacheEvent{
-			TraceId: p.ctx.Value(ctxkey.TraceIdKey).(string),
+			TraceId: traceId,
 			Driver:  p.driver,
 			Name:    method,
 			Cmd:     key,

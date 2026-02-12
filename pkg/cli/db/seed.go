@@ -35,7 +35,7 @@ func (s *Seed) Execute(args []string) {
 	color.Green("执行命令: %s %s", s.Name(), s.FormatArgs(values))
 	color.Cyan("开始执行数据填充...")
 
-	db := config.GetDB()
+	db := config.Db{}.GetDB()
 	id := values["id"]
 	for _, seed := range migrations.AllSeeds() {
 		if id != "" && seed.ID() != id {

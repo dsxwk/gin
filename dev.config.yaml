@@ -30,9 +30,9 @@ pgsql:
   driver: pgsql
   host: 127.0.0.1
   port: 5432
-  username: root
-  password: root
-  database: gin
+  username: testuser
+  password: 123456
+  database: testdb
   # 慢查询的时间(ms) 超过这个时间会记录到日志中
   slow-query-duration: 3000ms # 3秒(time.Duration)
 

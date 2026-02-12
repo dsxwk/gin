@@ -29,7 +29,7 @@ func GetContainer() *Container {
 		instance = &Container{
 			Config:      config.GetConfig(),
 			Log:         config.GetLogger(),
-			DB:          config.GetDB(),
+			DB:          config.Db{}.GetDB(),
 			Cache:       config.GetCache(),
 			RedisCache:  config.GetRedisCache(),
 			MemoryCache: config.GetMemoryCache(),

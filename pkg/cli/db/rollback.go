@@ -39,7 +39,7 @@ func (s *Rollback) Execute(args []string) {
 	color.Green("执行命令: %s %s", s.Name(), s.FormatArgs(values))
 	color.Cyan("开始执行数据回滚...")
 
-	db := config.GetDB()
+	db := config.Db{}.GetDB()
 	id := values["id"]
 	for _, m := range migrations.AllMigrations() {
 		if id != "" && m.ID() != id {
