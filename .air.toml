@@ -8,8 +8,8 @@ bin = "tmp/main.exe"              # Binary file where your main.go compiled to
   cmd = "go build -o tmp/main.exe main.go"  # 只编译 main.go
   bin = "tmp/main.exe"
   include_ext = ["go", "tmpl"]    # Files to watch
-  exclude_dir = ["vendor", "common\\extend\\i18n\\locales", "storage"] # Excluded directories
-  exclude_file = ["cli.go"]
+  exclude_dir = ["cmd", "vendor", "common\\extend\\i18n\\locales", "storage"] # Excluded directories
+  exclude_file = ["cmd/cli.go"]
 
 [log]
   skip_dir = ["assets"]           # Directories to skip printing logs

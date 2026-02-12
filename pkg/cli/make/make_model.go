@@ -94,7 +94,7 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		ModelPkgPath:      path,
 	})
 
-	g.UseDB(config.DB)
+	g.UseDB(config.Db{}.GetDB())
 
 	dataMap := map[string]func(detailType gorm.ColumnType) (dataType string){
 		"tinyint":   func(detailType gorm.ColumnType) (dataType string) { return "int64" },
@@ -139,7 +139,7 @@ func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
 		})
 	}
 
-	color.Cyan("🚀 开始生成模型, 共 %d 张表", len(tables))
+	color.Cyan("开始生成模型, 共 %d 张表", len(tables))
 
 	for _, table := range tables {
 		color.Yellow("→ 正在生成表: %s", table)
