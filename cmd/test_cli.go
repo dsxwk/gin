@@ -3,7 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"gorm.io/driver/mysql"
+	"gin/config"
+	"github.com/fatih/color"
 	"gorm.io/gorm"
 	"os"
 	"path/filepath"
@@ -190,17 +191,11 @@ func (*{{ .Struct }}) TableName() string {
 `
 
 func main() {
-	dsn := "root:root@tcp(127.0.0.1:3306)/gin?charset=utf8mb4&parseTime=True&loc=Local"
-
-	db, err := gorm.Open(mysql.Open(dsn))
+	err := generateModel(config.Db{}.GetDB(), "user", "./models")
 	if err != nil {
-		panic(err)
+		color.Red("Generate Model Error:", err.Error())
+		os.Exit(1)
 	}
 
-	err = generateModel(db, "user", "./models")
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("Model generated!")
+	fmt.Println("Model generated success!")
 }
