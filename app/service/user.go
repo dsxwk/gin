@@ -5,7 +5,6 @@ import (
 	"gin/app/model"
 	"gin/app/request"
 	"gin/common/base"
-	"gin/config"
 	"gin/pkg"
 	"gin/pkg/container"
 	"gin/pkg/gorm/search"
@@ -19,13 +18,13 @@ type UserService struct {
 // List 列表
 func (s *UserService) List(req request.User, _search map[string]interface{}) (pageData request.PageData, err error) {
 	var (
-		m []model.User
-		//containers = container.Get(s.GetContext())
+		m          []model.User
+		containers = container.Get(s.GetContext())
 	)
 
 	offset, limit := request.Pagination(req.Page, req.PageSize)
 
-	db := config.Db{}.Connection("pgsql").WithContext(s.GetContext()).Model(&model.User{}).
+	db := containers.DB.Model(&model.User{}).
 		Preload("UserRoles")
 
 	if _search != nil {
