@@ -1,8 +1,8 @@
 package db
 
 import (
-	"gin/bootstrap"
 	"gin/common/base"
+	"gin/config"
 	"gin/database"
 	"gin/database/migrations"
 	"gin/pkg/cli"
@@ -39,7 +39,7 @@ func (s *Rollback) Execute(args []string) {
 	color.Green("执行命令: %s %s", s.Name(), s.FormatArgs(values))
 	color.Cyan("开始执行数据回滚...")
 
-	db := bootstrap.GetContainer().DB
+	db := config.GetDB()
 	id := values["id"]
 	for _, m := range migrations.AllMigrations() {
 		if id != "" && m.ID() != id {

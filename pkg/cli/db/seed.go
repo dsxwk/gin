@@ -1,8 +1,8 @@
 package db
 
 import (
-	"gin/bootstrap"
 	"gin/common/base"
+	"gin/config"
 	"gin/database/migrations"
 	"gin/pkg/cli"
 	"github.com/fatih/color"
@@ -35,7 +35,7 @@ func (s *Seed) Execute(args []string) {
 	color.Green("执行命令: %s %s", s.Name(), s.FormatArgs(values))
 	color.Cyan("开始执行数据填充...")
 
-	db := bootstrap.GetContainer().DB
+	db := config.GetDB()
 	id := values["id"]
 	for _, seed := range migrations.AllSeeds() {
 		if id != "" && seed.ID() != id {

@@ -1,8 +1,8 @@
 package db
 
 import (
-	"gin/bootstrap"
 	"gin/common/base"
+	"gin/config"
 	"gin/database"
 	"gin/database/migrations"
 	"gin/pkg/cli"
@@ -39,7 +39,7 @@ func (s *Migrate) Execute(args []string) {
 	color.Green("执行命令: %s %s", s.Name(), s.FormatArgs(values))
 	color.Cyan("开始执行数据迁移...")
 
-	db := bootstrap.GetContainer().DB
+	db := config.GetDB()
 	db.Exec(`
 CREATE TABLE IF NOT EXISTS migrations (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
