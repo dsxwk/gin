@@ -4,7 +4,7 @@ import (
 	"gin/app/model"
 	"gin/app/request"
 	"gin/common/base"
-	"gin/common/global"
+	"gin/pkg/container"
 	"gin/pkg/gorm/search"
 )
 
@@ -15,13 +15,14 @@ type MenuService struct {
 // List 列表
 func (s *MenuService) List(req request.Menu, _search map[string]interface{}) (pageData request.PageData, err error) {
 	var (
-		m    []model.Menu
-		menu model.Menu
+		m          []model.Menu
+		menu       model.Menu
+		containers = container.Get(s.GetContext())
 	)
 
 	offset, limit := request.Pagination(req.Page, req.PageSize)
 
-	db := global.DB.Model(&menu)
+	db := containers.DB.Model(&menu)
 
 	if _search != nil {
 		whereSql, args, _err := search.BuildCondition(_search, db, menu)

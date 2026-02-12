@@ -38,7 +38,7 @@ func (c *KafkaDemoConsumer) Start() {
 }
 
 func init() {
-	if config.Conf.Kafka.Enabled {
+	if config.GetConfig().Kafka.Enabled {
 		NewKafkaDemoConsumer()
 	}
 }

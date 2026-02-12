@@ -51,7 +51,7 @@ func (p *KafkaProducer) Publish(ctx context.Context, msg []byte) error {
 
 	err := p.Writer.WriteMessages(context.Background(), kmsg)
 
-	message.MsgEventBus.Publish(debugger.TopicMq, debugger.MqEvent{
+	message.GetEventBus().Publish(debugger.TopicMq, debugger.MqEvent{
 		TraceId: ctx.Value(ctxkey.TraceIdKey).(string),
 		Driver:  "kafka",
 		Topic:   p.Topic,

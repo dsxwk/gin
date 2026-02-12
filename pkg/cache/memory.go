@@ -18,7 +18,7 @@ func NewMemory(defaultExpiration, cleanupInterval time.Duration) *CacheProxy {
 	m := &MemoryCache{
 		cache: cache.New(defaultExpiration, cleanupInterval),
 	}
-	return NewCacheProxy("memory", m, message.MsgEventBus)
+	return NewCacheProxy("memory", m, message.GetEventBus())
 }
 
 func (m *MemoryCache) WithContext(ctx context.Context) *MemoryCache {

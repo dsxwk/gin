@@ -16,7 +16,7 @@ type DiskCache struct {
 	ctx context.Context
 }
 
-func NewDisk(dir string, bus *message.EventBus) *CacheProxy {
+func NewDisk(dir string) *CacheProxy {
 	opts := badger.DefaultOptions(dir)
 	db, err := badger.Open(opts)
 	if err != nil {
@@ -24,7 +24,8 @@ func NewDisk(dir string, bus *message.EventBus) *CacheProxy {
 		return nil
 	}
 	disk := &DiskCache{db: db}
-	return NewCacheProxy("disk", disk, bus)
+
+	return NewCacheProxy("disk", disk, message.GetEventBus())
 }
 
 func (d *DiskCache) WithContext(ctx context.Context) *DiskCache {

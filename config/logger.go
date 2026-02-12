@@ -13,11 +13,13 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strings"
+	"sync"
 	"time"
 )
 
 var (
-	ZapLogger *Logger
+	loggerInstance *Logger
+	loggerOnce     sync.Once
 )
 
 // Logger 包装器
@@ -25,76 +27,74 @@ type Logger struct {
 	*zap.Logger
 }
 
-// NewLogger 创建Logger包装器
-func NewLogger(zapLogger *zap.Logger) *Logger {
-	return &Logger{zapLogger}
-}
+func GetLogger() *Logger {
+	loggerOnce.Do(func() {
+		// 确保日志目录存在
+		logDir := "storage/logs"
+		if err := os.MkdirAll(logDir, os.ModePerm); err != nil {
+			color.Red(pkg.Error+"  创建日志目录失败:", err)
+			os.Exit(1)
+		}
 
-func init() {
-	// 确保日志目录存在
-	logDir := "storage/logs"
-	if err := os.MkdirAll(logDir, os.ModePerm); err != nil {
-		color.Red(pkg.Error+"  创建日志目录失败:", err)
-		os.Exit(1)
-	}
+		// 动态日志路径
+		logPath := filepath.Join(logDir, time.Now().Format("2006-01")+".log")
 
-	// 动态日志路径
-	logPath := filepath.Join(logDir, time.Now().Format("2006-01")+".log")
+		// 滚动日志配置
+		lumberJackLogger := &lumberjack.Logger{
+			Filename:   logPath,
+			MaxSize:    Conf.Log.MaxSize,
+			MaxBackups: Conf.Log.MaxBackups,
+			MaxAge:     Conf.Log.MaxDay,
+			Compress:   true,
+		}
 
-	// 滚动日志配置
-	lumberJackLogger := &lumberjack.Logger{
-		Filename:   logPath,
-		MaxSize:    Conf.Log.MaxSize,
-		MaxBackups: Conf.Log.MaxBackups,
-		MaxAge:     Conf.Log.MaxDay,
-		Compress:   true,
-	}
+		// 编码配置
+		encoderConfig := zap.NewProductionEncoderConfig()
+		// encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		encoderConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+			enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
+		}
+		encoderConfig.TimeKey = "timestamp"
+		encoderConfig.CallerKey = "caller"
+		encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+		// 格式化堆栈输出(多行缩进)
+		encoderConfig.StacktraceKey = "stackTrace"
 
-	// 编码配置
-	encoderConfig := zap.NewProductionEncoderConfig()
-	// encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
-	}
-	encoderConfig.TimeKey = "timestamp"
-	encoderConfig.CallerKey = "caller"
-	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
-	// 格式化堆栈输出(多行缩进)
-	encoderConfig.StacktraceKey = "stackTrace"
+		// 创建encoder,同时输出到文件 + 控制台
+		fileEncoder := zapcore.NewJSONEncoder(encoderConfig)
+		consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 
-	// 创建encoder,同时输出到文件 + 控制台
-	fileEncoder := zapcore.NewJSONEncoder(encoderConfig)
-	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
+		// 动态设置日志级别
+		level := zap.NewAtomicLevel()
+		switch strings.ToLower(Conf.Log.Level) {
+		case "debug":
+			level.SetLevel(zap.DebugLevel)
+		case "warn":
+			level.SetLevel(zap.WarnLevel)
+		case "error":
+			level.SetLevel(zap.ErrorLevel)
+		default:
+			level.SetLevel(zap.InfoLevel)
+		}
 
-	// 动态设置日志级别
-	level := zap.NewAtomicLevel()
-	switch strings.ToLower(Conf.Log.Level) {
-	case "debug":
-		level.SetLevel(zap.DebugLevel)
-	case "warn":
-		level.SetLevel(zap.WarnLevel)
-	case "error":
-		level.SetLevel(zap.ErrorLevel)
-	default:
-		level.SetLevel(zap.InfoLevel)
-	}
+		// 创建核心
+		core := zapcore.NewTee(
+			zapcore.NewCore(fileEncoder, zapcore.AddSync(lumberJackLogger), level),
+			zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level),
+		)
 
-	// 创建核心
-	core := zapcore.NewTee(
-		zapcore.NewCore(fileEncoder, zapcore.AddSync(lumberJackLogger), level),
-		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level),
-	)
+		// 初始化 Logger
+		zapLogger := zap.New(
+			core,
+			zap.AddCaller(),
+			zap.AddCallerSkip(1),
+			zap.AddStacktrace(zapcore.ErrorLevel), // 自动为error级别以上日志添加堆栈
+		)
+		zap.ReplaceGlobals(zapLogger) // 替换全局 zap.L()
+		loggerInstance = &Logger{zapLogger}
+	})
 
-	// 初始化 Logger
-	zapLogger := zap.New(
-		core,
-		zap.AddCaller(),
-		zap.AddCallerSkip(1),
-		zap.AddStacktrace(zapcore.ErrorLevel), // 自动为error级别以上日志添加堆栈
-	)
-	zap.ReplaceGlobals(zapLogger) // 替换全局 zap.L()
-
-	ZapLogger = NewLogger(zapLogger)
+	return loggerInstance
 }
 
 func (l *Logger) WithDebugger(c context.Context) *zap.Logger {

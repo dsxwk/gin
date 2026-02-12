@@ -54,7 +54,7 @@ type RabbitmqProducer struct {
 func InitRabbitmq() *RabbitMq {
 	rmq, err := NewRabbitMq(config.Conf.Rabbitmq.Url)
 	if err != nil {
-		config.ZapLogger.Error("RabbitMq连接失败: " + err.Error())
+		config.GetLogger().Error("RabbitMq连接失败: " + err.Error())
 	}
 	return rmq
 }
@@ -108,7 +108,7 @@ func (p *RabbitmqProducer) Publish(ctx context.Context, msg []byte) error {
 
 	err := p.Mq.Channel.Publish(p.Exchange, p.Routing, false, false, pub)
 
-	message.MsgEventBus.Publish(debugger.TopicMq, debugger.MqEvent{
+	message.GetEventBus().Publish(debugger.TopicMq, debugger.MqEvent{
 		TraceId: ctx.Value(ctxkey.TraceIdKey).(string),
 		Driver:  "rabbitmq",
 		Topic:   p.Exchange + ":" + p.Routing,

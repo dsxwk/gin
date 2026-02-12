@@ -1,15 +1,11 @@
 package v1
 
 import (
-	"gin/app/event"
-	"gin/app/middleware"
 	"gin/app/model"
 	"gin/app/request"
 	"gin/app/service"
 	"gin/common/base"
 	"gin/common/errcode"
-	"gin/common/global"
-	"gin/pkg/eventbus"
 	"gin/pkg/lang"
 	"github.com/gin-gonic/gin"
 )
@@ -46,11 +42,10 @@ func (s *LoginController) Login(c *gin.Context) {
 	var (
 		svc service.LoginService
 		req request.Login
-		jwt middleware.Jwt
 		ctx = c.Request.Context()
 	)
 
-	svc.Context.Set(ctx)
+	svc.WithContext(ctx)
 
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -65,23 +60,11 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	userModel, err := svc.Login(req.Username, req.Password)
+	err, userModel, accessToken, refreshToken, tokenExpire, refreshTokenExpire := svc.Login(req.Username, req.Password)
 	if err != nil {
 		s.Error(c, errcode.SystemError().WithMsg(lang.T(ctx, err.Error(), nil)))
 		return
 	}
-
-	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := jwt.WithRefresh(userModel.ID, global.Config.Jwt.Exp, global.Config.Jwt.RefreshExp)
-	if err != nil {
-		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
-		return
-	}
-
-	// 发布事件
-	eventbus.Publish(ctx, event.UserLoginEvent{
-		UserId:   userModel.ID,
-		Username: userModel.Username,
-	})
 
 	s.Success(
 		c, errcode.Success().WithMsg(
@@ -118,7 +101,7 @@ func (s *LoginController) RefreshToken(c *gin.Context) {
 		ctx = c.Request.Context()
 	)
 
-	svc.Context.Set(ctx)
+	svc.WithContext(ctx)
 
 	token := c.Request.Header.Get("token")
 	req.RefreshToken.Token = token

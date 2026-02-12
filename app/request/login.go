@@ -55,15 +55,15 @@ func (s Login) ConfigValidation(v *validate.Validation) {
 // Messages 验证器错误消息
 func (s Login) Messages() map[string]string {
 	return validate.MS{
-		"required": lang.T(s.Context.Get(), "validator.common.field", nil) + " {field} " + lang.T(s.Context.Get(), "validator.common.required", nil),
+		"required": lang.T(s.GetContext(), "validator.common.field", nil) + " {field} " + lang.T(s.GetContext(), "validator.common.required", nil),
 	}
 }
 
 // Translates 字段翻译
 func (s Login) Translates() map[string]string {
 	return validate.MS{
-		"UserLogin.Username": lang.T(s.Context.Get(), "validator.login.username", nil),
-		"UserLogin.Password": lang.T(s.Context.Get(), "validator.login.password", nil),
-		"RefreshToken.Token": lang.T(s.Context.Get(), "validator.login.refreshToken", nil),
+		"UserLogin.Username": lang.T(s.GetContext(), "validator.login.username", nil),
+		"UserLogin.Password": lang.T(s.GetContext(), "validator.login.password", nil),
+		"RefreshToken.Token": lang.T(s.GetContext(), "validator.login.refreshToken", nil),
 	}
 }

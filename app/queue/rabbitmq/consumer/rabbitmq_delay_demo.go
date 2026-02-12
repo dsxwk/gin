@@ -38,7 +38,7 @@ func (c *RabbitmqDelayDemoConsumer) Handle(msg string) error {
 }
 
 func init() {
-	if config.Conf.Rabbitmq.Enabled {
+	if config.GetConfig().Rabbitmq.Enabled {
 		NewRabbitmqDelayDemoConsumer()
 	}
 }

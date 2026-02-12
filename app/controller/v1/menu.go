@@ -32,7 +32,7 @@ func (s *MenuController) List(c *gin.Context) {
 		ctx = c.Request.Context()
 	)
 
-	svc.Context.Set(ctx)
+	svc.WithContext(ctx)
 
 	err := c.ShouldBind(&_s)
 	if err != nil {

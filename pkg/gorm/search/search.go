@@ -61,7 +61,7 @@ SELECT * FROM `user` WHERE ((((user.created_at > '2025-01-01') AND (user.created
 }
 `
 `
-db := global.DB.Model(&model.Menu{})
+db := DB.Model(&model.Menu{})
 if _search != nil {
 	whereSql, args, _ := search.BuildCondition(_search, db, model.Menu{})
 

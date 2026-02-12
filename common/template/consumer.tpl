@@ -56,11 +56,11 @@ func (c *{{.Name}}) Handle(msg string) error {
 
 func init() {
 	{{- if eq .Type "kafka"}}
-	if config.Conf.Kafka.Enabled {
+	if config.GetConfig().Kafka.Enabled {
 		New{{.Name}}()
 	}
 	{{- else}}
-	if config.Conf.Rabbitmq.Enabled {
+	if config.GetConfig().Rabbitmq.Enabled {
 		New{{.Name}}()
 	}
 	{{end}}

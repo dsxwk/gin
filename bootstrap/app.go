@@ -9,6 +9,7 @@ import (
 	_ "gin/app/queue/rabbitmq/consumer"
 	"gin/config"
 	"gin/pkg"
+	"gin/pkg/container"
 	"gin/pkg/debugger"
 	"gin/pkg/lang"
 	"gin/pkg/message"
@@ -26,10 +27,11 @@ import (
 )
 
 type App struct {
-	Engine *gin.Engine
+	Engine    *gin.Engine
+	Container *container.Container
 }
 
-func NewApp() *App {
+func NewApp(c *container.Container) *App {
 	var (
 		r = gin.New()
 	)
@@ -49,7 +51,8 @@ func NewApp() *App {
 	router.LoadRouters(r)
 
 	return &App{
-		Engine: r,
+		Engine:    r,
+		Container: c,
 	}
 }
 
@@ -59,7 +62,7 @@ func (a *App) Run() {
 	// 加载翻译
 	lang.LoadLang()
 	// debugger订阅
-	dbg := debugger.NewDebugger(message.MsgEventBus)
+	dbg := debugger.NewDebugger(message.GetEventBus())
 	dbg.Start()
 	defer dbg.Stop()
 

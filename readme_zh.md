@@ -96,6 +96,8 @@
     - [常规翻译](#常规翻译)
     - [模版翻译](#模版翻译)
     - [添加语言](#添加语言)
+  - [容器](#容器)
+    - [容器使用](#容器使用) 
   - [swagger文档](#swagger文档)
 
 # 项目简介
@@ -118,6 +120,9 @@
 - 💼 商业版: 如需闭源或商业使用，请联系作者📧  [25076778@qq.com] 获取商业授权。
 
 # 版本记录
+## v1.7.4
+> - 取消全局变量,新增容器通过bootstrap初始化,通过中间件绑定context上下文,只要有上下文的地方都可以获取容器实例,数据库、缓存、日志、配置都可通过容器实例获取。
+
 ## v1.7.3
 > - 调整rabbitmq移除不维护的包使用新的包
 
@@ -268,7 +273,6 @@ $ ./cli demo-command --args=11
 │   ├── base                            # 基类
 │   ├── errcode                         # 错误码
 │   ├── response                        # 响应
-│   ├── global                          # 全局变量
 │   ├── template                        # 模版
 ├── config                              # 配置文件
 ├── database                            # 数据库测试文件
@@ -276,6 +280,7 @@ $ ./cli demo-command --args=11
 ├── pkg                                 # 工具包
 │   ├──├── cache                        # 缓存
 │   ├──├── cli                          # 命令行
+│   ├──├── container                    # 容器
 │   ├──├── eventbus                     # 事件
 │   ├──├── lang                         # 多语言
 ├── public                              # 静态资源
@@ -327,7 +332,6 @@ watching app\service
 watching common
 watching common\base
 watching common\errcode
-watching common\global
 watching common\response
 watching common\template
 watching config
@@ -852,7 +856,7 @@ func (s *UserController) List(c *gin.Context) {
         ctx = c.Request.Context()
 	)
 
-    svc.Context.Set(ctx)
+    svc.WithContext(ctx)
 	
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -1111,14 +1115,15 @@ $ ./cli demo-test --args=arg1
 ```go
 import (
 	"fmt"
-    "gin/common/global"
+    "gin/bootstrap"
 )
 
-func Test()  {
+func Test() {
     // Set 设置缓存	
     key := "test_key"
     value := "test_value"
-    err := global.Cache.Set(key, value, time.Second*10)
+	cache := bootstrap.GetContainer().Cache
+    err := cache.Set(key, value, time.Second*10)
 	if err != nil {
 	    // 处理错误	
     }
@@ -1126,21 +1131,21 @@ func Test()  {
     // Get 获取缓存
     key := "test_key"
     value := "test_value"
-    result, ok := global.Cache.Get(key)
+    result, ok := cache.Get(key)
 	if ok {
 	    println(result) // test_value	
     }
 	
 	// Delete 删除缓存
 	key := "test_key"
-	err := global.Cache.Delete(key)
+	err := cache.Delete(key)
 	if err != nil {
         // 处理错误	
     }
 	
 	// Expire 获取缓存过期时间
 	key := "test_key"
-    val, expireAt, ok, err := global.Cache.Expire(key)
+    val, expireAt, ok, err := cache.Expire(key)
 	if err != nil {
 	    // 处理错误
     }
@@ -1155,14 +1160,15 @@ func Test()  {
 ```go
 import (
 	"fmt"
-    "gin/common/global"
+    "gin/bootstrap"
 )
 
-func Test()  {
+func Test() {
     // Set 设置缓存	
     key := "test_key"
     value := "test_value"
-    err := global.RedisCache.Set(key, value, time.Second*10)
+	redisCache := bootstrap.GetContainer().RedisCache
+    err := redisCache.Set(key, value, time.Second*10)
 	if err != nil {
 	    // 处理错误	
     }
@@ -1170,21 +1176,21 @@ func Test()  {
     // Get 获取缓存
     key := "test_key"
     value := "test_value"
-    result, ok := global.RedisCache.Get(key)
+    result, ok := redisCache.Get(key)
 	if ok {
 	    println(result) // test_value	
     }
 	
 	// Delete 删除缓存
 	key := "test_key"
-	err := global.RedisCache.Delete(key)
+	err := redisCache.Delete(key)
 	if err != nil {
         // 处理错误	
     }
 	
 	// Expire 获取缓存过期时间
 	key := "test_key"
-    val, expireAt, ok, err := global.RedisCache.Expire(key)
+    val, expireAt, ok, err := redisCache.Expire(key)
 	if err != nil {
 	    // 处理错误
     }
@@ -1201,14 +1207,15 @@ func Test()  {
 ```go
 import (
 	"fmt"
-    "gin/common/global"
+    "gin/bootstrap"
 )
 
-func Test()  {
+func Test() {
     // Set 设置缓存	
     key := "test_key"
     value := "test_value"
-    err := global.MemoryCache.Set(key, value, time.Second*10)
+    memoryCache := bootstrap.GetContainer().MemoryCache
+    err := memoryCache.Set(key, value, time.Second*10)
 	if err != nil {
 	    // 处理错误	
     }
@@ -1216,21 +1223,21 @@ func Test()  {
     // Get 获取缓存
     key := "test_key"
     value := "test_value"
-    result, ok := global.MemoryCache.Get(key)
+    result, ok := memoryCache.Get(key)
 	if ok {
 	    println(result) // test_value	
     }
 	
 	// Delete 删除缓存
 	key := "test_key"
-	err := global.MemoryCache.Delete(key)
+	err := memoryCache.Delete(key)
 	if err != nil {
         // 处理错误	
     }
 	
 	// Expire 获取缓存过期时间
 	key := "test_key"
-    val, expireAt, ok, err := global.MemoryCache.Expire(key)
+    val, expireAt, ok, err := memoryCache.Expire(key)
 	if err != nil {
 	    // 处理错误
     }
@@ -1245,41 +1252,49 @@ func Test()  {
 
 ## 磁盘缓存
 ```go
-// Set 设置缓存	
+import (
+    "fmt"
+    "gin/bootstrap"
+)
+
+func Test() {
+    // Set 设置缓存	
     key := "test_key"
     value := "test_value"
-    err := global.DiskCache.Set(key, value, time.Second*10)
-	if err != nil {
-	    // 处理错误	
+    diskCache := bootstrap.GetContainer().DiskCache
+    err := diskCache.Set(key, value, time.Second*10)
+    if err != nil {
+        // 处理错误	
     }
-	
+    
     // Get 获取缓存
     key := "test_key"
     value := "test_value"
-    result, ok := global.DiskCache.Get(key)
-	if ok {
-	    println(result) // test_value	
+    result, ok := diskCache.Get(key)
+    if ok {
+        println(result) // test_value	
     }
-	
-	// Delete 删除缓存
-	key := "test_key"
-	err := global.DiskCache.Delete(key)
-	if err != nil {
+    
+    // Delete 删除缓存
+    key := "test_key"
+    err := diskCache.Delete(key)
+    if err != nil {
         // 处理错误	
     }
-	
-	// Expire 获取缓存过期时间
-	key := "test_key"
-    val, expireAt, ok, err := global.DiskCache.Expire(key)
-	if err != nil {
-	    // 处理错误
+    
+    // Expire 获取缓存过期时间
+    key := "test_key"
+    val, expireAt, ok, err := diskCache.Expire(key)
+    if err != nil {
+        // 处理错误
     }
-	if ok {
-      fmt.Println(val) // test_value
-      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    if ok {
+        fmt.Println(val) // test_value
+        fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
     }
-	
-	// ... 其他
+    
+    // ... 其他	
+}
 ```
 
 # 事件
@@ -1472,7 +1487,7 @@ import (
 	"gin/app/service"
 	"gin/common/base"
 	"gin/common/errcode"
-	"gin/common/global"
+    "gin/pkg/container"
 	"gin/pkg/eventbus"
 	"gin/pkg/lang"
 	"github.com/gin-gonic/gin"
@@ -1514,7 +1529,7 @@ func (s *LoginController) Login(c *gin.Context) {
         ctx = c.Request.Context()
 	)
 
-    svc.Context.Set(ctx)
+    svc.WithContext(ctx)
 	
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -1535,7 +1550,8 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := jwt.WithRefresh(userModel.ID, global.Config.Jwt.Exp, global.Config.Jwt.RefreshExp)
+    containers := container.Get(ctx)
+	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := jwt.WithRefresh(userModel.ID, containers.Config.Jwt.Exp, containers.Config.Jwt.RefreshExp)
 	if err != nil {
 		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
@@ -1767,13 +1783,13 @@ func (s *TestController) Test(c *gin.Context) {
 }
 ```
 ## 记录日志
-> 已封装全局日志在`global`包中，可直接使用`global.Log`记录日志, 日志级别支持debug、info、warn、error、panic、fatal, 默认为`debug`。
+> 已封装在包含上下文的容器中, 日志级别支持debug、info、warn、error、panic、fatal, 默认为`debug`。
 ```go
 package v1
 
 import (
     "gin/common/base"
-    "gin/common/global"
+    "gin/pkg/container"
     "github.com/gin-gonic/gin"
 )
 
@@ -1782,7 +1798,8 @@ type TestController struct {
 }
 
 func (s *TestController) Test(c *gin.Context) {
-  global.Log.Error("System Error")
+    containers := container.Get(c.Request.Context())
+    containers.Log.Error("System Error")
 }
 ```
 
@@ -1793,7 +1810,7 @@ package v1
 
 import (
     "gin/common/base"
-    "gin/common/global"
+    "gin/pkg/container"
     "github.com/gin-gonic/gin"
 )
 
@@ -1803,8 +1820,8 @@ type TestController struct {
 
 func (s *TestController) Test(c *gin.Context) {
   ctx := c.Request.Context()
-	
-  global.Log.WithDebugger(ctx).Error("System Error")
+  containers := container.Get(ctx)
+  containers.Log.WithDebugger(ctx).Error("System Error")
 }
 ```
 ```json
@@ -1896,6 +1913,29 @@ func Test(c *gin.Context)  {
 i18n:
   dir: "storage/locales" # 翻译文件存放路径
   lang: "zh,en" # 默认语言,多个语言用逗号分隔
+```
+
+# 容器
+## 容器使用
+> 容器通过bootstrap初始化,通过中间件绑定context上下文,只要有上下文的地方都可以获取容器实例。
+```go
+import (
+    "gin/pkg/container"
+    "github.com/gin-gonic/gin"
+)
+
+func Test(c *gin.Context)  {
+    ctx := c.Request.Context()
+    containers := container.Get(ctx)
+    db := containers.DB;
+    cache := containers.Cache;
+	redisCache := containers.RedisCache;
+	memoryCache := containers.MemoryCache;
+	diskCache := containers.DiskCache;
+	conf := containers.Config;
+	log := containers.Log;
+    // todo ...
+}
 ```
 
 # swagger文档

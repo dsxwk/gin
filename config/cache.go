@@ -2,21 +2,31 @@ package config
 
 import (
 	"gin/pkg/cache"
+	"sync"
 )
 
-func CacheInstance() *cache.CacheProxy {
-	var instance *cache.CacheProxy
+var (
+	instance  *cache.CacheProxy
+	cacheOnce sync.Once
+)
 
-	switch Conf.Cache.Driver {
-	case "redis":
-		instance = RedisInstance()
-	case "", "memory":
-		instance = MemoryInstance()
-	case "disk":
-		instance = DiskInstance()
-	default:
-		ZapLogger.Fatal("不支持的缓存驱动: " + Conf.Cache.Driver)
-	}
+func GetCache() *cache.CacheProxy {
+	cacheOnce.Do(func() {
+		switch Conf.Cache.Driver {
+
+		case "redis":
+			instance = GetRedisCache()
+
+		case "", "memory":
+			instance = GetMemoryCache()
+
+		case "disk":
+			instance = GetDiskCache()
+
+		default:
+			GetLogger().Fatal("不支持的缓存驱动: " + Conf.Cache.Driver)
+		}
+	})
 
 	return instance
 }

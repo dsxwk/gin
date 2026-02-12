@@ -2,7 +2,7 @@ package response
 
 import (
 	"gin/common/errcode"
-	"gin/common/global"
+	"gin/config"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -58,9 +58,9 @@ func Error(c *gin.Context, e *errcode.ErrorCode) {
 	)
 
 	if e != nil {
-		global.Log.WithDebugger(ctx).Error(e.Msg)
+		config.GetLogger().WithDebugger(ctx).Error(e.Msg)
 	} else {
-		global.Log.WithDebugger(ctx).Error(errcode.SystemError().Msg)
+		config.GetLogger().WithDebugger(ctx).Error(errcode.SystemError().Msg)
 	}
 
 	switch e {

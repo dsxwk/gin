@@ -5,8 +5,8 @@ import (
 	"gin/app/model"
 	"gin/app/request"
 	"gin/common/base"
-	"gin/common/global"
 	"gin/pkg"
+	"gin/pkg/container"
 	"gin/pkg/gorm/search"
 	"time"
 )
@@ -18,12 +18,13 @@ type UserService struct {
 // List 列表
 func (s *UserService) List(req request.User, _search map[string]interface{}) (pageData request.PageData, err error) {
 	var (
-		m []model.User
+		m          []model.User
+		containers = container.Get(s.GetContext())
 	)
 
 	offset, limit := request.Pagination(req.Page, req.PageSize)
 
-	db := global.DB.Model(&model.User{}).
+	db := containers.DB.Model(&model.User{}).
 		Preload("UserRoles")
 
 	if _search != nil {
@@ -54,11 +55,12 @@ func (s *UserService) List(req request.User, _search map[string]interface{}) (pa
 // Create 创建
 func (s *UserService) Create(m model.User) (model.User, error) {
 	var (
-		count int64
+		count      int64
+		containers = container.Get(s.GetContext())
 	)
 
 	// 校验用户名是否重复
-	err := global.DB.Model(&model.User{}).Where("username = ?", m.Username).Count(&count).Error
+	err := containers.DB.Model(&model.User{}).Where("username = ?", m.Username).Count(&count).Error
 	if err != nil {
 		return m, err
 	}
@@ -68,7 +70,7 @@ func (s *UserService) Create(m model.User) (model.User, error) {
 
 	// 处理密码
 	m.Password = pkg.BcryptHash(m.Password)
-	err = global.DB.Create(&m).Error
+	err = containers.DB.Create(&m).Error
 	if err != nil {
 		return m, err
 	}
@@ -79,11 +81,12 @@ func (s *UserService) Create(m model.User) (model.User, error) {
 // Update 更新
 func (s *UserService) Update(id int64, m model.User) error {
 	var (
-		count int64
+		count      int64
+		containers = container.Get(s.GetContext())
 	)
 
 	// 校验用户名是否重复
-	err := global.DB.Model(&model.User{}).Where("username = ? AND id <> ?", m.Username, m.ID).Count(&count).Error
+	err := containers.DB.Model(&model.User{}).Where("username = ? AND id <> ?", m.Username, m.ID).Count(&count).Error
 	if err != nil {
 		return err
 	}
@@ -93,7 +96,7 @@ func (s *UserService) Update(id int64, m model.User) error {
 	data := request.FilterMapByKeys(m, request.UserUpdateKeys)
 	data["updated_at"] = time.DateTime
 
-	err = global.DB.Model(&model.User{}).Where("id = ?", id).Updates(data).Error
+	err = containers.DB.Model(&model.User{}).Where("id = ?", id).Updates(data).Error
 	if err != nil {
 		return err
 	}
@@ -103,7 +106,8 @@ func (s *UserService) Update(id int64, m model.User) error {
 
 // Detail 详情
 func (s *UserService) Detail(id int64) (m model.User, err error) {
-	err = global.DB.First(&m, id).Error
+	containers := container.Get(s.GetContext())
+	err = containers.DB.First(&m, id).Error
 	if err != nil {
 		return m, err
 	}
@@ -113,7 +117,8 @@ func (s *UserService) Detail(id int64) (m model.User, err error) {
 
 // Delete 删除
 func (s *UserService) Delete(id int64) (m model.User, err error) {
-	err = global.DB.Delete(&m, id).Error
+	containers := container.Get(s.GetContext())
+	err = containers.DB.Delete(&m, id).Error
 	if err != nil {
 		return m, err
 	}

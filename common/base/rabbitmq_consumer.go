@@ -40,7 +40,7 @@ func (c *RabbitmqConsumer) Start(h queue.Handler) {
 				false,
 				args,
 			); err != nil {
-				config.ZapLogger.Error("[RabbitMq] ExchangeDeclare error: " + err.Error())
+				config.GetLogger().Error("[RabbitMq] ExchangeDeclare error: " + err.Error())
 				time.Sleep(time.Second)
 				continue
 			}
@@ -53,7 +53,7 @@ func (c *RabbitmqConsumer) Start(h queue.Handler) {
 				false,
 				nil,
 			); err != nil {
-				config.ZapLogger.Error("[RabbitMq] QueueDeclare error: " + err.Error())
+				config.GetLogger().Error("[RabbitMq] QueueDeclare error: " + err.Error())
 				time.Sleep(time.Second)
 				continue
 			}
@@ -65,7 +65,7 @@ func (c *RabbitmqConsumer) Start(h queue.Handler) {
 				false,
 				nil,
 			); err != nil {
-				config.ZapLogger.Error("[RabbitMq] QueueBind error: " + err.Error())
+				config.GetLogger().Error("[RabbitMq] QueueBind error: " + err.Error())
 				time.Sleep(time.Second)
 				continue
 			}
@@ -80,7 +80,7 @@ func (c *RabbitmqConsumer) Start(h queue.Handler) {
 				nil,
 			)
 			if err != nil {
-				config.ZapLogger.Error("[RabbitMq] Consume error: " + err.Error())
+				config.GetLogger().Error("[RabbitMq] Consume error: " + err.Error())
 				time.Sleep(time.Second)
 				continue
 			}
@@ -92,16 +92,16 @@ func (c *RabbitmqConsumer) Start(h queue.Handler) {
 						err = h.Handle(string(msg.Body))
 						if err == nil {
 							if ackErr := msg.Ack(false); ackErr != nil {
-								config.ZapLogger.Error("[RabbitMq] Ack error: " + ackErr.Error())
+								config.GetLogger().Error("[RabbitMq] Ack error: " + ackErr.Error())
 							}
 							break
 						}
 
 						retry++
 						if retry >= c.Retry {
-							config.ZapLogger.Error("[RabbitMq] Retry failed: " + string(msg.Body))
+							config.GetLogger().Error("[RabbitMq] Retry failed: " + string(msg.Body))
 							if ackErr := msg.Ack(false); ackErr != nil {
-								config.ZapLogger.Error("[RabbitMq] Ack error: " + ackErr.Error())
+								config.GetLogger().Error("[RabbitMq] Ack error: " + ackErr.Error())
 							}
 							break
 						}

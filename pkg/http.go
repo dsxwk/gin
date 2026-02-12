@@ -96,7 +96,7 @@ func HttpRequest(ctx context.Context, method, uri string, opt *HttpOption) (stri
 		cost := time.Since(start)
 		costMs := float64(cost.Nanoseconds()) / 1e6
 
-		message.MsgEventBus.Publish(debugger.TopicHttp, debugger.HttpEvent{
+		message.GetEventBus().Publish(debugger.TopicHttp, debugger.HttpEvent{
 			TraceId:  ctx.Value(ctxkey.TraceIdKey).(string),
 			Url:      uri,
 			Method:   method,

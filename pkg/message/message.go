@@ -6,8 +6,19 @@ import (
 )
 
 var (
-	MsgEventBus = New()
+	eventBus  *EventBus
+	eventOnce sync.Once
 )
+
+func GetEventBus() *EventBus {
+	eventOnce.Do(func() {
+		eventBus = &EventBus{
+			subscribers: make(map[string][]*subscriber),
+		}
+	})
+
+	return eventBus
+}
 
 type SubscriberFunc func(event any)
 
@@ -21,12 +32,6 @@ type EventBus struct {
 	subscribers map[string][]*subscriber
 	mu          sync.RWMutex
 	idCounter   uint64
-}
-
-func New() *EventBus {
-	return &EventBus{
-		subscribers: make(map[string][]*subscriber),
-	}
 }
 
 // SubscribeAsync 订阅(异步)

@@ -55,7 +55,7 @@ func Register[T base.Event](listener base.Listener[T], event T) {
 
 // Publish 发布事件
 func Publish[T base.Event](ctx context.Context, e T) {
-	message.MsgEventBus.Publish(debugger.TopicListener, debugger.ListenerEvent{
+	message.GetEventBus().Publish(debugger.TopicListener, debugger.ListenerEvent{
 		TraceId:     ctx.Value(ctxkey.TraceIdKey).(string),
 		Name:        e.Name(),
 		Description: e.Description(),

@@ -38,7 +38,7 @@ func (c *RabbitmqDemoConsumer) Handle(msg string) error {
 }
 
 func init() {
-	if config.Conf.Rabbitmq.Enabled {
+	if config.GetConfig().Rabbitmq.Enabled {
 		NewRabbitmqDemoConsumer()
 	}
 }

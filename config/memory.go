@@ -1,7 +1,21 @@
 package config
 
-import "gin/pkg/cache"
+import (
+	"gin/pkg/cache"
+	"sync"
+)
 
-func MemoryInstance() *cache.CacheProxy {
-	return cache.NewMemory(Conf.Cache.Memory.DefaultExpire, Conf.Cache.Memory.CleanupInterval)
+var (
+	memoryCache *cache.CacheProxy
+	memoryOnce  sync.Once
+)
+
+func GetMemoryCache() *cache.CacheProxy {
+	memoryOnce.Do(func() {
+		memoryCache = cache.NewMemory(
+			Conf.Cache.Memory.DefaultExpire,
+			Conf.Cache.Memory.CleanupInterval,
+		)
+	})
+	return memoryCache
 }

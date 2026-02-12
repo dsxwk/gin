@@ -5,9 +5,9 @@ import (
 	"context"
 	"gin/common/base"
 	"gin/common/ctxkey"
-	"gin/common/global"
 	"gin/common/trace"
 	"gin/config"
+	"gin/pkg/container"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -36,10 +36,10 @@ func (s Logger) Handle() gin.HandlerFunc {
 		ctx = context.WithValue(ctx, ctxkey.ParamsKey, s.getParams(c))
 		ctx = context.WithValue(ctx, ctxkey.LangKey, lang)
 		ctx = context.WithValue(ctx, ctxkey.StartTimeKey, start)
+		ctx = container.Set(ctx, container.GetContainer().WithContext(ctx))
 
 		c.Request = c.Request.WithContext(ctx)
 		c.Header("Trace-Id", traceId)
-		s.WithContext(ctx)
 
 		defer func() {
 			// 清理trace
@@ -51,8 +51,8 @@ func (s Logger) Handle() gin.HandlerFunc {
 
 		c.Next()
 
-		if global.Config.Log.Access {
-			global.Log.WithDebugger(ctx).Info("Access Log")
+		if config.GetConfig().Log.Access {
+			config.GetLogger().WithDebugger(ctx).Info("Access Log")
 		}
 	}
 }
@@ -117,13 +117,4 @@ func (s *Logger) matchLang(input string, supported []string) string {
 		}
 	}
 	return ""
-}
-
-func (s *Logger) WithContext(ctx context.Context) {
-	config.DB = config.DB.WithContext(ctx)
-	global.DB = global.DB.WithContext(ctx)
-	global.Cache = global.Cache.WithContext(ctx)
-	global.RedisCache = global.RedisCache.WithContext(ctx)
-	global.MemoryCache = global.MemoryCache.WithContext(ctx)
-	global.DiskCache = global.DiskCache.WithContext(ctx)
 }

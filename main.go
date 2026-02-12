@@ -2,6 +2,7 @@ package main
 
 import (
 	"gin/bootstrap"
+	"gin/pkg/container"
 )
 
 //go:generate go env -w GO111MODULE=on
@@ -20,5 +21,6 @@ import (
 // @contact.email 25076778@qq.com
 // @host 127.0.0.1:8080
 func main() {
-	bootstrap.NewApp().Run()
+	c := container.GetContainer()
+	bootstrap.NewApp(c).Run()
 }

@@ -96,6 +96,8 @@
     - [Ordinary Translation](#Ordinary-Translation) 
     - [Template Translation](#Template-Translation) 
     - [Add Language Support](#Add-Language-Support) 
+  - [Container](#Container)
+    - [Container Usage](#Container Usage)
   - [Swagger Documents](#Swagger-Documents)
 
 # Project Introduction
@@ -118,6 +120,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.7.4
+> - Cancel global variables, initialize new containers through bootstrap, bind context through middleware, and obtain container instances wherever there is context. Databases, caches, logs, and configurations can all be obtained through container instances.
+
 ## v1.7.3
 > - Adjust RabbitMQ to remove unmaintained packages and use new packages
 
@@ -268,7 +273,6 @@ Excute Command: demo-command, Argument: 11
 │   ├── base                            # Base
 │   ├── errcode                         # Errcode
 │   ├── response                        # Response
-│   ├── global                          # Global Variable
 │   ├── template                        # Template
 ├── config                              # Config File
 ├── database                            # Database Test File 
@@ -276,6 +280,7 @@ Excute Command: demo-command, Argument: 11
 ├── pkg                                 # Pakage
 │   ├──├── cache                        # Cache
 │   ├──├── cli                          # Command
+│   ├──├── container                    # Container
 │   ├──├── eventbus                     # Event Bus
 │   ├──├── lang                         # Language
 ├── public                              # Static Resources
@@ -327,7 +332,6 @@ watching app\service
 watching common
 watching common\base
 watching common\errcode
-watching common\global
 watching common\response
 watching common\template
 watching config
@@ -851,7 +855,7 @@ func (s *UserController) List(c *gin.Context) {
         ctx = c.Request.Context()
 	)
 
-    svc.Context.Set(ctx)
+    svc.WithContext(ctx)
 
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -1110,14 +1114,15 @@ $ ./cli demo-test --args=arg1
 ```go
 import (
 	"fmt"
-    "gin/common/global"
+    "gin/bootstrap"
 )
 
 func Test()  {
     // Set Set-Cache	
     key := "test_key"
     value := "test_value"
-    err := global.Cache.Set(key, value, time.Second*10)
+    cache := bootstrap.GetContainer().Cache
+    err := cache.Set(key, value, time.Second*10)
 	if err != nil {
 	    // Handle error	
     }
@@ -1125,21 +1130,21 @@ func Test()  {
     // Get Get-Cache
     key := "test_key"
     value := "test_value"
-    result, ok := global.Cache.Get(key)
+    result, ok := cache.Get(key)
 	if ok {
 	    println(result) // test_value	
     }
 	
 	// Delete Delete-Cache
 	key := "test_key"
-	err := global.Cache.Delete(key)
+	err := cache.Delete(key)
 	if err != nil {
         // Handle error	
     }
 	
 	// Expire Get-Cache-Expire
 	key := "test_key"
-    val, expireAt, ok, err := global.Cache.Expire(key)
+    val, expireAt, ok, err := cache.Expire(key)
 	if err != nil {
 	    // Handle error
     }
@@ -1154,14 +1159,15 @@ func Test()  {
 ```go
 import (
 	"fmt"
-    "gin/common/global"
+    "gin/bootstrap"
 )
 
 func Test()  {
     // Set Set-Cache	
     key := "test_key"
     value := "test_value"
-    err := global.RedisCache.Set(key, value, time.Second*10)
+    redisCache := bootstrap.GetContainer().RedisCache
+    err := redisCache.Set(key, value, time.Second*10)
 	if err != nil {
 	    // Handle error	
     }
@@ -1169,21 +1175,21 @@ func Test()  {
     // Get Get-Cache
     key := "test_key"
     value := "test_value"
-    result, ok := global.RedisCache.Get(key)
+    result, ok := redisCache.Get(key)
 	if ok {
 	    println(result) // test_value	
     }
 	
 	// Delete Delete-Cache
 	key := "test_key"
-	err := global.RedisCache.Delete(key)
+	err := redisCache.Delete(key)
 	if err != nil {
         // Handle error	
     }
 	
 	// Expire Get-Cache-Expire
 	key := "test_key"
-    val, expireAt, ok, err := global.RedisCache.Expire(key)
+    val, expireAt, ok, err := redisCache.Expire(key)
 	if err != nil {
 	    // Handle error
     }
@@ -1200,14 +1206,15 @@ func Test()  {
 ```go
 import (
 	"fmt"
-    "gin/common/global"
+    "gin/bootstrap"
 )
 
 func Test()  {
     // Set Set-Cache	
     key := "test_key"
     value := "test_value"
-    err := global.MemoryCache.Set(key, value, time.Second*10)
+    memoryCache := bootstrap.GetContainer().MemoryCache
+    err := memoryCache.Set(key, value, time.Second*10)
 	if err != nil {
 	    // Handle error	
     }
@@ -1215,21 +1222,21 @@ func Test()  {
     // Get Get-Cache
     key := "test_key"
     value := "test_value"
-    result, ok := global.MemoryCache.Get(key)
+    result, ok := memoryCache.Get(key)
 	if ok {
 	    println(result) // test_value	
     }
 	
 	// Delete Delete-Cache
 	key := "test_key"
-	err := global.MemoryCache.Delete(key)
+	err := memoryCache.Delete(key)
 	if err != nil {
         // Handle error	
     }
 	
 	// Expire Get-Cache-Expire
 	key := "test_key"
-    val, expireAt, ok, err := global.MemoryCache.Expire(key)
+    val, expireAt, ok, err := memoryCache.Expire(key)
 	if err != nil {
 	    // Handle error
     }
@@ -1244,41 +1251,49 @@ func Test()  {
 
 ## Disk Cache
 ```go
-// Set Set-Cache	
+import (
+    "fmt"
+    "gin/bootstrap"
+)
+
+func Test() {
+    // Set Set-Cache	
     key := "test_key"
     value := "test_value"
-    err := global.DiskCache.Set(key, value, time.Second*10)
-	if err != nil {
-	    // Handle error	
+    diskCache := bootstrap.GetContainer().DiskCache
+    err := diskCache.Set(key, value, time.Second*10)
+    if err != nil {
+        // Handle error	
     }
-	
+    
     // Get Get-Cache
     key := "test_key"
     value := "test_value"
-    result, ok := global.DiskCache.Get(key)
-	if ok {
-	    println(result) // test_value	
+    result, ok := diskCache.Get(key)
+    if ok {
+        println(result) // test_value	
     }
-	
-	// Delete Delete-Cache
-	key := "test_key"
-	err := global.DiskCache.Delete(key)
-	if err != nil {
+    
+    // Delete Delete-Cache
+    key := "test_key"
+    err := diskCache.Delete(key)
+    if err != nil {
         // Handle error	
     }
-	
-	// Expire Get-Cache-Expire
-	key := "test_key"
-    val, expireAt, ok, err := global.DiskCache.Expire(key)
-	if err != nil {
-	    // Handle error
+    
+    // Expire Get-Cache-Expire
+    key := "test_key"
+    val, expireAt, ok, err := diskCache.Expire(key)
+    if err != nil {
+        // Handle error
     }
-	if ok {
-      fmt.Println(val) // test_value
-      fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
+    if ok {
+        fmt.Println(val) // test_value
+        fmt.Printf("ExpireAt: %v\n", expireAt) // ExpireAt: 2025-10-28 11:23:38.7416956 +0800 CST
     }
-	
-	// ... Other
+    
+    // ... Other
+}	
 ```
 
 # Event
@@ -1471,7 +1486,7 @@ import (
 	"gin/app/service"
 	"gin/common/base"
 	"gin/common/errcode"
-	"gin/common/global"
+	"gin/pkg/container"
 	"gin/pkg/eventbus"
 	"gin/pkg/lang"
 	"github.com/gin-gonic/gin"
@@ -1513,7 +1528,7 @@ func (s *LoginController) Login(c *gin.Context) {
         ctx = c.Request.Context()
 	)
 
-    svc.Context.Set(ctx)
+    svc.WithContext(ctx)
 
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -1534,7 +1549,8 @@ func (s *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := jwt.WithRefresh(userModel.ID, global.Config.Jwt.Exp, global.Config.Jwt.RefreshExp)
+    containers := container.Get(ctx)
+	accessToken, refreshToken, tokenExpire, refreshTokenExpire, err := jwt.WithRefresh(userModel.ID, containers.Config.Jwt.Exp, containers.Config.Jwt.RefreshExp)
 	if err != nil {
 		s.Error(c, errcode.ArgsError().WithMsg(err.Error()))
 		return
@@ -1766,13 +1782,13 @@ func (s *TestController) Test(c *gin.Context) {
 }
 ```
 ## Write Log
-> The global log has been encapsulated in the `global` package and can be directly recorded using `global.Log`. The log level supports debug, info, warn, error, panic, and fatal, with the default being `debug`.
+> Encapsulated in a container containing context. The log level supports debug, info, warn, error, panic, and fatal, with the default being `debug`.
 ```go
 package v1
 
 import (
     "gin/common/base"
-    "gin/common/global"
+    "gin/pkg/container"
     "github.com/gin-gonic/gin"
 )
 
@@ -1781,7 +1797,8 @@ type TestController struct {
 }
 
 func (s *TestController) Test(c *gin.Context) {
-  global.Log.Error("System Error")
+  containers := container.Get(c.Request.Context())
+  containers.Log.Error("System Error")
 }
 ```
 
@@ -1792,7 +1809,7 @@ package v1
 
 import (
     "gin/common/base"
-    "gin/common/global"
+    "gin/pkg/container"
     "github.com/gin-gonic/gin"
 )
 
@@ -1802,8 +1819,8 @@ type TestController struct {
 
 func (s *TestController) Test(c *gin.Context) {
   ctx := c.Request.Context()
-  
-  global.Log.WithDebugger(ctx).Error("System Error")
+  containers := container.Get(ctx)
+  containers.Log.WithDebugger(ctx).Error("System Error")
 }
 ```
 ```json
@@ -1895,6 +1912,29 @@ func Test(c *gin.Context)  {
 i18n:
   dir: "storage/locales" # Translation file storage path
   lang: "zh,en" # Default language, multiple languages separated by commas
+```
+
+# Container
+## Container Usage
+> Containers are initialized through bootstrap and bound to context through middleware. Container instances can be obtained wherever there is context.
+```go
+import (
+    "gin/pkg/container"
+    "github.com/gin-gonic/gin"
+)
+
+func Test(c *gin.Context)  {
+    ctx := c.Request.Context()
+    containers := container.Get(ctx)
+    db := containers.DB;
+    cache := containers.Cache;
+	redisCache := containers.RedisCache;
+	memoryCache := containers.MemoryCache;
+	diskCache := containers.DiskCache;
+	conf := containers.Config;
+	log := containers.Log;
+	// todo ...
+}
 ```
 
 # Swagger Documents

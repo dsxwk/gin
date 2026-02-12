@@ -35,7 +35,7 @@ func (s *UserController) List(c *gin.Context) {
 		ctx = c.Request.Context()
 	)
 
-	svc.Context.Set(ctx)
+	svc.WithContext(ctx)
 
 	err := c.ShouldBind(&_s)
 	if err != nil {
@@ -83,7 +83,7 @@ func (s *UserController) Create(c *gin.Context) {
 		ctx = c.Request.Context()
 	)
 
-	svc.Context.Set(ctx)
+	svc.WithContext(ctx)
 
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -133,7 +133,7 @@ func (s *UserController) Update(c *gin.Context) {
 		ctx = c.Request.Context()
 	)
 
-	svc.Context.Set(ctx)
+	svc.WithContext(ctx)
 
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -188,7 +188,7 @@ func (s *UserController) Detail(c *gin.Context) {
 		ctx = c.Request.Context()
 	)
 
-	svc.Context.Set(ctx)
+	svc.WithContext(ctx)
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -231,7 +231,7 @@ func (s *UserController) Delete(c *gin.Context) {
 		ctx = c.Request.Context()
 	)
 
-	svc.Context.Set(ctx)
+	svc.WithContext(ctx)
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {

@@ -2,9 +2,21 @@ package config
 
 import (
 	"gin/pkg/cache"
-	"gin/pkg/message"
+	"sync"
 )
 
-func RedisInstance() *cache.CacheProxy {
-	return cache.NewRedis(Conf.Redis.Address, Conf.Redis.Password, Conf.Redis.DB, message.MsgEventBus)
+var (
+	redisCache *cache.CacheProxy
+	redisOnce  sync.Once
+)
+
+func GetRedisCache() *cache.CacheProxy {
+	redisOnce.Do(func() {
+		redisCache = cache.NewRedis(
+			Conf.Redis.Address,
+			Conf.Redis.Password,
+			Conf.Redis.DB,
+		)
+	})
+	return redisCache
 }

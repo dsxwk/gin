@@ -74,7 +74,11 @@ type RedisCache struct {
 }
 
 // NewRedis redis实例
-func NewRedis(address, password string, db int, bus *message.EventBus) *CacheProxy {
+func NewRedis(address, password string, db int) *CacheProxy {
+	var (
+		bus = message.GetEventBus()
+	)
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: password,
@@ -90,7 +94,7 @@ func NewRedis(address, password string, db int, bus *message.EventBus) *CachePro
 		pubsubs: make(map[string]*redis.PubSub),
 	}
 
-	return NewCacheProxy("redis", r, message.MsgEventBus)
+	return NewCacheProxy("redis", r, bus)
 }
 
 func (r *RedisCache) WithContext(ctx context.Context) *RedisCache {
