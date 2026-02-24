@@ -124,6 +124,9 @@
 - 💼 Commercial version: If closed source or commercial use is required, please contact the author 📧   [ 25076778@qq.com ]Obtain commercial authorization.
 
 # Version History
+## v1.7.7
+> - Add new test cases.
+
 ## v1.7.6
 > - Adjust the command tool path to the cmd directory.
 

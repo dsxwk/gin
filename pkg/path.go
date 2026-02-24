@@ -3,26 +3,23 @@ package pkg
 import (
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // GetRootPath 获取项目根路径
 func GetRootPath() string {
-	var (
-		rootPath string
-	)
+	dir, _ := os.Getwd()
 
-	execPath, err := os.Getwd()
-	if err != nil {
-		panic(err.Error())
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+		dir = parent
 	}
-
-	rootPath, err = filepath.Abs(execPath)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	return strings.ReplaceAll(rootPath, "\\", "/")
+	return ""
 }
 
 // PathExists 判断文件路径是否存在
