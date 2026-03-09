@@ -5,6 +5,7 @@ package main
 import (
 	_ "gin/app/command"
 	_ "gin/app/listener"
+	"gin/config"
 	"gin/pkg/cli"
 	_ "gin/pkg/cli/db"
 	_ "gin/pkg/cli/event"
@@ -13,5 +14,6 @@ import (
 )
 
 func main() {
+	config.GetConfig()
 	cli.Execute()
 }

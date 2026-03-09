@@ -1,32 +1,80 @@
 package make
 
 import (
+	"bytes"
 	"fmt"
 	"gin/common/base"
 	"gin/config"
 	"gin/pkg"
 	"gin/pkg/cli"
 	"github.com/fatih/color"
-	"gorm.io/gen"
 	"gorm.io/gorm"
 	"os"
 	"path/filepath"
-	"regexp"
+	"sort"
 	"strings"
+	"text/template"
 )
 
+// MakeModel 模型生成命令
 type MakeModel struct {
 	base.BaseCommand
 }
 
+// Column 表字段结构
+type Column struct {
+	Name     string // 字段名
+	DataType string // 数据库类型
+	Nullable bool   // 是否可为空
+	Comment  string // 字段注释
+}
+
+// Import 用于管理自动生成的import包
+type Import struct {
+	pkgs map[string]struct{}
+}
+
+// NewImport 创建import管理器
+func NewImport() *Import {
+	return &Import{
+		pkgs: make(map[string]struct{}),
+	}
+}
+
+// Add 添加import
+func (m *Import) Add(pkg string) {
+	if pkg != "" {
+		m.pkgs[pkg] = struct{}{}
+	}
+}
+
+// Render 渲染import代码
+func (m *Import) Render() string {
+	if len(m.pkgs) == 0 {
+		return ""
+	}
+
+	var list []string
+	for p := range m.pkgs {
+		list = append(list, fmt.Sprintf("\t%q", p))
+	}
+
+	sort.Strings(list)
+
+	return "import (\n" + strings.Join(list, "\n") + "\n)\n"
+}
+
+// Name 返回cli命令名称
 func (m *MakeModel) Name() string {
 	return "make:model"
 }
 
+// Description 命令描述
 func (m *MakeModel) Description() string {
 	return "模型创建"
 }
 
+// Help 返回命令参数说明
 func (m *MakeModel) Help() []base.CommandOption {
 	return []base.CommandOption{
 		{
@@ -51,134 +99,262 @@ func (m *MakeModel) Help() []base.CommandOption {
 				Long:    "camel",
 				Default: "true",
 			},
-			"是否驼峰字段, 如: true",
+			"json字段是否使用驼峰",
+			false,
+		},
+		{
+			base.Flag{
+				Short:   "C",
+				Long:    "connection",
+				Default: "mysql",
+			},
+			"数据库连接",
 			false,
 		},
 	}
 }
 
+// Execute cli命令执行入口
 func (m *MakeModel) Execute(args []string) {
 	values := m.ParseFlags(m.Name(), args, m.Help())
 	color.Green("执行命令: %s %s", m.Name(), m.FormatArgs(values))
-	// 去除前斜杠
-	p := filepath.Join("app/model/", strings.TrimPrefix(values["path"], "/"))
+	// 输出目录
+	path := filepath.Join("app/model/", strings.TrimPrefix(values["path"], "/"))
+	// 表名支持多个
 	tables := strings.Split(values["table"], ",")
 	for i := range tables {
 		tables[i] = strings.TrimSpace(tables[i])
-		color.Green(pkg.Success+"  创建模型: %s (表名: %s 是否使用驼峰: %v)\n", p+"/"+tables[i]+".gen.go", tables[i], values["camel"])
 	}
 
-	m.generateFiles(p, tables, m.StringToBool(values["camel"]))
+	camel := m.StringToBool(values["camel"])
+	connection := values["connection"]
+	_make := strings.TrimPrefix(m.Name(), "make:")
+	db := config.Db{}.Connection(connection)
+	for _, table := range tables {
+		color.Cyan("开始生成模型: %s", table)
+
+		err := m.generateModel(_make, db, table, path, camel)
+		if err != nil {
+			color.Red("生成失败: %s", err.Error())
+			continue
+		}
+
+		color.Green(pkg.Success + " 模型生成成功: " + filepath.Join(path, table+".go"))
+	}
 }
 
+// init 注册cli命令
 func init() {
 	cli.Register(&MakeModel{})
 }
 
-// generateFiles 生成模型文件
-func (m *MakeModel) generateFiles(path string, tables []string, camel bool) {
-	var (
-		root    = pkg.GetRootPath()
-		p       = filepath.Base(path)
-		outPath = filepath.Join(root + "/app/temp")
-	)
-
-	g := gen.NewGenerator(gen.Config{
-		OutPath:           outPath,
-		Mode:              gen.WithoutContext | gen.WithDefaultQuery,
-		FieldNullable:     true,
-		FieldCoverable:    false,
-		FieldSignable:     false,
-		FieldWithIndexTag: false,
-		FieldWithTypeTag:  true,
-		ModelPkgPath:      path,
-	})
-
-	g.UseDB(config.Db{}.GetDB())
-
-	dataMap := map[string]func(detailType gorm.ColumnType) (dataType string){
-		"tinyint":   func(detailType gorm.ColumnType) (dataType string) { return "int64" },
-		"smallint":  func(detailType gorm.ColumnType) (dataType string) { return "int64" },
-		"mediumint": func(detailType gorm.ColumnType) (dataType string) { return "int64" },
-		"bigint":    func(detailType gorm.ColumnType) (dataType string) { return "int64" },
-		"int":       func(detailType gorm.ColumnType) (dataType string) { return "int64" },
-		"json": func(detailType gorm.ColumnType) (dataType string) {
-			if p != "model" {
-				return "*model.JsonValue"
-			} else {
-				return "*JsonValue"
-			}
-		},
-		"datetime": func(detailType gorm.ColumnType) (dataType string) {
-			// 针对 deleted_at 字段特殊处理
-			if detailType.Name() == "deleted_at" {
-				if p != "model" {
-					return "*model.DeletedAt"
-				} else {
-					return "*DeletedAt"
-				}
-			}
-
-			if p != "model" {
-				return "*model.DateTime"
-			} else {
-				return "*DateTime"
-			}
-		},
-		// "timestamp":  func(detailType gorm.ColumnType) (dataType string) { return "string" }, // 添加此行将 timestamp 转换为 string
-		// "date":       func(detailType gorm.ColumnType) (dataType string) { return "string" }, // 添加此行将 date 转换为 string
+// generateModel 根据表结构生成 Model 文件
+func (m *MakeModel) generateModel(_make string, db *gorm.DB, table string, outDir string, camel bool) error {
+	// 获取表字段
+	cols, err := db.Migrator().ColumnTypes(table)
+	if err != nil {
+		return err
 	}
 
-	// 要先于`ApplyBasic`执行
-	g.WithDataTypeMap(dataMap)
+	im := NewImport()
 
-	// 自定义JSON tag
-	if camel {
-		g.WithJSONTagNameStrategy(func(columnName string) string {
-			return pkg.SnakeToLowerCamel(columnName)
+	// 当前包名
+	pkgName := filepath.Base(outDir)
+
+	var columns []Column
+	for _, col := range cols {
+		name := col.Name()
+		dt := strings.ToLower(col.DatabaseTypeName())
+		nullable, _ := col.Nullable()
+		comment, _ := col.Comment()
+
+		columns = append(columns, Column{
+			Name:     name,
+			DataType: dt,
+			Nullable: nullable,
+			Comment:  comment,
 		})
 	}
 
-	color.Cyan("开始生成模型, 共 %d 张表", len(tables))
+	structName := snakeToCamel(table)
+	tableConst := "TableName" + structName
 
-	for _, table := range tables {
-		color.Yellow("→ 正在生成表: %s", table)
+	// 计算字段对齐长度
+	maxNameLen := 0
+	maxTypeLen := 0
 
-		model := g.GenerateModel(table)
-		g.ApplyBasic(model)
+	for _, c := range columns {
+		name := snakeToCamel(c.Name)
+		typ := goType(c, im, pkgName)
+
+		if len(name) > maxNameLen {
+			maxNameLen = len(name)
+		}
+
+		if len(typ) > maxTypeLen {
+			maxTypeLen = len(typ)
+		}
 	}
 
-	g.Execute()
+	var fieldLines []string
 
-	// 自动追加 swaggerignore:"true"
-	files, _ := os.ReadDir(path)
-	for _, file := range files {
-		if !strings.HasSuffix(file.Name(), ".go") {
-			continue
+	for _, c := range columns {
+		fieldName := snakeToCamel(c.Name)
+		fieldType := goType(c, im, pkgName)
+
+		var jsonName string
+		if camel {
+			jsonName = snakeToLowerCamel(c.Name)
+		} else {
+			jsonName = c.Name
 		}
-		filePath := filepath.Join(path, file.Name())
-		content, err := os.ReadFile(filePath)
-		if err != nil {
-			continue
+
+		tag := fmt.Sprintf(
+			"`%s json:\"%s\" form:\"%s\"`",
+			buildGormTag(c),
+			jsonName,
+			jsonName,
+		)
+
+		// deleted_at自动忽略swagger
+		if jsonName == "deletedAt" || c.Name == "deleted_at" {
+			tag = strings.TrimSuffix(tag, "`") + " swaggerignore:\"true\"`"
 		}
-		text := string(content)
 
-		re := regexp.MustCompile("(`[^`]*json:\"deletedAt\"[^`]*`)")
+		line := fmt.Sprintf("%-*s %-*s %s", maxNameLen, fieldName, maxTypeLen, fieldType, tag)
 
-		text = re.ReplaceAllStringFunc(text, func(match string) string {
-			if strings.Contains(match, "swaggerignore") {
-				return match
+		fieldLines = append(fieldLines, line)
+	}
+
+	templateFile := m.GetTemplate(_make)
+	tpl, err := template.ParseFiles(templateFile)
+	if err != nil {
+		color.Red("Error parsing template:", err.Error())
+		os.Exit(1)
+	}
+	data := struct {
+		Imports    string
+		Struct     string
+		Table      string
+		TableConst string
+		Fields     []string
+	}{
+		Imports:    im.Render(),
+		Struct:     structName,
+		Table:      table,
+		TableConst: tableConst,
+		Fields:     fieldLines,
+	}
+
+	var buf bytes.Buffer
+	if err = tpl.Execute(&buf, data); err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(outDir, 0755)
+	if err != nil {
+		return err
+	}
+
+	file := filepath.Join(outDir, table+".go")
+
+	return os.WriteFile(file, buf.Bytes(), 0644)
+}
+
+// goType 将数据库类型转换为go类型
+func goType(c Column, im *Import, pkgName string) string {
+	t := strings.ToLower(c.DataType)
+	switch {
+
+	// 整数
+	case strings.Contains(t, "int"):
+		return "int64"
+
+	// 布尔
+	case t == "bool" || t == "boolean":
+		return "bool"
+
+	// 字符串
+	case strings.Contains(t, "char"),
+		strings.Contains(t, "text"),
+		t == "uuid":
+		return "string"
+
+	// 浮点
+	case strings.Contains(t, "float"),
+		strings.Contains(t, "double"),
+		strings.Contains(t, "decimal"),
+		strings.Contains(t, "numeric"):
+		return "float64"
+
+	// json
+	case t == "json", t == "jsonb":
+		if pkgName != "model" {
+			im.Add("gin/app/model")
+			return "*model.JsonValue"
+		}
+
+		return "*JsonValue"
+
+	// 时间
+	case strings.Contains(t, "time"),
+		t == "date":
+		if c.Name == "deleted_at" {
+
+			if pkgName != "model" {
+				im.Add("gin/app/model")
+				return "*model.DeletedAt"
 			}
-			return strings.TrimSuffix(match, "`") + " swaggerignore:\"true\"`"
-		})
 
-		if err = os.WriteFile(filePath, []byte(text), 0644); err != nil {
-			color.Red(fmt.Sprintf(pkg.Error+"  为文件 %s 添加 swaggerignore 失败", file.Name()))
-			os.Exit(1)
+			return "*DeletedAt"
 		}
+
+		if pkgName != "model" {
+			im.Add("gin/app/model")
+			return "*model.DateTime"
+		}
+
+		return "*DateTime"
+
+	// 二进制
+	case strings.Contains(t, "blob"),
+		strings.Contains(t, "binary"),
+		strings.Contains(t, "bytea"):
+
+		return "[]byte"
+
 	}
 
-	color.Green(fmt.Sprintf(pkg.Success+"  模型生成成功! 输出目录: %s", path))
+	return "string"
+}
 
-	_ = os.RemoveAll(outPath)
+// buildGormTag 生成gorm tag
+func buildGormTag(c Column) string {
+	var tags []string
+
+	tags = append(tags, "column:"+c.Name)
+
+	if c.Comment != "" {
+		tags = append(tags, "comment:"+c.Comment)
+	}
+
+	return "gorm:\"" + strings.Join(tags, ";") + "\""
+}
+
+// snakeToCamel 下划线转大驼峰
+func snakeToCamel(s string) string {
+	parts := strings.Split(s, "_")
+
+	for i := range parts {
+		parts[i] = strings.Title(parts[i])
+	}
+
+	return strings.Join(parts, "")
+}
+
+// snakeToLowerCamel 下划线转小驼峰
+func snakeToLowerCamel(s string) string {
+	camel := snakeToCamel(s)
+
+	return strings.ToLower(camel[:1]) + camel[1:]
 }
